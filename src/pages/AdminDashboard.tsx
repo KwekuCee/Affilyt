@@ -61,16 +61,15 @@ const AdminDashboard = () => {
 
   return (
     <div className="flex min-h-screen bg-background">
-      <DashboardSidebar />
+      <DashboardSidebar type="admin" />
       <main className="flex-1 overflow-auto">
-        <div className="border-b border-border bg-card px-8 py-4">
-          <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
+        <div className="border-b border-border bg-card px-8 py-5">
+          <h1 className="text-xl font-extrabold text-foreground">Admin Dashboard</h1>
           <p className="text-sm text-muted-foreground">Manage products, sellers, and payouts</p>
         </div>
 
         <div className="p-8 space-y-8">
-          {/* Stats */}
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatsCard title="Total Products" value={String(productsList.length)} icon={Package} />
             <StatsCard title="Active Sellers" value={String(affiliatesList.filter((a) => a.status === "Active").length)} icon={Users} />
             <StatsCard title="Pending Payouts" value={String(payouts.filter((p) => p.status === "Pending").length)} icon={CreditCard} />
@@ -78,13 +77,13 @@ const AdminDashboard = () => {
           </motion.div>
 
           {/* Tabs */}
-          <div className="flex gap-2 border-b border-border pb-0">
+          <div className="flex gap-1 rounded-xl bg-secondary p-1">
             {tabs.map((t) => (
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
-                className={`flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition-colors ${
-                  tab === t.key ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-all ${
+                  tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 <t.icon className="h-4 w-4" />
@@ -95,21 +94,21 @@ const AdminDashboard = () => {
 
           {/* Products Tab */}
           {tab === "products" && (
-            <div className="rounded-2xl border border-border bg-card">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl border border-border bg-card">
               <div className="flex items-center justify-between border-b border-border px-6 py-4">
-                <h2 className="text-base font-semibold text-foreground">All Products</h2>
+                <h2 className="text-sm font-bold text-foreground">All Products</h2>
                 <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button size="sm" className="rounded-full gap-1.5"><Plus className="h-4 w-4" /> Add Product</Button>
+                    <Button size="sm" className="rounded-full gradient-btn border-0 gap-1.5"><Plus className="h-4 w-4" /> Add Product</Button>
                   </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader><DialogTitle>Add New Product</DialogTitle></DialogHeader>
+                  <DialogContent className="rounded-2xl">
+                    <DialogHeader><DialogTitle className="font-extrabold">Add New Product</DialogTitle></DialogHeader>
                     <div className="space-y-4 pt-2">
-                      <Input placeholder="Product title" value={newProduct.title} onChange={(e) => setNewProduct({ ...newProduct, title: e.target.value })} />
-                      <Textarea placeholder="Description" value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} />
-                      <Input placeholder="Price" type="number" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
+                      <Input placeholder="Product title" value={newProduct.title} onChange={(e) => setNewProduct({ ...newProduct, title: e.target.value })} className="rounded-xl" />
+                      <Textarea placeholder="Description" value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} className="rounded-xl" />
+                      <Input placeholder="Price" type="number" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} className="rounded-xl" />
                       <select
-                        className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
+                        className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm"
                         value={newProduct.category}
                         onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
                       >
@@ -117,7 +116,7 @@ const AdminDashboard = () => {
                         <option>Software</option>
                         <option>Courses</option>
                       </select>
-                      <Button onClick={addProduct} className="w-full rounded-full">Add Product</Button>
+                      <Button onClick={addProduct} className="w-full rounded-full gradient-btn border-0">Add Product</Button>
                     </div>
                   </DialogContent>
                 </Dialog>
@@ -125,57 +124,61 @@ const AdminDashboard = () => {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-border text-left text-muted-foreground">
-                      <th className="px-6 py-3 font-medium">Product</th>
-                      <th className="px-6 py-3 font-medium">Category</th>
-                      <th className="px-6 py-3 font-medium">Price</th>
-                      <th className="px-6 py-3 font-medium text-right">Actions</th>
+                    <tr className="border-b border-border text-left">
+                      <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Product</th>
+                      <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Category</th>
+                      <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Price</th>
+                      <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
                     {productsList.map((p) => (
-                      <tr key={p.id} className="border-b border-border last:border-0">
-                        <td className="px-6 py-4 font-medium text-foreground">{p.title}</td>
-                        <td className="px-6 py-4"><Badge variant="secondary">{p.category}</Badge></td>
-                        <td className="px-6 py-4 text-foreground">₵{p.price}</td>
-                        <td className="px-6 py-4 text-right space-x-2">
-                          <Button size="sm" variant="ghost"><Pencil className="h-4 w-4" /></Button>
-                          <Button size="sm" variant="ghost" onClick={() => deleteProduct(p.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      <tr key={p.id} className="border-b border-border last:border-0 transition-colors hover:bg-secondary/50">
+                        <td className="px-6 py-4 font-semibold text-foreground">{p.title}</td>
+                        <td className="px-6 py-4"><span className="inline-flex rounded-full bg-primary/5 px-2.5 py-0.5 text-xs font-semibold text-primary">{p.category}</span></td>
+                        <td className="px-6 py-4 text-foreground font-mono">₵{p.price}</td>
+                        <td className="px-6 py-4 text-right space-x-1">
+                          <Button size="sm" variant="ghost" className="rounded-lg"><Pencil className="h-4 w-4 text-muted-foreground" /></Button>
+                          <Button size="sm" variant="ghost" className="rounded-lg" onClick={() => deleteProduct(p.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            </div>
+            </motion.div>
           )}
 
           {/* Sellers Tab */}
           {tab === "sellers" && (
-            <div className="rounded-2xl border border-border bg-card overflow-x-auto">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl border border-border bg-card overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-left text-muted-foreground">
-                    <th className="px-6 py-3 font-medium">Seller</th>
-                    <th className="px-6 py-3 font-medium">Email</th>
-                    <th className="px-6 py-3 font-medium">Status</th>
-                    <th className="px-6 py-3 font-medium">Payment</th>
-                    <th className="px-6 py-3 font-medium text-right">Toggle</th>
+                  <tr className="border-b border-border text-left">
+                    <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Seller</th>
+                    <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Email</th>
+                    <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Status</th>
+                    <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Payment</th>
+                    <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 text-right">Toggle</th>
                   </tr>
                 </thead>
                 <tbody>
                   {affiliatesList.map((a) => (
-                    <tr key={a.id} className="border-b border-border last:border-0">
-                      <td className="px-6 py-4 font-medium text-foreground flex items-center gap-3">
-                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">{a.avatar}</span>
-                        {a.name}
+                    <tr key={a.id} className="border-b border-border last:border-0 transition-colors hover:bg-secondary/50">
+                      <td className="px-6 py-4 font-semibold text-foreground">
+                        <div className="flex items-center gap-3">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-full gradient-btn text-xs font-bold">{a.avatar}</span>
+                          {a.name}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-muted-foreground">{a.email}</td>
                       <td className="px-6 py-4">
-                        <Badge variant={a.status === "Active" ? "default" : "destructive"}>{a.status}</Badge>
+                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                          a.status === "Active" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                        }`}>{a.status}</span>
                       </td>
                       <td className="px-6 py-4">
-                        {a.paid && <Badge variant="secondary" className="text-success border-success/20 bg-success/10">Paid</Badge>}
+                        {a.paid && <span className="inline-flex rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-semibold text-success">Paid</span>}
                       </td>
                       <td className="px-6 py-4 text-right">
                         <Switch checked={a.status === "Active"} onCheckedChange={() => toggleAffiliate(a.id)} />
@@ -184,41 +187,42 @@ const AdminDashboard = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </motion.div>
           )}
 
           {/* Payouts Tab */}
           {tab === "payouts" && (
-            <div className="rounded-2xl border border-border bg-card overflow-x-auto">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl border border-border bg-card overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-border text-left text-muted-foreground">
-                    <th className="px-6 py-3 font-medium">Affiliate</th>
-                    <th className="px-6 py-3 font-medium">Amount</th>
-                    <th className="px-6 py-3 font-medium">Date</th>
-                    <th className="px-6 py-3 font-medium">Status</th>
-                    <th className="px-6 py-3 font-medium text-right">Actions</th>
+                  <tr className="border-b border-border text-left">
+                    <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Affiliate</th>
+                    <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Amount</th>
+                    <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Date</th>
+                    <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60">Status</th>
+                    <th className="px-6 py-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground/60 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {payouts.map((p) => (
-                    <tr key={p.id} className="border-b border-border last:border-0">
-                      <td className="px-6 py-4 font-medium text-foreground">{p.affiliateName}</td>
-                      <td className="px-6 py-4 text-foreground">₵{p.amount}</td>
+                    <tr key={p.id} className="border-b border-border last:border-0 transition-colors hover:bg-secondary/50">
+                      <td className="px-6 py-4 font-semibold text-foreground">{p.affiliateName}</td>
+                      <td className="px-6 py-4 text-foreground font-mono font-bold">₵{p.amount}</td>
                       <td className="px-6 py-4 text-muted-foreground">{p.date}</td>
                       <td className="px-6 py-4">
-                        <Badge variant={p.status === "Pending" ? "secondary" : p.status === "Approved" ? "default" : "destructive"}>
-                          {p.status}
-                        </Badge>
+                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                          p.status === "Pending" ? "bg-warning/10 text-warning" :
+                          p.status === "Approved" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"
+                        }`}>{p.status}</span>
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
                         {p.status === "Pending" && (
                           <>
-                            <Button size="sm" variant="outline" className="gap-1 text-success border-success/30 hover:bg-success/10" onClick={() => handlePayout(p.id, "Approved")}>
-                              <CheckCircle className="h-3.5 w-3.5" /> Approve
+                            <Button size="sm" variant="outline" className="gap-1 rounded-full text-xs border-success/30 text-success hover:bg-success/10" onClick={() => handlePayout(p.id, "Approved")}>
+                              <CheckCircle className="h-3 w-3" /> Approve
                             </Button>
-                            <Button size="sm" variant="outline" className="gap-1 text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => handlePayout(p.id, "Declined")}>
-                              <XCircle className="h-3.5 w-3.5" /> Decline
+                            <Button size="sm" variant="outline" className="gap-1 rounded-full text-xs border-destructive/30 text-destructive hover:bg-destructive/10" onClick={() => handlePayout(p.id, "Declined")}>
+                              <XCircle className="h-3 w-3" /> Decline
                             </Button>
                           </>
                         )}
@@ -227,7 +231,7 @@ const AdminDashboard = () => {
                   ))}
                 </tbody>
               </table>
-            </div>
+            </motion.div>
           )}
         </div>
       </main>
