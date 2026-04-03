@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import PurchaseModal from "@/components/PurchaseModal";
 import { products, Product } from "@/lib/data";
@@ -81,11 +82,10 @@ const Storefront = () => {
                 <button
                   key={cat.label}
                   onClick={() => setSelectedCategory(cat.label)}
-                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-all ${
-                    selectedCategory === cat.label
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-all ${selectedCategory === cat.label
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                    }`}
                 >
                   {selectedCategory === cat.label ? (
                     <CheckSquare className="h-3.5 w-3.5 text-primary" />
@@ -147,46 +147,7 @@ const Storefront = () => {
         </main>
       </div>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-card mt-16">
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div>
-              <h4 className="text-sm font-black text-foreground mb-2">THE LEDGER.</h4>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Providing the infrastructure for the next generation of digital asset marketplaces. Built for institutions, scale, and uncompromising trust.
-              </p>
-            </div>
-            <div>
-              <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Platform</h5>
-              <div className="space-y-2 text-xs text-muted-foreground">
-                <p className="hover:text-foreground cursor-pointer transition-colors">Marketplace</p>
-                <p className="hover:text-foreground cursor-pointer transition-colors">Become a Seller</p>
-                <p className="hover:text-foreground cursor-pointer transition-colors">Pricing</p>
-              </div>
-            </div>
-            <div>
-              <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Legal</h5>
-              <div className="space-y-2 text-xs text-muted-foreground">
-                <p className="hover:text-foreground cursor-pointer transition-colors">Terms</p>
-                <p className="hover:text-foreground cursor-pointer transition-colors">Privacy</p>
-                <p className="hover:text-foreground cursor-pointer transition-colors">Compliance</p>
-              </div>
-            </div>
-            <div>
-              <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Resources</h5>
-              <div className="space-y-2 text-xs text-muted-foreground">
-                <p className="hover:text-foreground cursor-pointer transition-colors">API Docs</p>
-                <p className="hover:text-foreground cursor-pointer transition-colors">Status</p>
-                <p className="hover:text-foreground cursor-pointer transition-colors">Support</p>
-              </div>
-            </div>
-          </div>
-          <div className="mt-10 pt-6 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-wider">
-            <span>© 2024 THE EXECUTIVE LEDGER. ALL RIGHTS RESERVED.</span>
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       <PurchaseModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </div>

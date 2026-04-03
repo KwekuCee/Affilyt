@@ -5,11 +5,17 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
 import RoleToggle from "@/components/RoleToggle";
+import Landing from "@/pages/Landing";
 import Storefront from "@/pages/Storefront";
 import AffiliateDashboard from "@/pages/AffiliateDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
-import BecomeSeller from "@/pages/BecomeSeller";
+import BecomeAffiliate from "@/pages/BecomeAffiliate";
+import Contact from "@/pages/Contact";
+import Login from "@/pages/Login";
+import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
+
+import GlobalBackground from "@/components/GlobalBackground";
 
 const queryClient = new QueryClient();
 
@@ -20,9 +26,14 @@ const App = () => (
       <Sonner />
       <AuthProvider>
         <BrowserRouter>
+          <GlobalBackground />
           <Routes>
-            <Route path="/" element={<Storefront />} />
-            <Route path="/become-seller" element={<BecomeSeller />} />
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/marketplace" element={<Storefront />} />
+            <Route path="/become-affiliate" element={<BecomeAffiliate />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
             <Route path="/dashboard/affiliate/*" element={<AffiliateDashboard />} />
             <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />

@@ -1,65 +1,181 @@
 export interface Product {
   id: string;
   title: string;
-  subtitle: string;
-  description: string;
   price: number;
-  category: "E-books" | "Software" | "Courses";
+  description: string;
+  category: string;
   image: string;
   features: string[];
+  epc: number;
+  cr: number;
+  trustScore: number; // New: 0-100
+  refundRate: number; // New: %
+  contentAssets: {
+    emails: string[];
+    socialPosts: string[];
+    banners: string[];
+  };
 }
 
-export interface Affiliate {
-  id: string;
-  name: string;
-  email: string;
-  avatar: string;
-  subtitle: string;
-  status: "Active" | "Suspended";
-  registrationType: string;
-  paid: boolean;
+export interface EarningData {
+  day: string;
   earnings: number;
-  volume: string;
   clicks: number;
   conversions: number;
 }
 
-export interface PayoutRequest {
+export interface Milestone {
   id: string;
-  requestId: string;
-  affiliateId: string;
-  affiliateName: string;
-  amount: number;
-  method: string;
-  date: string;
-  status: "Pending" | "Approved" | "Declined";
+  title: string;
+  description: string;
+  icon: string;
+  achieved: boolean;
+  rewardLabel?: string;
 }
 
 export const products: Product[] = [
-  { id: "1", title: "Executive Strategy: The 2024 Framework", subtitle: "Digital Course / PDF Bundle", description: "Institutional roadmap for scaling global operations with proven frameworks.", price: 199, category: "Courses", image: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=400&h=300&fit=crop", features: ["200+ pages", "Case studies", "Templates included", "Lifetime access"] },
-  { id: "2", title: "AffiliateFlow Pro Dashboard", subtitle: "SaaS Subscription (Monthly)", description: "Real-time enterprise monitoring software designed for high-volume affiliates.", price: 299, category: "Software", image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=300&fit=crop", features: ["Auth included", "Stripe integration", "Dashboard UI", "API routes"] },
-  { id: "3", title: "The Digital Arbitrage Playbook", subtitle: "Premium E-book", description: "Definitive 400-page guide to modern marketplace arbitrage strategies.", price: 49, category: "E-books", image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop", features: ["400+ pages", "Swipe files", "Templates", "Community access"] },
-  { id: "4", title: "SEO for High-Ticket Markets", subtitle: "Digital Course", description: "Dominate premium affiliate niches using white-hat SEO strategies.", price: 149, category: "Courses", image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop", features: ["50 lessons", "Real campaigns", "Ad templates", "Monthly updates"] },
-  { id: "5", title: "LedgerSync: API Hub", subtitle: "Software Platform", description: "Centralize marketplace payouts and data streams in one platform.", price: 199, category: "Software", image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=400&h=300&fit=crop", features: ["10+ integrations", "No-code setup", "API access", "Priority support"] },
-  { id: "6", title: "Affiliate Contract Templates", subtitle: "Legal E-book Bundle", description: "Legally vetted templates for agency-style affiliate operations.", price: 79, category: "E-books", image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?w=400&h=300&fit=crop", features: ["50 templates", "Legal review", "Editable files", "Updates included"] },
+  {
+    id: "1",
+    title: "Quantum Ledger Pro",
+    price: 499,
+    description: "Institutional-grade digital asset tracking with zero-latency synchronization across 40 nodes. Includes hardware security integration.",
+    category: "HARDWARE",
+    image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=800&q=80",
+    features: ["Multi-Sig", "Air-Gapped", "API Access"],
+    epc: 12.45,
+    cr: 4.2,
+    trustScore: 98,
+    refundRate: 0.2,
+    contentAssets: {
+      emails: ["The most secure ledger on the market is here...", "Secure your digital future with Quantum Ledger Pro"],
+      socialPosts: ["Institutional security for everyone. Quantum Ledger Pro is the new standard.", "Digital growth requires digital security. Quantum Ledger Pro."],
+      banners: ["https://images.unsplash.com/photo-1621416894569-0f39ed31d247?auto=format&fit=crop&w=400&q=80"]
+    }
+  },
+  {
+    id: "2",
+    title: "SaaS Scaling Infrastructure",
+    price: 1299,
+    description: "High-performance cloud backbone for scaling digital operations. Includes priority load-balancing and direct executive support.",
+    category: "SaaS",
+    image: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=800&q=80",
+    features: ["Auto-Scaling", "Global CDN", "DDoS Protection"],
+    epc: 24.80,
+    cr: 3.1,
+    trustScore: 95,
+    refundRate: 1.1,
+    contentAssets: {
+      emails: ["Scaling your SaaS shouldn't be a headache...", "Ready for institutional-grade scaling?"],
+      socialPosts: ["From 1 to 1M users with zero downtime. Get the scaling infrastructure used by elite partners."],
+      banners: ["https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=400&q=80"]
+    }
+  },
+  {
+    id: "3",
+    title: "Executive Training Protocol",
+    price: 199,
+    description: "The definitive guide to institutional affiliate marketing. Blueprint for building high-yield referral engines from zero.",
+    category: "EDUCATION",
+    image: "https://images.unsplash.com/photo-1524178232363-1fb28f74b573?auto=format&fit=crop&w=800&q=80",
+    features: ["Video Modules", "Direct Liaison", "Resource Vault"],
+    epc: 8.90,
+    cr: 12.5,
+    trustScore: 99,
+    refundRate: 0.1,
+    contentAssets: {
+      emails: ["Ready to join the 1% of affiliate marketers?", "Stop guessing and start using the Protocol."],
+      socialPosts: ["Institutional results require institutional protocols. Join the elite."],
+      banners: ["https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=400&q=80"]
+    }
+  },
+  {
+    id: "4",
+    title: "Venture Data Insight",
+    price: 249,
+    description: "Proprietary market intelligence platform. Real-time tracking of venture capital flows and institutional asset migrations.",
+    category: "ANALYTICS",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+    features: ["Live Updates", "Whale Tracking", "Custom Alerts"],
+    epc: 15.60,
+    cr: 5.8,
+    trustScore: 92,
+    refundRate: 2.3,
+    contentAssets: {
+      emails: ["See the whales before they move...", "Institutional market intelligence is now at your fingertips."],
+      socialPosts: ["Stop following the trend. Start seeing it early."],
+      banners: ["https://images.unsplash.com/photo-1551288049-bbdac8a28a1e?auto=format&fit=crop&w=400&q=80"]
+    }
+  }
 ];
 
-export const affiliates: Affiliate[] = [
-  { id: "aff_001", name: "Horizon Ventures", email: "horizon@ventures.com", avatar: "HV", subtitle: "ID: SE-8829", status: "Active", registrationType: "PAID REGISTRATION", paid: true, earnings: 2450, volume: "$1.2M / mo", clicks: 1230, conversions: 49 },
-  { id: "aff_002", name: "Apex Dynamics", email: "apex@dynamics.com", avatar: "AD", subtitle: "ID: SE-4412", status: "Suspended", registrationType: "INSTITUTIONAL", paid: true, earnings: 1890, volume: "$450k / mo", clicks: 945, conversions: 38 },
-  { id: "aff_003", name: "Vanguard Digital Solutions", email: "vanguard@digital.com", avatar: "VD", subtitle: "ID: SE-7201", status: "Active", registrationType: "PAID REGISTRATION", paid: true, earnings: 1320, volume: "$890k / mo", clicks: 678, conversions: 26 },
-  { id: "aff_004", name: "Precision Capital Group", email: "precision@capital.com", avatar: "PC", subtitle: "ID: SE-5518", status: "Active", registrationType: "INSTITUTIONAL", paid: true, earnings: 560, volume: "$320k / mo", clicks: 320, conversions: 11 },
-  { id: "aff_005", name: "Global SaaS LTD", email: "global@saas.com", avatar: "GS", subtitle: "ID: SE-9934", status: "Active", registrationType: "PAID REGISTRATION", paid: true, earnings: 980, volume: "$670k / mo", clicks: 510, conversions: 20 },
+export const earningsData: EarningData[] = [
+  { day: "Day 1", earnings: 450, clicks: 1200, conversions: 48 },
+  { day: "Day 2", earnings: 980, clicks: 2400, conversions: 96 },
+  { day: "Day 3", earnings: 720, clicks: 1800, conversions: 72 },
+  { day: "Day 4", earnings: 1450, clicks: 3600, conversions: 144 },
+  { day: "Day 5", earnings: 1200, clicks: 3000, conversions: 120 },
+  { day: "Day 6", earnings: 2100, clicks: 5200, conversions: 208 },
+  { day: "Day 7", earnings: 2450, clicks: 6100, conversions: 244 },
 ];
 
-export const payoutRequests: PayoutRequest[] = [
-  { id: "p1", requestId: "PQ-1102", affiliateId: "aff_001", affiliateName: "Horizon Ventures", amount: 12450, method: "Wire Transfer", date: "2024-03-15", status: "Pending" },
-  { id: "p2", requestId: "PQ-1105", affiliateId: "aff_005", affiliateName: "Global SaaS LTD", amount: 3800.20, method: "PayPal Business", date: "2024-03-14", status: "Pending" },
-  { id: "p3", requestId: "PQ-1099", affiliateId: "aff_002", affiliateName: "Apex Dynamics", amount: 52100, method: "SWIFT", date: "2024-03-13", status: "Pending" },
+export const milestones: Milestone[] = [
+  { id: "1", title: "Institutional Entry", description: "Successfully authorized your first operational cycle.", icon: "Shield", achieved: true },
+  { id: "2", title: "Velocity King", description: "Reached a conversion rate higher than 5% on 3 products.", icon: "Zap", achieved: true, rewardLabel: "+2% Commission" },
+  { id: "3", title: "First Inflow ($1k)", description: "Secured your first $1,000 in approved referral earnings.", icon: "Target", achieved: true },
+  { id: "4", title: "The Alpha Lead", description: "Generated 10 high-value leads in a single 24-hour cycle.", icon: "Trophy", achieved: false, rewardLabel: "VIP Asset Access" },
+  { id: "5", title: "Institutional Authority", description: "Scaling your network to over 500 active referrals.", icon: "Award", achieved: false, rewardLabel: "Direct Executive Line" },
 ];
 
-export const earningsData = Array.from({ length: 30 }, (_, i) => ({
-  day: `Day ${i + 1}`,
-  earnings: Math.floor(Math.random() * 150 + 20),
-  clicks: Math.floor(Math.random() * 80 + 10),
-}));
+export const blogPosts = [
+  {
+    id: "1",
+    title: "The Shift to Institutional Affiliate Assets",
+    excerpt: "Why the smart money is moving away from low-ticket consumer goods toward high-yield digital infrastructure.",
+    author: "Sterling Cooper",
+    date: "March 28, 2024",
+    category: "Market Analysis",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=400&q=80"
+  },
+  {
+    id: "2",
+    title: "Scaling Your Referral Engine to $10k/Month",
+    excerpt: "The exact blueprint used by our top Pro-Tier partners to achieve consistent institutional-grade results.",
+    author: "Julianne Pierce",
+    date: "March 24, 2024",
+    category: "Strategy",
+    image: "https://images.unsplash.com/photo-1551288049-bbdac8a28a1e?auto=format&fit=crop&w=400&q=80"
+  },
+  {
+    id: "3",
+    title: "Decoding Real-Time EPC Metrics",
+    excerpt: "Understanding the data behind the dollars. How to read the Executive Ledger telemetry to optimize your routing.",
+    author: "Marcus Thorne",
+    date: "March 21, 2024",
+    category: "Intelligence",
+    image: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=400&q=80"
+  }
+];
+
+export const testimonials = [
+  {
+    id: "1",
+    name: "Alex Chen",
+    role: "CEO, DataVentures",
+    content: "The transition to the Executive Ledger changed our entire P&L. We're seeing 4x the yield compared to traditional networks.",
+    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=100&q=80"
+  },
+  {
+    id: "2",
+    name: "Sarah Jenkins",
+    role: "Pro Partner",
+    content: "Institutional support and the Pro Training protocols allowed me to scale my referral engine with absolute precision.",
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80"
+  },
+  {
+    id: "3",
+    name: "David Miller",
+    role: "Growth Strategist",
+    content: "The real-time telemetry and EPC tracking give us an unfair advantage. It's not just a platform; it's an infrastructure.",
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80"
+  }
+];

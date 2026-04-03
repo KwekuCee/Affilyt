@@ -1,10 +1,10 @@
-import { NavLink as RouterNavLink, useLocation, Link } from "react-router-dom";
+import { NavLink as RouterNavLink, useLocation, Link, useNavigate } from "react-router-dom";
 import { LayoutDashboard, Store, DollarSign, Settings, Package, Users, CreditCard, BarChart3, ArrowLeft, Moon, Sun, HelpCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const affiliateLinks = [
   { to: "/dashboard/affiliate", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/", label: "Marketplace", icon: Store },
+  { to: "/dashboard/affiliate/marketplace", label: "Marketplace", icon: Store },
   { to: "/dashboard/affiliate/payouts", label: "Payouts", icon: DollarSign },
   { to: "/dashboard/affiliate/profile", label: "Profile", icon: Users },
   { to: "/dashboard/affiliate/settings", label: "Settings", icon: Settings },
@@ -23,64 +23,59 @@ interface DashboardSidebarProps {
 }
 
 const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
-  const { dark, toggleDark, affiliateName } = useAuth();
+  const { dark, toggleDark } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const links = type === "admin" ? adminLinks : affiliateLinks;
 
+  const handleLogout = () => {
+    // Navigate home, simulation
+    navigate("/");
+  };
+
   return (
-    <aside className="hidden md:flex w-56 flex-col border-r border-border bg-card">
-      <div className="px-5 pt-6 pb-4">
-        <Link to="/" className="block">
-          <h2 className="text-sm font-bold text-foreground leading-tight">Executive Ledger</h2>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mt-0.5">
-            {type === "admin" ? "SYSTEM OVERSIGHT" : "MARKETPLACE ADMIN"}
-          </p>
+    <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card/40 backdrop-blur-3xl p-6 gap-8">
+      <div className="px-2">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+            <Package className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-sm font-black text-foreground uppercase tracking-wider italic">The Ledger.</h2>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">{type === "admin" ? "Institutional" : "Partner"}</p>
+          </div>
         </Link>
       </div>
 
-      <nav className="flex-1 px-3 space-y-0.5">
+      <nav className="flex-1 select-none flex flex-col gap-1">
+        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.3em] mb-4 ml-3">Operations</p>
         {links.map((link) => {
           const active = location.pathname === link.to;
           return (
             <RouterNavLink
               key={link.to}
               to={link.to}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
-                active
-                  ? "bg-accent text-primary"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-              }`}
+              className={`flex items-center gap-4 rounded-2xl px-4 py-3.5 text-xs font-black uppercase tracking-widest transition-all ${active
+                ? "bg-primary text-white shadow-xl shadow-primary/20 scale-105"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                }`}
             >
-              <link.icon className="h-4 w-4" />
+              <link.icon className={`h-4 w-4 ${active ? "text-white" : "text-muted-foreground"}`} />
               {link.label}
             </RouterNavLink>
           );
         })}
       </nav>
 
-      <div className="border-t border-border p-3 space-y-0.5">
-        {type === "affiliate" && (
-          <div className="rounded-lg bg-primary px-3 py-3 mb-2">
-            <p className="text-[10px] font-medium text-primary-foreground/70">Current Tier</p>
-            <p className="text-sm font-bold text-primary-foreground">Enterprise Pro</p>
-          </div>
-        )}
-        {type === "admin" && (
-          <Link to="/" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
-            <Store className="h-4 w-4" />
-            Export Ledger
-          </Link>
-        )}
-        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
-          <HelpCircle className="h-4 w-4" />
-          {type === "admin" ? "Support" : "Help Center"}
-        </button>
-        <button
-          onClick={toggleDark}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-        >
+      <div className="border-t border-border pt-8 space-y-2">
+        <p className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.3em] mb-4 ml-3">System</p>
+        <button onClick={toggleDark} className="flex w-full items-center gap-4 rounded-2xl px-4 py-3.5 text-xs font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary hover:text-foreground transition-all">
           {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          {dark ? "Light Mode" : "Dark Mode"}
+          {dark ? "Luminous" : "Obscure"}
+        </button>
+        <button onClick={handleLogout} className="flex w-full items-center gap-4 rounded-2xl px-4 py-3.5 text-xs font-black uppercase tracking-widest text-red-500 hover:bg-red-500/5 transition-all">
+          <LogOut className="h-4 w-4" />
+          Terminate
         </button>
       </div>
     </aside>
