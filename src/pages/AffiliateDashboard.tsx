@@ -636,6 +636,79 @@ const PayoutPortal = () => {
   );
 };
 
+const PartnerProfile = () => (
+  <div className="space-y-10 max-w-4xl">
+    <div className="flex items-end justify-between">
+      <div>
+        <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Partner Identity.</h2>
+        <p className="text-muted-foreground font-medium italic">Manage your institutional credentials and public profile within the Hub.</p>
+      </div>
+      <Button className="h-14 px-8 rounded-2xl bg-foreground text-background font-black text-xs uppercase tracking-widest gap-3 shadow-xl">
+        <Edit className="h-4 w-4" /> Edit Profile
+      </Button>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="md:col-span-1 rounded-[3rem] bg-card border-2 border-border p-10 flex flex-col items-center">
+        <div className="h-40 w-40 rounded-[3rem] overflow-hidden border-4 border-primary shadow-2xl mb-8 relative">
+          <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=400&q=80" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-primary/10" />
+        </div>
+        <h3 className="text-2xl font-black text-foreground italic uppercase tracking-tighter">Alex Chen</h3>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary mt-2">Pro-Tier Partner</p>
+      </div>
+      <div className="md:col-span-2 space-y-6">
+        <div className="p-8 rounded-[2.5rem] bg-card border-2 border-border">
+          <h4 className="text-xs font-black uppercase tracking-widest text-muted-foreground mb-6">Verification Metadata</h4>
+          <div className="space-y-4">
+            {[
+              { label: "Partner ID", value: "EL-NODE-4829-X" },
+              { label: "Account Status", value: "Verified Institutional" },
+              { label: "Member Since", value: "January 2024" },
+              { label: "Default Currency", value: "USD - Ledger Standard" },
+            ].map(item => (
+              <div key={item.label} className="flex justify-between border-b border-border/50 pb-4">
+                <span className="text-[10px] font-black uppercase text-muted-foreground">{item.label}</span>
+                <span className="text-xs font-bold text-foreground">{item.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const PartnerSettings = () => (
+  <div className="space-y-10 max-w-4xl">
+    <div>
+      <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Node Protocols.</h2>
+      <p className="text-muted-foreground font-medium italic">Configure your security, notifications, and operational preferences.</p>
+    </div>
+
+    <div className="space-y-6">
+      {[
+        { title: "Security Matrix", desc: "Multi-factor authentication and hardware key management.", icon: ShieldCheck },
+        { title: "Notification Tunnels", desc: "Webhook endpoints and push configuration for live inflow events.", icon: Globe },
+        { title: "Financial Routing", desc: "Default payout methods and automated distribution schedules.", icon: CreditCard },
+      ].map((item, i) => (
+        <div key={i} className="group p-8 rounded-[2.5rem] bg-card border-2 border-border hover:border-primary/50 transition-all flex items-center justify-between cursor-pointer">
+          <div className="flex items-center gap-6">
+            <div className="h-14 w-14 rounded-2xl bg-secondary flex items-center justify-center group-hover:scale-110 transition-transform">
+              <item.icon className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h4 className="text-lg font-black text-foreground uppercase tracking-tight italic">{item.title}</h4>
+              <p className="text-xs text-muted-foreground font-medium italic">{item.desc}</p>
+            </div>
+          </div>
+          <ChevronRight className="h-6 w-6 text-muted-foreground group-hover:translate-x-2 transition-transform" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
 const AffiliateDashboard = () => {
   const location = useLocation();
 
@@ -655,7 +728,7 @@ const AffiliateDashboard = () => {
                 <h1 className="text-3xl font-black text-foreground italic tracking-tight uppercase">Executive portal.</h1>
                 <div className="flex items-center gap-4 mt-1">
                   <Badge variant="outline" className="text-[10px] font-black uppercase px-3 py-0.5 rounded-full border-2 bg-success/5 text-success border-success/20">Operational</Badge>
-                  <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                  <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-nowrap">
                     <div className="flex items-center gap-2"><Globe className="h-3 w-3" /> Node: 42-X</div>
                     <div className="flex items-center gap-2 text-primary"><ShieldCheck className="h-3 w-3" /> Encrypted</div>
                   </div>
@@ -667,33 +740,35 @@ const AffiliateDashboard = () => {
               <div className="hidden lg:flex items-center gap-6 mr-6 border-r border-border pr-8">
                 <div className="text-right">
                   <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Next Payout</p>
-                  <p className="text-sm font-black text-foreground italic">April 12, 2024</p>
+                  <p className="text-sm font-black text-foreground italic whitespace-nowrap">April 12, 2024</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Global Rank</p>
                   <p className="text-sm font-black text-primary">#142</p>
                 </div>
               </div>
-              <Button className="h-14 px-8 rounded-2xl font-black text-xs uppercase tracking-widest gap-3 shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
+              <Button className="h-14 px-8 rounded-2xl font-black text-xs uppercase tracking-widest gap-3 shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 whitespace-nowrap">
                 <Wallet className="h-5 w-5" />
                 Request Withdrawal
               </Button>
             </div>
           </div>
 
-          <nav className="flex gap-10 mt-10">
+          <nav className="flex gap-8 mt-10 overflow-x-auto pb-2 scrollbar-hide">
             {[
               { label: "Overview", to: "/dashboard/affiliate", icon: LayoutDashboard },
               { label: "Marketplace", to: "/dashboard/affiliate/marketplace", icon: Store },
               { label: "Inner Circle", to: "/dashboard/affiliate/circle", icon: Users },
               { label: "Payouts", to: "/dashboard/affiliate/payouts", icon: CreditCard },
+              { label: "Partner Profile", to: "/dashboard/affiliate/profile", icon: Users },
+              { label: "Settings", to: "/dashboard/affiliate/settings", icon: Settings },
             ].map(link => {
               const active = location.pathname === link.to;
               return (
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`flex items-center gap-3 text-[10px] font-black uppercase tracking-widest pb-4 border-b-4 transition-all ${active ? 'text-primary border-primary' : 'text-muted-foreground border-transparent hover:text-foreground'}`}
+                  className={`flex items-center gap-3 text-[10px] font-black uppercase tracking-widest pb-4 border-b-4 transition-all whitespace-nowrap ${active ? 'text-primary border-primary' : 'text-muted-foreground border-transparent hover:text-foreground'}`}
                 >
                   <link.icon className="h-4 w-4" />
                   {link.label}
@@ -709,6 +784,8 @@ const AffiliateDashboard = () => {
             <Route path="marketplace" element={<DashboardMarketplace />} />
             <Route path="circle" element={<InnerCircle />} />
             <Route path="payouts" element={<PayoutPortal />} />
+            <Route path="profile" element={<PartnerProfile />} />
+            <Route path="settings" element={<PartnerSettings />} />
             <Route path="*" element={<DashboardOverview />} />
           </Routes>
         </div>

@@ -11,10 +11,13 @@ const affiliateLinks = [
 ];
 
 const adminLinks = [
-  { to: "/dashboard/admin", label: "Inventory", icon: Package },
+  { to: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/dashboard/admin/inventory", label: "Inventory", icon: Package },
   { to: "/dashboard/admin/sellers", label: "Sellers", icon: Users },
   { to: "/dashboard/admin/payouts", label: "Payouts", icon: CreditCard },
   { to: "/dashboard/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/dashboard/admin/audit", label: "Audit Logs", icon: Server },
+  { to: "/dashboard/admin/security", label: "Security", icon: ShieldCheck },
   { to: "/dashboard/admin/settings", label: "Settings", icon: Settings },
 ];
 

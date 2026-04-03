@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import LandingNavbar from "@/components/LandingNavbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import TestimonialCarousel from "@/components/TestimonialCarousel";
 import {
     products,
     blogPosts,
@@ -355,40 +356,28 @@ const Landing = () => {
             </section>
 
             {/* Testimonials */}
-            <section id="testimonials" className="py-24 md:py-32 bg-primary/80 backdrop-blur-3xl relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.05),transparent)] pointer-events-none" />
-                <div className="container mx-auto px-4 relative">
-                    <div className="text-center mb-20">
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60 mb-4">Partner Feedback</h2>
-                        <p className="text-4xl md:text-5xl font-black tracking-tight text-white">Trusted by the Professionals.</p>
+            <section id="testimonials" className="py-24 md:py-48 bg-slate-950/40 relative overflow-hidden backdrop-blur-3xl border-y border-white/5 shadow-inner">
+                {/* Cinematic Background Gradient Node */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-primary/20 blur-[150px] rounded-full pointer-events-none opacity-40 animate-pulse" />
+
+                <div className="container mx-auto px-4 relative z-10">
+                    <div className="text-center mb-16">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6 }}
+                            className="inline-flex items-center gap-4 bg-primary/20 backdrop-blur-3xl px-8 py-2 rounded-full border border-primary/40 mb-8"
+                        >
+                            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white">Trust Matrix 02-X</span>
+                        </motion.div>
+                        <h2 className="text-5xl md:text-7xl font-black tracking-tighter text-white italic leading-tight uppercase">Trusted by the <span className="text-primary not-italic">Elite Network.</span></h2>
+                        <p className="text-white/60 text-lg font-medium italic mt-6 max-w-2xl mx-auto leading-relaxed">
+                            Validated feedback from our high-performance partners operating at scale across the global institutional ledger.
+                        </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {testimonials.map((t, i) => (
-                            <motion.div
-                                key={t.id}
-                                className="p-8 rounded-[2rem] bg-white/5 backdrop-blur-xl border border-white/10"
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: i * 0.1 }}
-                            >
-                                <div className="flex gap-1 mb-6">
-                                    {Array.from({ length: t.rating }).map((_, i) => <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />)}
-                                </div>
-                                <p className="text-lg font-medium text-white/90 leading-relaxed italic mb-8">"{t.content}"</p>
-                                <div className="flex items-center gap-4">
-                                    <div className="h-12 w-12 rounded-full overflow-hidden border-2 border-white/20">
-                                        <img src={t.avatar} alt={t.name} className="w-full h-full object-cover" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-bold text-white">{t.name}</h4>
-                                        <p className="text-xs text-white/60 font-bold uppercase tracking-widest">{t.role}</p>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </div>
+                    <TestimonialCarousel />
                 </div>
             </section>
 
