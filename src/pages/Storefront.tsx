@@ -6,14 +6,20 @@ import ProductCard from "@/components/ProductCard";
 import PurchaseModal from "@/components/PurchaseModal";
 import { products, Product } from "@/lib/data";
 import { Slider } from "@/components/ui/slider";
-import { Sparkles, Zap, Shield, TrendingUp } from "lucide-react";
+import { Search, CheckSquare, Square, ChevronDown, Link as LinkIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
-const categories = ["All", "E-books", "Software", "Courses"] as const;
+const categories = [
+  { label: "All Products", count: products.length },
+  { label: "Courses", count: products.filter(p => p.category === "Courses").length },
+  { label: "Software", count: products.filter(p => p.category === "Software").length },
+  { label: "E-books", count: products.filter(p => p.category === "E-books").length },
+];
 
 const Storefront = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [priceRange, setPriceRange] = useState([0, 200]);
+  const [selectedCategory, setSelectedCategory] = useState("All Products");
+  const [priceRange, setPriceRange] = useState([49, 299]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [searchParams] = useSearchParams();
   const refId = searchParams.get("ref");
@@ -21,7 +27,7 @@ const Storefront = () => {
   const filtered = useMemo(() => {
     return products.filter((p) => {
       const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesCategory = selectedCategory === "All" || p.category === selectedCategory;
+      const matchesCategory = selectedCategory === "All Products" || p.category === selectedCategory;
       const matchesPrice = p.price >= priceRange[0] && p.price <= priceRange[1];
       return matchesSearch && matchesCategory && matchesPrice;
     });
@@ -32,64 +38,76 @@ const Storefront = () => {
       <Navbar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       {refId && (
-        <div className="border-b border-primary/10 bg-primary/5 py-2 text-center text-sm text-primary font-medium">
-          <Sparkles className="inline h-3.5 w-3.5 mr-1" />
-          You're shopping via an affiliate referral link
+        <div className="border-b border-success/20 bg-success/5 py-2 text-center text-sm text-success font-medium">
+          <LinkIcon className="inline h-3.5 w-3.5 mr-1.5" />
+          REFERRAL ACTIVE: BUY VIA AFFILIATE FOR PRIORITY SUPPORT
         </div>
       )}
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden border-b border-border">
-        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)", backgroundSize: "40px 40px" }} />
-        <div className="container mx-auto px-4 py-16 md:py-24 text-center relative">
+      <section className="hero-gradient text-white">
+        <div className="container mx-auto px-4 py-16 md:py-24">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/5 border border-primary/10 px-4 py-1.5 text-xs font-semibold text-primary mb-6">
-              <Zap className="h-3 w-3" /> Premium Digital Products
-            </span>
-            <h1 className="text-4xl md:text-6xl font-black text-foreground leading-tight tracking-tight">
-              Discover & Sell<br />
-              <span className="gradient-text">Digital Products</span>
-            </h1>
-            <p className="mt-4 text-lg text-muted-foreground max-w-xl mx-auto">
-              The marketplace for creators. Browse premium e-books, software, and courses — or earn 50% commission as an affiliate.
-            </p>
-            <div className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5"><Shield className="h-4 w-4 text-primary" /> Secure Payments</span>
-              <span className="flex items-center gap-1.5"><TrendingUp className="h-4 w-4 text-primary" /> 50% Commission</span>
-              <span className="flex items-center gap-1.5"><Zap className="h-4 w-4 text-primary" /> Instant Access</span>
+            <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white/60 mb-4">
+              <span>PUBLIC STOREFRONT</span>
+              <span>/</span>
+              <span className="text-white/90">INSTITUTIONAL MARKETPLACE</span>
             </div>
+            <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight max-w-2xl">
+              Institutional <span className="text-white/50">Assets.</span>
+            </h1>
+            <p className="mt-4 text-base md:text-lg text-white/60 max-w-xl leading-relaxed">
+              Premium, verified digital products engineered for enterprise growth and professional affiliate operations.
+            </p>
           </motion.div>
         </div>
       </section>
 
       <div className="container mx-auto flex gap-8 px-4 py-10">
         {/* Sidebar Filters */}
-        <aside className="hidden lg:block w-56 shrink-0 space-y-8">
+        <aside className="hidden lg:block w-52 shrink-0 space-y-8">
           <div>
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground/60">Categories</h3>
-            <div className="space-y-0.5">
+            <h3 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Discovery</h3>
+            <div className="relative mb-4">
+              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Input placeholder="Search resources..." className="pl-9 h-8 text-xs rounded-lg bg-secondary border-0" />
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Classification</h3>
+            <div className="space-y-1">
               {categories.map((cat) => (
                 <button
-                  key={cat}
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`block w-full rounded-xl px-3 py-2.5 text-left text-sm font-medium transition-all ${
-                    selectedCategory === cat
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  key={cat.label}
+                  onClick={() => setSelectedCategory(cat.label)}
+                  className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-all ${
+                    selectedCategory === cat.label
+                      ? "text-foreground font-medium"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {cat}
+                  {selectedCategory === cat.label ? (
+                    <CheckSquare className="h-3.5 w-3.5 text-primary" />
+                  ) : (
+                    <Square className="h-3.5 w-3.5" />
+                  )}
+                  <span className="flex-1 text-left text-xs">{cat.label}</span>
+                  <span className="text-[10px] text-muted-foreground">{cat.count}</span>
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <h3 className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground/60">Price Range</h3>
-            <Slider min={0} max={200} step={10} value={priceRange} onValueChange={setPriceRange} />
-            <div className="mt-2 flex justify-between text-xs font-medium text-muted-foreground">
-              <span>₵{priceRange[0]}</span>
-              <span>₵{priceRange[1]}</span>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Investment</h3>
+              <span className="text-[10px] font-semibold text-primary">${priceRange[0]}—${priceRange[1]}</span>
+            </div>
+            <Slider min={0} max={500} step={10} value={priceRange} onValueChange={setPriceRange} />
+            <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
+              <span>${priceRange[0]}</span>
+              <span>${priceRange[1]}</span>
             </div>
           </div>
         </aside>
@@ -97,7 +115,16 @@ const Storefront = () => {
         {/* Product Grid */}
         <main className="flex-1">
           <div className="mb-6 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-foreground">{filtered.length} Products</h2>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-success" />
+              <h2 className="text-sm font-semibold text-foreground">{filtered.length} Active Listings</h2>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <span>SORT BY:</span>
+              <button className="font-medium text-foreground flex items-center gap-0.5">
+                Highest Rated <ChevronDown className="h-3 w-3" />
+              </button>
+            </div>
           </div>
 
           {filtered.length === 0 ? (
@@ -111,8 +138,55 @@ const Storefront = () => {
               ))}
             </div>
           )}
+
+          <div className="mt-10 flex justify-center">
+            <button className="flex items-center gap-2 rounded-lg border border-border px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:bg-secondary transition-colors">
+              Load More Results <ChevronDown className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </main>
       </div>
+
+      {/* Footer */}
+      <footer className="border-t border-border bg-card mt-16">
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h4 className="text-sm font-black text-foreground mb-2">THE LEDGER.</h4>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Providing the infrastructure for the next generation of digital asset marketplaces. Built for institutions, scale, and uncompromising trust.
+              </p>
+            </div>
+            <div>
+              <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Platform</h5>
+              <div className="space-y-2 text-xs text-muted-foreground">
+                <p className="hover:text-foreground cursor-pointer transition-colors">Marketplace</p>
+                <p className="hover:text-foreground cursor-pointer transition-colors">Become a Seller</p>
+                <p className="hover:text-foreground cursor-pointer transition-colors">Pricing</p>
+              </div>
+            </div>
+            <div>
+              <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Legal</h5>
+              <div className="space-y-2 text-xs text-muted-foreground">
+                <p className="hover:text-foreground cursor-pointer transition-colors">Terms</p>
+                <p className="hover:text-foreground cursor-pointer transition-colors">Privacy</p>
+                <p className="hover:text-foreground cursor-pointer transition-colors">Compliance</p>
+              </div>
+            </div>
+            <div>
+              <h5 className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Resources</h5>
+              <div className="space-y-2 text-xs text-muted-foreground">
+                <p className="hover:text-foreground cursor-pointer transition-colors">API Docs</p>
+                <p className="hover:text-foreground cursor-pointer transition-colors">Status</p>
+                <p className="hover:text-foreground cursor-pointer transition-colors">Support</p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-10 pt-6 border-t border-border flex items-center justify-between text-[10px] text-muted-foreground uppercase tracking-wider">
+            <span>© 2024 THE EXECUTIVE LEDGER. ALL RIGHTS RESERVED.</span>
+          </div>
+        </div>
+      </footer>
 
       <PurchaseModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </div>
