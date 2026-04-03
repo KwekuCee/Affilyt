@@ -1,19 +1,21 @@
 import { NavLink as RouterNavLink, useLocation, Link } from "react-router-dom";
-import { LayoutDashboard, Link2, DollarSign, Settings, Package, Users, CreditCard, ShoppingBag, ArrowLeft, Moon, Sun } from "lucide-react";
+import { LayoutDashboard, Store, DollarSign, Settings, Package, Users, CreditCard, BarChart3, ArrowLeft, Moon, Sun, HelpCircle, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const affiliateLinks = [
   { to: "/dashboard/affiliate", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/dashboard/affiliate/links", label: "My Links", icon: Link2 },
-  { to: "/dashboard/affiliate/earnings", label: "Earnings", icon: DollarSign },
+  { to: "/", label: "Marketplace", icon: Store },
+  { to: "/dashboard/affiliate/payouts", label: "Payouts", icon: DollarSign },
+  { to: "/dashboard/affiliate/profile", label: "Profile", icon: Users },
   { to: "/dashboard/affiliate/settings", label: "Settings", icon: Settings },
 ];
 
 const adminLinks = [
-  { to: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/dashboard/admin/products", label: "Products", icon: Package },
+  { to: "/dashboard/admin", label: "Inventory", icon: Package },
   { to: "/dashboard/admin/sellers", label: "Sellers", icon: Users },
   { to: "/dashboard/admin/payouts", label: "Payouts", icon: CreditCard },
+  { to: "/dashboard/admin/analytics", label: "Analytics", icon: BarChart3 },
+  { to: "/dashboard/admin/settings", label: "Settings", icon: Settings },
 ];
 
 interface DashboardSidebarProps {
@@ -21,41 +23,31 @@ interface DashboardSidebarProps {
 }
 
 const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
-  const { dark, toggleDark } = useAuth();
+  const { dark, toggleDark, affiliateName } = useAuth();
   const location = useLocation();
   const links = type === "admin" ? adminLinks : affiliateLinks;
 
   return (
-    <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card">
-      <div className="flex h-16 items-center gap-2.5 border-b border-border px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-btn">
-          <ShoppingBag className="h-4 w-4" />
-        </div>
-        <span className="font-extrabold text-foreground">DigiMarket</span>
+    <aside className="hidden md:flex w-56 flex-col border-r border-border bg-card">
+      <div className="px-5 pt-6 pb-4">
+        <Link to="/" className="block">
+          <h2 className="text-sm font-bold text-foreground leading-tight">Executive Ledger</h2>
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mt-0.5">
+            {type === "admin" ? "SYSTEM OVERSIGHT" : "MARKETPLACE ADMIN"}
+          </p>
+        </Link>
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
-        <Link
-          to="/"
-          className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground mb-4"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Store
-        </Link>
-
-        <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
-          {type === "admin" ? "Administration" : "Affiliate"}
-        </p>
-
+      <nav className="flex-1 px-3 space-y-0.5">
         {links.map((link) => {
           const active = location.pathname === link.to;
           return (
             <RouterNavLink
               key={link.to}
               to={link.to}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all ${
                 active
-                  ? "bg-primary/10 text-primary shadow-sm"
+                  ? "bg-accent text-primary"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground"
               }`}
             >
@@ -66,10 +58,26 @@ const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
         })}
       </nav>
 
-      <div className="border-t border-border p-4">
+      <div className="border-t border-border p-3 space-y-0.5">
+        {type === "affiliate" && (
+          <div className="rounded-lg bg-primary px-3 py-3 mb-2">
+            <p className="text-[10px] font-medium text-primary-foreground/70">Current Tier</p>
+            <p className="text-sm font-bold text-primary-foreground">Enterprise Pro</p>
+          </div>
+        )}
+        {type === "admin" && (
+          <Link to="/" className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+            <Store className="h-4 w-4" />
+            Export Ledger
+          </Link>
+        )}
+        <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+          <HelpCircle className="h-4 w-4" />
+          {type === "admin" ? "Support" : "Help Center"}
+        </button>
         <button
           onClick={toggleDark}
-          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
         >
           {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           {dark ? "Light Mode" : "Dark Mode"}
