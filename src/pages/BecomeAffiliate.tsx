@@ -10,62 +10,37 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
-type Step = 'plan' | 'form' | 'success';
+type Step = 'plan' | 'form' | 'payment' | 'success';
 
-const packages = [
-    {
-        name: "Basic",
-        price: 7,
-        description: "Institutional entry for operational veterans. Does not include the comprehensive training suite.",
-        features: [
-            "25% Recurring Commission",
-            "Core Analytics Dashboard",
-            "Monthly Payout Routing",
-            "Global Partner Network",
-            "Digital Asset Suite"
-        ],
-        icon: Award,
-        color: "border-slate-200 dark:border-slate-800"
-    },
-    {
-        name: "Standard",
-        price: 19,
-        description: "The preferred accelerator path. Includes full training protocols and strategic support.",
-        features: [
-            "40% Recurring Commission",
-            "Full Training Program",
-            "Behavioral Analytics Suite",
-            "Bi-weekly Express Payouts",
-            "Marketing Strategy Support",
-            "Custom Asset Request"
-        ],
-        icon: Star,
-        isPopular: true,
-        color: "border-primary shadow-xl shadow-primary/10"
-    },
-    {
-        name: "Pro",
-        price: 29,
-        description: "The ultimate institutional package. Exclusive VIP benefits and direct executive routing.",
-        features: [
-            "50% Recurring Commission",
-            "Priority VIP Training",
-            "Real-time API & Webhooks",
-            "Weekly Express Payouts",
-            "Dedicated Account Liaison",
-            "White-label Reporting",
-            "Direct Executive Access"
-        ],
-        icon: Zap,
-        color: "border-slate-200 dark:border-slate-800"
-    }
-];
+import { useData, SellerTier as DataSellerTier } from "@/context/DataContext";
+import DollarPaymentGateway from "@/components/DollarPaymentGateway";
 
 const BecomeAffiliate = () => {
     const { toast } = useToast();
+    const { setPackageType, setAffiliateLink, setRole } = useAuth();
+    const { packages, exchangeRate } = useData();
     const [step, setStep] = useState<Step>('plan');
-    const [selectedPlan, setSelectedPlan] = useState(packages[1]);
     const [isLoading, setIsLoading] = useState(false);
+    const [username, setUsername] = useState("");
+
+    const displayPackages = packages.map(pkg => ({
+        ...pkg,
+        description: pkg.name === "Basic" ? "Institutional entry for operational veterans. Does not include the comprehensive training suite." :
+            pkg.name === "Standard" ? "The preferred accelerator path. Includes full training protocols and strategic support." :
+                "The ultimate institutional package. Exclusive VIP benefits and direct executive routing.",
+        features: [
+            `${pkg.commission}% Recurring Commission`,
+            pkg.name === "Basic" ? "Core Analytics Dashboard" : pkg.name === "Standard" ? "Full Training Program" : "Priority VIP Training",
+            pkg.name === "Basic" ? "Monthly Payout Routing" : pkg.name === "Standard" ? "Bi-weekly Express Payouts" : "Weekly Express Payouts",
+            "Global Partner Network",
+            "Digital Asset Suite"
+        ],
+        icon: pkg.name === "Basic" ? Award : pkg.name === "Standard" ? Star : Zap,
+        isPopular: pkg.name === "Standard",
+        color: pkg.name === "Standard" ? "border-primary shadow-xl shadow-primary/10" : "border-slate-200 dark:border-slate-800"
+    }));
+
+    const [selectedPlan, setSelectedPlan] = useState(displayPackages[1]);
 
     const handleSelectPlan = (pkg: any) => {
         setSelectedPlan(pkg);
@@ -73,19 +48,19 @@ const BecomeAffiliate = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const handleFinalRegistration = (e: React.FormEvent) => {
+    const handleFormSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
-        // Simulate payment and registration
-        setTimeout(() => {
-            setIsLoading(false);
-            setStep('success');
-            toast({
-                title: "Payment Processed",
-                description: `Successfully authorized $${selectedPlan.price}.00 for ${selectedPlan.name} tier.`,
-            });
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 2500);
+        setStep('payment');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handlePaymentSuccess = () => {
+        setPackageType(selectedPlan.name as any);
+        const link = `ledger.xt/${username || 'user'}`;
+        setAffiliateLink(link);
+        setRole("AFFILIATE");
+        setStep('success');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     return (
@@ -97,9 +72,9 @@ const BecomeAffiliate = () => {
                     {step === 'plan' && (
                         <motion.section
                             key="plan"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
                             className="container mx-auto px-4"
                         >
                             <div className="text-center mb-16">
@@ -113,7 +88,7 @@ const BecomeAffiliate = () => {
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                                {packages.map((pkg, i) => (
+                                {displayPackages.map((pkg, i) => (
                                     <motion.div
                                         key={pkg.name}
                                         initial={{ opacity: 0, y: 20 }}
@@ -196,7 +171,7 @@ const BecomeAffiliate = () => {
                                 </div>
 
                                 <div className="lg:col-span-8 p-10 rounded-[3.5rem] bg-card border-2 border-border shadow-xl">
-                                    <form onSubmit={handleFinalRegistration} className="space-y-8">
+                                    <form onSubmit={handleFormSubmit} className="space-y-8">
                                         <div className="space-y-6">
                                             <h4 className="text-xs font-black uppercase tracking-[0.4em] text-primary">Identity Credentials</h4>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -227,25 +202,14 @@ const BecomeAffiliate = () => {
                                                 <label className="text-[10px] font-black uppercase text-muted-foreground ml-1">Marketplace URL Request</label>
                                                 <div className="flex items-center gap-2">
                                                     <div className="h-14 rounded-2xl bg-secondary px-4 flex items-center text-xs font-black uppercase opacity-40">ledger.xt/</div>
-                                                    <Input required className="h-14 rounded-2xl bg-secondary border-none font-bold flex-1" placeholder="sterling" />
+                                                    <Input required value={username} onChange={(e) => setUsername(e.target.value)} className="h-14 rounded-2xl bg-secondary border-none font-bold flex-1" placeholder="sterling" />
                                                 </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-6 border-t border-border pt-8">
-                                            <h4 className="text-xs font-black uppercase tracking-[0.4em] text-primary">Payment Authorization</h4>
-                                            <div className="p-6 rounded-2xl bg-primary/5 border border-primary/10 space-y-4">
-                                                <div className="flex items-center gap-3">
-                                                    <CreditCard className="h-5 w-5 text-primary" />
-                                                    <span className="text-sm font-bold opacity-60 italic">Sandbox Integration Active</span>
-                                                </div>
-                                                <p className="text-[10px] font-medium text-muted-foreground italic">By clicking "Pay & Register", you authorize a one-time deduction of ${selectedPlan.price}.00 from your selected institutional account.</p>
                                             </div>
                                         </div>
 
                                         <Button type="submit" disabled={isLoading} className="w-full h-20 rounded-[2rem] font-black text-xl italic flex gap-3 items-center justify-center shadow-2xl shadow-primary/30">
-                                            {isLoading ? "Processing Gateway..." : `Pay $${selectedPlan.price}.00 & Register Account`}
-                                            <UserPlus className="h-6 w-6" />
+                                            Continue to Payment Verification
+                                            <ArrowRight className="h-6 w-6" />
                                         </Button>
                                     </form>
                                     <div className="mt-8 flex justify-center gap-2">
@@ -253,6 +217,23 @@ const BecomeAffiliate = () => {
                                     </div>
                                 </div>
                             </div>
+                        </motion.section>
+                    )}
+
+                    {step === 'payment' && (
+                        <motion.section
+                            key="payment"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="container mx-auto px-4"
+                        >
+                            <DollarPaymentGateway
+                                amount={selectedPlan.price}
+                                itemLabel={`${selectedPlan.name} Partner Tier (1-Year Subscription)`}
+                                onSuccess={handlePaymentSuccess}
+                                onCancel={() => setStep('form')}
+                            />
                         </motion.section>
                     )}
 

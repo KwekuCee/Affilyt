@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
+import { DataProvider } from "@/context/DataContext";
 import RoleToggle from "@/components/RoleToggle";
 import Landing from "@/pages/Landing";
 import Storefront from "@/pages/Storefront";
@@ -25,21 +26,23 @@ const App = () => (
       <Toaster />
       <Sonner />
       <AuthProvider>
-        <BrowserRouter>
-          <GlobalBackground />
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/marketplace" element={<Storefront />} />
-            <Route path="/become-affiliate" element={<BecomeAffiliate />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/dashboard/affiliate/*" element={<AffiliateDashboard />} />
-            <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <RoleToggle />
-        </BrowserRouter>
+        <DataProvider>
+          <BrowserRouter>
+            <GlobalBackground />
+            <Routes>
+              <Route path="/" element={<Landing />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/marketplace" element={<Storefront />} />
+              <Route path="/become-affiliate" element={<BecomeAffiliate />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/dashboard/affiliate/*" element={<AffiliateDashboard />} />
+              <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+            <RoleToggle />
+          </BrowserRouter>
+        </DataProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

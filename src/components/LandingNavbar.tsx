@@ -46,25 +46,28 @@ const LandingNavbar = () => {
         >
             <div className="container mx-auto px-4 md:px-6">
                 <div className="flex items-center justify-between">
-                    <Link to="/" className="flex items-center gap-2 group">
-                        <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-                            <Shield className="h-5 w-5 text-primary-foreground" />
-                        </div>
-                        <span className="font-black text-xl tracking-tighter text-foreground italic">
-                            THE <span className="text-primary not-italic">LEDGER.</span>
-                        </span>
-                    </Link>
+                    {/* Left: Logo */}
+                    <div className="flex-1 flex justify-start">
+                        <Link to="/" className="flex items-center gap-2 group">
+                            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
+                                <Shield className="h-5 w-5 text-primary-foreground" />
+                            </div>
+                            <span className="font-black text-xl tracking-tighter text-foreground italic whitespace-nowrap">
+                                THE <span className="text-primary not-italic">LEDGER.</span>
+                            </span>
+                        </Link>
+                    </div>
 
-                    {/* Desktop Nav */}
-                    <div className="hidden lg:flex items-center gap-8">
-                        <div className="flex items-center gap-6 mr-2">
+                    {/* Center: Desktop Nav Links */}
+                    <div className="hidden lg:flex flex-1 justify-center">
+                        <div className="flex items-center gap-8 bg-card/40 backdrop-blur-md px-10 py-3 rounded-full border border-border shadow-sm">
                             {navLinks.map((link) => (
                                 link.isInternal ? (
                                     <a
                                         key={link.label}
                                         href={link.href}
                                         onClick={() => handleNavClick(link.href, true)}
-                                        className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                                        className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors cursor-pointer whitespace-nowrap"
                                     >
                                         {link.label}
                                     </a>
@@ -72,26 +75,27 @@ const LandingNavbar = () => {
                                     <Link
                                         key={link.label}
                                         to={link.href}
-                                        className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors"
+                                        className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors whitespace-nowrap"
                                     >
                                         {link.label}
                                     </Link>
                                 )
                             ))}
                         </div>
-                        <div className="h-4 w-[1px] bg-border mx-2" />
-                        <div className="flex items-center gap-3">
-                            <Link to="/login">
-                                <Button variant="ghost" size="sm" className="font-black text-[10px] uppercase tracking-widest hover:bg-primary/10 px-4 rounded-xl">
-                                    Login
-                                </Button>
-                            </Link>
-                            <Link to="/become-affiliate">
-                                <Button size="sm" className="rounded-full px-6 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
-                                    Join Network <ArrowRight className="h-3 w-3" />
-                                </Button>
-                            </Link>
-                        </div>
+                    </div>
+
+                    {/* Right: Actions */}
+                    <div className="hidden lg:flex flex-1 justify-end items-center gap-3">
+                        <Link to="/login">
+                            <Button variant="ghost" size="sm" className="font-black text-[10px] uppercase tracking-widest hover:bg-primary/10 px-4 rounded-xl">
+                                Login
+                            </Button>
+                        </Link>
+                        <Link to="/become-affiliate">
+                            <Button size="sm" className="rounded-full px-6 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
+                                Join Network <ArrowRight className="h-3 w-3" />
+                            </Button>
+                        </Link>
                     </div>
 
                     {/* Mobile Toggle */}

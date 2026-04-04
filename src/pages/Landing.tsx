@@ -32,7 +32,12 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+import { useData } from "@/context/DataContext";
+import * as LucideIcons from "lucide-react";
+
 const Landing = () => {
+    const { landingContent, products: systemProducts, packages } = useData();
+
     const fadeInUp = {
         initial: { opacity: 0, y: 20 },
         whileInView: { opacity: 1, y: 0 },
@@ -40,63 +45,29 @@ const Landing = () => {
         transition: { duration: 0.6 }
     };
 
-    const stats = [
-        { label: "Active Affiliates", value: "12.4K+", icon: Users },
-        { label: "Total Payouts", value: "$42.8M", icon: TrendingUp },
-        { label: "Live Marketplaces", value: "850+", icon: Globe },
-        { label: "Uptime guarantee", value: "99.9%", icon: Zap },
-    ];
+    // Helper to get icon component from string
+    const getIcon = (name: string) => {
+        const Icon = (LucideIcons as any)[name] || LucideIcons.HelpCircle;
+        return Icon;
+    };
 
-    const features = [
-        {
-            title: "Institutional Ledger",
-            description: "Enterprise-grade tracking system for every transaction and referral attribution with 100% accuracy.",
-            icon: Layers,
-            color: "bg-blue-500/10 text-blue-500"
-        },
-        {
-            title: "Real-time Analytics",
-            description: "Live data streams and behavioral analytics to optimize your conversion funnels on the fly.",
-            icon: BarChart3,
-            color: "bg-purple-500/10 text-purple-500"
-        },
-        {
-            title: "Verified Trust",
-            description: "Our proprietary verification system ensures all partners and products meet institutional standards.",
-            icon: ShieldCheck,
-            color: "bg-emerald-500/10 text-emerald-500"
-        },
-        {
-            title: "Instant Scaling",
-            description: "Built on high-performance infrastructure that handles millions of requests without breaking a sweat.",
-            icon: Zap,
-            color: "bg-amber-500/10 text-amber-500"
-        }
-    ];
+    const stats = landingContent.stats.map(s => ({ ...s, icon: getIcon(s.icon) }));
+    const features = landingContent.features.map(f => ({ ...f, icon: getIcon(f.icon) }));
 
-    const pricingPlans = [
-        {
-            name: "Basic",
-            price: "$7",
-            description: "Institutional entry for operational veterans. Does not include training protocols.",
-            features: ["25% Commission", "Partner Dashboard", "Monthly Payouts", "Global Network"],
-            isPopular: false
-        },
-        {
-            name: "Standard",
-            price: "$19",
-            description: "The preferred accelerator path. Full training access and strategic support.",
-            features: ["40% Commission", "Full Training Protocols", "Bi-weekly Payouts", "Strategic Support"],
-            isPopular: true
-        },
-        {
-            name: "Pro",
-            price: "$29",
-            description: "Institutional-grade scale. Ultimate package with direct executive VIP benefits.",
-            features: ["50% Commission", "VIP Training Protocols", "Weekly Payouts", "Dedicated Liaison"],
-            isPopular: false
-        }
-    ];
+    const pricingPlans = packages.map(pkg => ({
+        name: pkg.name,
+        price: `$${pkg.price}`,
+        description: pkg.name === "Basic" ? "Institutional entry for operational veterans." :
+            pkg.name === "Standard" ? "The preferred accelerator path. Strategic support included." :
+                "Ultimate institutional package. Direct executive access.",
+        features: [
+            `${pkg.commission}% Commission`,
+            pkg.name === "Basic" ? "Monthly Payouts" : pkg.name === "Standard" ? "Bi-weekly Payouts" : "Weekly Payouts",
+            "Institutional Assets",
+            "Network Access"
+        ],
+        isPopular: pkg.name === "Standard"
+    }));
 
     return (
         <div className="min-h-screen bg-transparent overflow-x-hidden">
@@ -117,10 +88,14 @@ const Landing = () => {
                                     The New Standard of Affiliate Tech
                                 </Badge>
                                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-foreground leading-[1.1] mb-6">
-                                    Executive <span className="text-primary italic">Infrastructure</span> for Digital Growth.
+                                    {landingContent.heroTitle.split(" ").map((word, i) => (
+                                        <span key={i}>
+                                            {word === "Infrastructure" ? <span className="text-primary italic">{word} </span> : word + " "}
+                                        </span>
+                                    ))}
                                 </h1>
                                 <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl leading-relaxed mx-auto lg:mx-0">
-                                    Join the elite network of institutional affiliates. Deploy high-performance marketplaces, track outcomes with precision, and scale your digital assets with confidence.
+                                    {landingContent.heroSubtitle}
                                 </p>
                                 <div className="flex flex-col sm:flex-row items-center gap-4 justify-center lg:justify-start">
                                     <Link to="/become-affiliate">

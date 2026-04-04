@@ -1,368 +1,309 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Users,
   ShieldCheck,
   DollarSign,
-  Activity,
-  Search,
-  Globe,
-  Server,
-  Cpu,
-  Map as MapIcon,
   ShieldAlert,
-  MessageSquare,
-  Plus,
-  Trash2,
-  Edit,
-  RefreshCw,
-  Target,
-  Zap,
-  Globe2,
-  LayoutDashboard,
-  Store,
-  CreditCard,
   BarChart3,
+  Search,
+  CheckCircle2,
+  XCircle,
+  MoreVertical,
+  Download,
+  AlertCircle,
+  FileText,
+  UserCheck,
+  Ban,
+  Fingerprint,
+  Cpu,
+  ArrowUpRight,
+  MousePointerClick,
+  Smartphone,
+  Monitor,
+  Calendar,
+  Plus,
+  Filter,
+  RefreshCw,
+  Mail,
+  Trash2,
+  Eye,
+  Activity,
+  Zap,
+  Map as MapIcon,
+  MessageSquare,
+  Edit,
+  Target,
+  Globe2,
+  Store,
   Settings as SettingsIcon,
   ChevronRight,
-  Filter,
-  Star
+  Star,
+  Globe,
+  CreditCard,
+  Server,
+  LayoutDashboard,
+  Layers,
+  Settings,
+  TrendingUp,
+  Award
 } from "lucide-react";
 import { Routes, Route, useLocation, Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import StatsCard from "@/components/StatsCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { testimonials as initialTestimonials, products } from "@/lib/data";
+import { useData, SellerTier, UserStatus, User, Payout, AnalyticsEvent } from "@/context/DataContext";
+
+// --- Sub-Components ---
 
 const AdminHUD = () => {
-  const [activeTab, setActiveTab] = useState('hud');
   const { toast } = useToast();
-  const [searchQuery, setSearchQuery] = useState("");
+  return (
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <StatsCard title="Real-time Inflow" value="$142.8K" icon={DollarSign} trend="+12.4% Growth" />
+        <StatsCard title="Active Nodes" value="8,412" icon={Globe} trend="All regions green" />
+        <StatsCard title="Conversion Velocity" value="8.4%" icon={Zap} trend="-1.2% vs last cycle" />
+        <StatsCard title="Risk Level" value="Minimal" icon={ShieldCheck} trend="0 threats detected" />
+      </div>
 
-  const handleApprove = (name: string) => {
-    toast({
-      title: "Partner Verified",
-      description: `${name} has been granted high-level institutional access.`
-    });
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="p-10 rounded-[3rem] bg-card border-2 border-border shadow-xl">
+          <h3 className="text-xl font-black italic uppercase tracking-tight mb-8">System Verification Stream</h3>
+          <div className="space-y-6">
+            {[
+              { name: "Satoshi_N", action: "Requested Pro Access", status: "PENDING", time: "2m ago" },
+              { name: "Vitalik_B", action: "KYC Verified", status: "SUCCESS", time: "15m ago" },
+              { name: "Charles_H", action: "Payout Authorized ($12k)", status: "SUCCESS", time: "1h ago" }
+            ].map((item, i) => (
+              <div key={i} className="flex items-center justify-between p-5 rounded-[2rem] bg-secondary/50 border border-border group hover:border-primary/50 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="h-10 w-10 rounded-xl bg-foreground flex items-center justify-center font-black text-xs text-background">{item.name.charAt(0)}</div>
+                  <div>
+                    <p className="text-xs font-black uppercase text-foreground">{item.name}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase">{item.action}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <Badge className={`text-[8px] font-black uppercase px-3 py-0.5 rounded-full ${item.status === 'SUCCESS' ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'}`}>{item.status}</Badge>
+                  <p className="text-[8px] font-bold text-muted-foreground uppercase mt-1">{item.time}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-10 rounded-[3rem] bg-foreground text-background shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-12 opacity-10">
+            <Cpu className="h-32 w-32" />
+          </div>
+          <h3 className="text-xl font-black italic uppercase tracking-tight mb-8 text-white">Institutional Capacity</h3>
+          <div className="space-y-8">
+            <div className="space-y-2">
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-60">
+                <span>Node Fulfillment</span>
+                <span>84%</span>
+              </div>
+              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-primary" style={{ width: '84%' }} />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-60">
+                <span>Security Protocol Uptime</span>
+                <span>99.98%</span>
+              </div>
+              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full bg-success" style={{ width: '99.9%' }} />
+              </div>
+            </div>
+          </div>
+          <Button className="w-full h-16 rounded-[2rem] bg-primary text-white font-black uppercase text-xs tracking-widest mt-12 group">
+            Deploy System Update <RefreshCw className="ml-2 h-4 w-4 group-hover:rotate-180 transition-transform duration-700" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const AdminUsers = () => {
+  const { users, setUsers } = useData();
+  const [searchTerm, setSearchTerm] = useState("");
+  const { toast } = useToast();
+
+  const toggleStatus = (userId: string) => {
+    setUsers(users.map(u => {
+      if (u.id === userId) {
+        const nextStatus: Record<UserStatus, UserStatus> = { "ACTIVE": "SUSPENDED", "SUSPENDED": "ACTIVE", "PENDING": "ACTIVE", "ARCHIVED": "ACTIVE" };
+        const newStatus = nextStatus[u.status];
+        toast({ title: `User ${newStatus}`, description: `${u.name} is now ${newStatus}.` });
+        return { ...u, status: newStatus };
+      }
+      return u;
+    }));
+  };
+
+  const filteredUsers = users.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex flex-col md:flex-row items-end justify-between gap-6">
+        <div>
+          <h2 className="text-4xl font-black text-foreground tracking-tighter mb-2 italic uppercase">User Matrix.</h2>
+          <p className="text-muted-foreground font-medium italic">Comprehensive management of the global affiliate pool.</p>
+        </div>
+        <div className="flex items-center gap-4 w-full md:w-auto">
+          <div className="relative flex-1 md:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search identity..." className="h-14 pl-12 rounded-2xl bg-card border-2 border-border font-bold" />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredUsers.map((user) => (
+          <div key={user.id} className="group p-8 rounded-[3rem] bg-card border-2 border-border hover:border-primary/50 transition-all duration-300 shadow-xl flex flex-col relative overflow-hidden">
+            <div className="flex items-center gap-6 mb-8">
+              <div className="h-16 w-16 rounded-2xl bg-secondary flex items-center justify-center font-black text-2xl text-primary border border-border">{user.name.charAt(0)}</div>
+              <div>
+                <h3 className="text-xl font-black text-foreground italic uppercase tracking-tight">{user.name}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border-none ${user.status === 'ACTIVE' ? 'bg-success/10 text-success' : 'bg-amber-500/10 text-amber-500'}`}>{user.status}</Badge>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{user.packageTier}</span>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4 mb-8 flex-1">
+              <div className="flex justify-between items-center text-sm"><span className="text-muted-foreground italic">Cumulative Inflow</span><span className="text-foreground font-black">${user.earnings.toLocaleString()}</span></div>
+              <div className="flex justify-between items-center text-sm"><span className="text-muted-foreground italic">Route Traffic</span><span className="text-foreground font-black">{user.clicks.toLocaleString()} Clicks</span></div>
+              <div className="flex justify-between items-center text-sm"><span className="text-muted-foreground italic">Trust Index</span><span className="text-xs font-black">{user.performanceScore}%</span></div>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-auto">
+              <Button onClick={() => toggleStatus(user.id)} variant="outline" className="h-12 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-secondary hover:bg-red-500/10 border-none">
+                {user.status === 'ACTIVE' ? <Ban className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />} {user.status === 'ACTIVE' ? "Suspend" : "Activate"}
+              </Button>
+              <Button className="h-12 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-foreground text-background border-none"> <Activity className="h-4 w-4" /> Inspect</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const AdminInventory = () => {
+  const { products: systemProducts, setProducts } = useData();
+  const { toast } = useToast();
+
+  const toggleTier = (productId: string) => {
+    const tiers: SellerTier[] = ["Basic", "Standard", "Pro"];
+    setProducts(prev => prev.map(p => {
+      if (p.id === productId) {
+        const currentIndex = tiers.indexOf(p.minimumTier);
+        const nextTier = tiers[(currentIndex + 1) % tiers.length];
+        return { ...p, minimumTier: nextTier };
+      }
+      return p;
+    }));
   };
 
   return (
     <div className="space-y-10 animate-in fade-in duration-700">
-      <nav className="flex gap-12 overflow-x-auto pb-4 scrollbar-hide border-b border-border">
-        {[
-          { id: 'hud', label: 'Global HUD', icon: MapIcon },
-          { id: 'verification', label: 'Verification', icon: ShieldCheck },
-          { id: 'risk', label: 'Risk Control', icon: ShieldAlert },
-          { id: 'partners', label: 'Partner Matrix', icon: Users },
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-3 pb-4 text-[10px] font-black uppercase tracking-widest border-b-4 transition-all whitespace-nowrap ${activeTab === tab.id ? 'text-primary border-primary' : 'text-muted-foreground border-transparent hover:text-foreground'}`}
-          >
-            <tab.icon className="h-4 w-4" />
-            {tab.label}
-          </button>
-        ))}
-      </nav>
-
-      <AnimatePresence mode="wait">
-        {activeTab === 'hud' && (
-          <motion.div
-            key="hud"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="space-y-10"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <StatsCard title="Real-time Inflow" value="$142.8K" icon={DollarSign} trend="+12.4% Growth" />
-              <StatsCard title="Active Nodes" value="8,412" icon={Globe} trend="All regions green" />
-              <StatsCard title="Conversion Velocity" value="8.4%" icon={Zap} trend="-1.2% vs last cycle" />
-              <StatsCard title="Risk Level" value="Minimal" icon={ShieldCheck} trend="0 threats detected" />
-            </div>
-            <div className="h-[500px] rounded-[3rem] border-2 border-border bg-card p-10 flex flex-col items-center justify-center relative overflow-hidden group">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.1),transparent)] group-hover:scale-110 transition-transform duration-1000" />
-              <div className="text-center relative z-10 max-w-2xl">
-                <Globe2 className="h-24 w-24 text-primary mx-auto mb-8 animate-pulse" />
-                <h3 className="text-4xl font-black italic uppercase tracking-tighter text-white">Global Traffic Matrix Active</h3>
-                <p className="text-muted-foreground font-medium italic mt-4 text-lg">Visualizing 14.2M packets per second across elite partner edges. Institutional routing secured via quantum ledger synchronization.</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {activeTab === 'verification' && (
-          <motion.div
-            key="verification"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-6"
-          >
-            <div className="rounded-[3rem] border-2 border-border bg-card overflow-hidden">
-              <div className="p-10 border-b border-border bg-secondary/20 flex items-center justify-between">
-                <h3 className="text-xl font-black italic uppercase tracking-tighter">Pending Authorizations.</h3>
-                <Badge className="bg-primary/20 text-primary border-primary/20 rounded-full px-4 py-1">14 Operations Pending</Badge>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic">Target Principal</th>
-                      <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic">Operational Package</th>
-                      <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground italic">Security Score</th>
-                      <th className="px-10 py-6 text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground italic">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border/50">
-                    {[
-                      { name: "John Smith", tier: "Standard Tier", score: 94 },
-                      { name: "Global Finance Ltd", tier: "Ultimate Tier", score: 98 },
-                      { name: "Sarah Connor", tier: "Basic Tier", score: 82 },
-                    ].map((partner) => (
-                      <tr key={partner.name} className="group hover:bg-secondary/10 transition-colors">
-                        <td className="px-10 py-8 font-black italic uppercase tracking-tight text-foreground">{partner.name}</td>
-                        <td className="px-10 py-8">
-                          <Badge variant="outline" className="text-[10px] font-bold border-2 px-3 py-1 bg-primary/5 text-primary border-primary/10 rounded-full">{partner.tier}</Badge>
-                        </td>
-                        <td className="px-10 py-8">
-                          <div className="flex flex-col gap-1">
-                            <span className="text-xs font-black">{partner.score}%</span>
-                            <div className="h-1.5 w-24 bg-secondary rounded-full overflow-hidden">
-                              <div className="h-full bg-success" style={{ width: `${partner.score}%` }} />
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-10 py-8 text-right">
-                          <Button onClick={() => handleApprove(partner.name)} className="h-10 px-6 rounded-xl bg-success hover:bg-success/90 text-white font-black uppercase text-[10px] tracking-widest shadow-lg shadow-success/20">Authorize</Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {activeTab === 'risk' && (
-          <motion.div
-            key="risk"
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-          >
-            <div className="lg:col-span-3 p-24 rounded-[4rem] border-2 border-dashed border-border flex flex-col items-center justify-center text-center bg-secondary/20">
-              <ShieldAlert className="h-24 w-24 text-muted-foreground/30 mb-8" />
-              <h4 className="text-3xl font-black italic text-muted-foreground uppercase">Risk Mitigation Engine Active.</h4>
-              <p className="text-muted-foreground max-w-xl mt-4 font-medium italic text-lg leading-relaxed">Automated suppression of high-frequency invalid click-streams and fraudulent lead generation is fully operational. Zero-trust environment enforced.</p>
-            </div>
-          </motion.div>
-        )}
-
-        {activeTab === 'partners' && (
-          <motion.div
-            key="partners"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="space-y-8"
-          >
-            <div className="flex bg-card border-2 border-border p-4 rounded-3xl relative overflow-hidden group max-w-2xl">
-              <Search className="absolute left-10 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Scan partner matrix by ID or region..."
-                className="h-14 pl-14 rounded-2xl bg-secondary/50 border-none font-bold text-lg focus-visible:ring-primary"
-              />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
-              {[1, 2, 3, 4, 5, 6].map(i => (
-                <div key={i} className="h-64 rounded-[3rem] border-2 border-border bg-card p-10 flex flex-col items-center justify-center group hover:border-primary/50 transition-all cursor-crosshair">
-                  <div className="h-20 w-20 rounded-2xl bg-secondary flex items-center justify-center group-hover:scale-110 transition-transform mb-4 border border-border">
-                    <Users className="h-8 w-8 text-primary" />
-                  </div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">Segment 0{i}-X</p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-};
-
-const AdminInventory = () => (
-  <div className="space-y-10 animate-in fade-in duration-700">
-    <div className="flex items-end justify-between">
-      <div>
-        <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Vault Catalog.</h2>
-        <p className="text-muted-foreground font-medium italic">Manage high-yield institutional assets and product distribution nodes.</p>
-      </div>
-      <Button className="h-14 px-8 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-widest gap-3 shadow-xl">
-        <Plus className="h-5 w-5" /> Deploy New Asset
-      </Button>
-    </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      {products.map((p) => (
-        <div key={p.id} className="p-8 rounded-[3rem] bg-card border-2 border-border hover:border-primary/30 transition-all group relative overflow-hidden">
-          <div className="h-48 rounded-3xl overflow-hidden mb-6 relative">
-            <img src={p.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-            <div className="absolute top-4 right-4 h-10 w-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20">
-              <Store className="h-5 w-5 text-white" />
-            </div>
-          </div>
-          <h4 className="text-xl font-black text-foreground italic uppercase tracking-tighter mb-2">{p.title}</h4>
-          <div className="flex items-center justify-between pt-4 border-t border-border mt-4">
-            <span className="text-2xl font-black text-primary">${p.price}</span>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="h-10 w-10 px-0 rounded-xl border-2"><Edit className="h-4 w-4" /></Button>
-              <Button size="sm" variant="outline" className="h-10 w-10 px-0 rounded-xl border-2 text-red-500 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></Button>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
-const AdminPayouts = () => (
-  <div className="space-y-10 animate-in fade-in duration-700">
-    <div className="flex items-end justify-between">
-      <div>
-        <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Payout Terminal.</h2>
-        <p className="text-muted-foreground font-medium italic">Execute global capital distributions across verified institutional nodes.</p>
-      </div>
-      <Button className="h-14 px-8 rounded-2xl bg-foreground text-background font-black text-xs uppercase tracking-widest gap-3">
-        <RefreshCw className="h-5 w-5" /> Sync Global Balance
-      </Button>
-    </div>
-
-    <div className="rounded-[4rem] border-2 border-border bg-card p-24 flex flex-col items-center justify-center text-center">
-      <CreditCard className="h-24 w-24 text-muted-foreground/30 mb-8" />
-      <h4 className="text-3xl font-black italic text-muted-foreground uppercase">Liquidity Pool Operational.</h4>
-      <p className="text-muted-foreground max-w-lg mt-4 font-medium italic text-lg leading-relaxed">Pending requests: 0. All verified distributions have been successfully transmitted via the quantum-ledger distribution protocol.</p>
-    </div>
-  </div>
-);
-
-const AdminSettings = () => {
-  const [testimonials, setTestimonials] = useState(initialTestimonials);
-  const { toast } = useToast();
-  const deleteTestimonial = (id: string) => {
-    setTestimonials(testimonials.filter(t => t.id !== id));
-    toast({ title: "Node Purged", description: "Proof entry removed." });
-  };
-
-  return (
-    <div className="space-y-14 animate-in fade-in duration-700">
-      <section className="space-y-8">
-        <div className="flex items-end justify-between">
-          <div>
-            <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Institutional Proof.</h2>
-            <p className="text-muted-foreground font-medium italic">Audit and manage client success stories displayed on the public interface.</p>
-          </div>
-          <Button className="h-14 px-8 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-widest gap-3 shadow-xl">
-            <Plus className="h-5 w-5" /> Add Log Entry
-          </Button>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {testimonials.map((t) => (
-            <div key={t.id} className="p-10 rounded-[3rem] bg-card border-2 border-border hover:border-primary/50 transition-all group relative overflow-hidden">
-              <div className="flex flex-col md:flex-row gap-8 relative z-10">
-                <div className="h-24 w-24 rounded-3xl overflow-hidden shadow-2xl flex-shrink-0 border-2 border-border"><img src={t.image} className="w-full h-full object-cover" /></div>
-                <div className="flex-1 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div><h4 className="text-xl font-black italic uppercase text-white">{t.name}</h4><p className="text-[10px] font-black text-primary uppercase tracking-[0.4em]">{t.role}</p></div>
-                    <Button onClick={() => deleteTestimonial(t.id)} variant="ghost" size="sm" className="h-12 w-12 p-0 text-red-500 hover:bg-red-500/10 rounded-2xl transition-colors"><Trash2 className="h-5 w-5" /></Button>
-                  </div>
-                  <p className="text-base italic font-medium text-muted-foreground leading-relaxed">"{t.content}"</p>
-                  <div className="flex gap-1.5 pt-2">
-                    {[1, 2, 3, 4, 5].map(s => <Star key={s} className="h-4 w-4 fill-amber-400 text-amber-400 shadow-amber-400/50 shadow-sm" />)}
-                  </div>
-                </div>
-              </div>
-              <MessageSquare className="absolute -bottom-10 -right-10 h-40 w-40 text-primary/5 rotate-12" />
-            </div>
-          ))}
-        </div>
-      </section>
-    </div>
-  );
-};
-
-const AdminSellers = () => {
-  const { toast } = useToast();
-  const [sellers] = useState([
-    { id: '1', name: 'Elite Marketing Group', volume: '$1.2M', growth: '+24%', status: 'VERIFIED' },
-    { id: '2', name: 'Global Traffic Hub', volume: '$840K', growth: '+12%', status: 'PENDING' },
-    { id: '3', name: 'Sarah Jenkins Pro', volume: '$420K', growth: '+45%', status: 'VERIFIED' },
-    { id: '4', name: 'Venture Partners LLC', volume: '$0', growth: '0%', status: 'PENDING' },
-  ]);
-
-  const handleAction = (id: string, action: string) => {
-    toast({ title: `Action: ${action}`, description: `Seller ${id} protocol updated.` });
-  };
-
-  return (
-    <div className="space-y-12 animate-in fade-in duration-700">
       <div className="flex items-end justify-between">
         <div>
-          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Partner Matrix.</h2>
-          <p className="text-muted-foreground font-medium italic text-lg">Managing the decentralized network of verified referral nodes.</p>
+          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Institutional Ledger.</h2>
+          <p className="text-muted-foreground font-medium italic">Configure asset visibility across operational tiers.</p>
         </div>
-        <div className="flex gap-4">
-          <Button variant="outline" className="h-14 px-8 rounded-2xl border-2 font-black uppercase text-xs tracking-widest gap-2"><Filter className="h-4 w-4" /> Filter Matrix</Button>
-          <Button className="h-14 px-8 rounded-2xl bg-primary text-white font-black uppercase text-xs tracking-widest gap-2 shadow-xl shadow-primary/20"><Plus className="h-4 w-4" /> Provision Node</Button>
+        <Button className="h-14 px-8 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-widest gap-3 shadow-xl">
+          <Plus className="h-5 w-5" /> Deploy New Asset
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {systemProducts.map((p) => (
+          <div key={p.id} className="p-8 rounded-[3rem] bg-card border-2 border-border hover:border-primary/30 transition-all group relative overflow-hidden">
+            <div className="h-48 rounded-3xl overflow-hidden mb-6 relative">
+              <img src={p.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+              <div className="absolute top-4 right-4 h-10 w-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20"><Store className="h-5 w-5 text-white" /></div>
+              <div className="absolute bottom-4 left-4">
+                <Badge onClick={() => toggleTier(p.id)} className={`cursor-pointer border-none font-black text-[8px] uppercase tracking-widest px-3 py-1 rounded-full ${p.minimumTier === "Basic" ? "bg-slate-500 text-white" : p.minimumTier === "Standard" ? "bg-primary text-white" : "bg-amber-500 text-white"}`}>Tier: {p.minimumTier}</Badge>
+              </div>
+            </div>
+            <h4 className="text-xl font-black text-foreground italic uppercase tracking-tighter mb-2">{p.title}</h4>
+            <div className="flex items-center justify-between pt-4 border-t border-border mt-4">
+              <span className="text-2xl font-black text-primary">${p.price}</span>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="h-10 w-10 px-0 rounded-xl border-2"><Edit className="h-4 w-4" /></Button>
+                <Button size="sm" variant="outline" className="h-10 w-10 px-0 rounded-xl border-2 hover:bg-red-500/10 text-red-500 border-red-500/20"><Trash2 className="h-4 w-4" /></Button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const AdminCommissions = () => {
+  const { globalCommission, setGlobalCommission, minPayoutThreshold, setMinPayoutThreshold } = useData();
+  const { toast } = useToast();
+
+  return (
+    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div>
+        <h2 className="text-4xl font-black text-foreground tracking-tighter mb-2 italic uppercase">Commission Mesh.</h2>
+        <p className="text-muted-foreground font-medium italic">Configure institutional payout protocols and tier adjustments.</p>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="p-10 rounded-[3rem] bg-card border-2 border-border space-y-8">
+          <div className="flex items-center gap-4 mb-4"><div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center"><TrendingUp className="h-6 w-6 text-primary" /></div><h3 className="text-xl font-black italic uppercase tracking-tight">Global Parameters</h3></div>
+          <div className="space-y-6">
+            <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Default Rate (%)</label><div className="flex items-center gap-4"><Input type="number" value={globalCommission} onChange={(e) => setGlobalCommission(Number(e.target.value))} className="h-16 rounded-2xl bg-secondary border-none font-black text-2xl px-6" /><Button onClick={() => toast({ title: "Settings Updated" })} className="h-16 px-8 rounded-2xl font-black uppercase text-xs tracking-widest">Seal</Button></div></div>
+            <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Payout Threshold ($)</label><div className="flex items-center gap-4"><Input type="number" value={minPayoutThreshold} onChange={(e) => setMinPayoutThreshold(Number(e.target.value))} className="h-16 rounded-2xl bg-secondary border-none font-black text-2xl px-6" /><Button onClick={() => toast({ title: "Threshold Synchronized" })} className="h-16 px-8 rounded-2xl font-black uppercase text-xs tracking-widest">Seal</Button></div></div>
+          </div>
+        </div>
+        <div className="p-10 rounded-[3rem] bg-foreground text-background space-y-8 relative overflow-hidden">
+          <div className="flex items-center gap-4 mb-4"><div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center"><Star className="h-6 w-6 text-primary" /></div><h3 className="text-xl font-black italic uppercase tracking-tight text-white">Tiered Bonus System</h3></div>
+          <div className="space-y-4">
+            {[{ label: "Elite (500+ Sales)", rate: "+5%" }, { label: "Veteran (200+ Sales)", rate: "+2%" }].map(tier => (
+              <div key={tier.label} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-widest">{tier.label}</p><p className="text-2xl font-black text-primary">{tier.rate}</p></div><Badge className="bg-white/10 text-white border-none text-[8px] uppercase font-black px-4">Active</Badge></div>
+            ))}
+          </div>
         </div>
       </div>
+    </div>
+  );
+};
 
-      <div className="rounded-[4rem] border-2 border-border bg-card overflow-hidden shadow-2xl">
+const AdminPayouts = () => {
+  const { payouts, setPayouts } = useData();
+  const { toast } = useToast();
+  const handleProcess = (id: string) => {
+    setPayouts(payouts.map(p => p.id === id ? { ...p, status: "PROCESSED" } : p));
+    toast({ title: "Funds Transmitted", description: "Capital has been routed successfully." });
+  };
+
+  return (
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <div className="flex items-end justify-between">
+        <div><h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Payout Portal.</h2><p className="text-muted-foreground font-medium italic">Approve and track global distributions.</p></div>
+        <Button className="h-14 rounded-2xl bg-foreground text-background font-black uppercase text-xs tracking-widest gap-3 px-8 shadow-2xl"><Download className="h-5 w-5" /> Batch Protocol</Button>
+      </div>
+      <div className="rounded-[3rem] border-2 border-border bg-card overflow-hidden">
         <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-border bg-secondary/30">
-              <th className="px-12 py-8 text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground italic">Node Principal</th>
-              <th className="px-12 py-8 text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground italic">Aggregate Flow</th>
-              <th className="px-12 py-8 text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground italic">Velocity</th>
-              <th className="px-12 py-8 text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground italic">Auth Status</th>
-              <th className="px-12 py-8 text-right text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground italic">Protocol Override</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/50">
-            {sellers.map((s) => (
-              <tr key={s.id} className="group hover:bg-primary/5 transition-all">
-                <td className="px-12 py-10">
-                  <div className="flex items-center gap-5">
-                    <div className="h-14 w-14 rounded-2xl bg-secondary flex items-center justify-center border border-border group-hover:scale-110 transition-transform"><Users className="h-6 w-6 text-primary" /></div>
-                    <div>
-                      <p className="font-black text-foreground text-lg italic uppercase tracking-tighter">{s.name}</p>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-50 tracking-widest">ID: 0x{s.id}BF-Ledger</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-12 py-10 font-black italic text-xl text-primary">{s.volume}</td>
-                <td className="px-12 py-10">
-                  <Badge className="bg-success/20 text-success border-success/20 font-black text-[10px] tracking-widest">{s.growth}</Badge>
-                </td>
-                <td className="px-12 py-10">
-                  <div className="flex items-center gap-3">
-                    <div className={`h-2.5 w-2.5 rounded-full ${s.status === 'VERIFIED' ? 'bg-success animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.5)]' : 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]'}`} />
-                    <span className="text-[10px] font-black uppercase tracking-widest">{s.status}</span>
-                  </div>
-                </td>
-                <td className="px-12 py-10 text-right space-x-3">
-                  <Button onClick={() => handleAction(s.id, 'SHADOW')} variant="ghost" className="h-12 w-12 rounded-2xl hover:bg-secondary border border-transparent hover:border-border"><ShieldAlert className="h-5 w-5 opacity-40 group-hover:opacity-100" /></Button>
-                  <Button onClick={() => handleAction(s.id, 'EDIT')} variant="ghost" className="h-12 w-12 rounded-2xl hover:bg-secondary border border-transparent hover:border-border"><Edit className="h-5 w-5 opacity-40 group-hover:opacity-100" /></Button>
-                  <Button onClick={() => handleAction(s.id, 'PURGE')} variant="ghost" className="h-12 w-12 rounded-2xl text-red-500 hover:bg-red-500/10 border border-transparent hover:border-red-500/20"><Trash2 className="h-5 w-5" /></Button>
-                </td>
+          <thead className="border-b-2 border-border bg-secondary/30"><tr className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground"><th className="px-8 py-6">Partner Identity</th><th className="px-8 py-6">Amount</th><th className="px-8 py-6">Method</th><th className="px-8 py-6">Status</th><th className="px-8 py-6 text-right">Auth</th></tr></thead>
+          <tbody className="divide-y-2 divide-border">
+            {payouts.map((p) => (
+              <tr key={p.id} className="group hover:bg-secondary/10 transition-all font-bold text-sm">
+                <td className="px-8 py-6"><p className="text-foreground italic uppercase">{p.userName}</p><p className="text-[10px] text-muted-foreground">{p.invoiceId}</p></td>
+                <td className="px-8 py-6 text-lg font-black italic text-foreground">${p.amount}</td>
+                <td className="px-8 py-6 uppercase text-[10px] opacity-60 italic">{p.method}</td>
+                <td className="px-8 py-6"><Badge className={`text-[8px] font-black uppercase border-none ${p.status === 'PROCESSED' ? 'bg-success/10 text-success' : 'bg-amber-500/10 text-amber-500'}`}>{p.status}</Badge></td>
+                <td className="px-8 py-6 text-right">{p.status === 'PENDING' ? <Button onClick={() => handleProcess(p.id)} size="sm" className="h-10 px-6 rounded-xl font-black text-xs uppercase bg-primary text-white">Authorize</Button> : <Button variant="outline" size="sm" className="h-10 w-10 p-0 rounded-xl"><FileText className="h-4 w-4" /></Button>}</td>
               </tr>
             ))}
           </tbody>
@@ -373,66 +314,69 @@ const AdminSellers = () => {
 };
 
 const AdminAnalytics = () => {
+  const { analytics } = useData();
   return (
-    <div className="space-y-12 animate-in fade-in duration-700">
-      <div className="flex items-end justify-between">
-        <div>
-          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Intelligence Node.</h2>
-          <p className="text-muted-foreground font-medium italic text-lg">Quantum telemetry of global platform performance and conversion heatmaps.</p>
-        </div>
-        <Button className="h-14 px-8 rounded-2xl bg-foreground text-background font-black uppercase text-xs tracking-widest gap-2">
-          <RefreshCw className="h-5 w-5" /> Sync Global Data
-        </Button>
-      </div>
-
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <div><h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Tracking Logs.</h2><p className="text-muted-foreground font-medium italic">High-fidelity real-time behavioral data streams.</p></div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatsCard title="Peak EPC" value="$42.80" icon={Zap} trend="+8.2% Intraday" />
-        <StatsCard title="Node Retention" value="98.4%" icon={Target} trend="Optimal Threshold" />
-        <StatsCard title="Traffic Pumping" value="1.4M /hr" icon={Activity} trend="Scaling Active" />
-        <StatsCard title="System Integrity" value="100.0%" icon={ShieldCheck} trend="Zero Downtime" />
+        <StatsCard title="Mean Depth" value="1.2M+" icon={Activity} trend="+15.4% Rise" />
+        <StatsCard title="Mobile Route" value="64.2%" icon={Smartphone} trend="Majority Inflow" />
+        <StatsCard title="Global Nodes" value="142" icon={Globe} trend="Active Regions" />
+        <StatsCard title="Protocol Trust" value="99.98%" icon={ShieldCheck} trend="Verified" />
       </div>
+      <div className="rounded-[3rem] border-2 border-border bg-card overflow-hidden">
+        <div className="px-8 py-6 bg-secondary/30 border-b-2 border-border flex justify-between items-center"><h3 className="text-[10px] font-black uppercase tracking-[0.4em]">Live Telemetry Stream</h3><Badge className="bg-success text-white border-none animate-pulse">Live</Badge></div>
+        <div className="divide-y-2 divide-border">
+          {analytics.slice(0, 10).map((event) => (
+            <div key={event.id} className="p-6 flex items-center justify-between group hover:bg-secondary/10 transition-all">
+              <div className="flex items-center gap-6"><div className={`h-12 w-12 rounded-xl flex items-center justify-center ${event.type === 'CONVERSION' ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'}`}>{event.type === 'CONVERSION' ? <CheckCircle2 className="h-6 w-6" /> : <MousePointerClick className="h-6 w-6" />}</div><div><p className="font-black text-foreground italic uppercase text-sm">{event.type} Detected</p><p className="text-[10px] font-bold text-muted-foreground uppercase">IP: {event.ip} • Region: {event.geo}</p></div></div>
+              <div className="text-right"><p className="text-sm font-black text-foreground">Auth: {event.affiliateId}</p><p className="text-[10px] font-bold text-muted-foreground uppercase">{new Date(event.timestamp).toLocaleTimeString()}</p></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8 p-12 rounded-[4rem] border-2 border-border bg-card relative overflow-hidden group min-h-[500px] flex items-center justify-center">
-          <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-primary/10 to-transparent" />
-          <div className="text-center relative z-10">
-            <BarChart3 className="h-32 w-32 text-primary/20 mx-auto mb-8" />
-            <h4 className="text-2xl font-black italic uppercase tracking-tighter text-muted-foreground">Historical Performance Matrix.</h4>
-            <p className="text-muted-foreground mt-2 italic font-medium">Visualization engine currently synthesizing 12.4M past operations into a cohesive yield map.</p>
+const AdminFraud = () => {
+  return (
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <div><h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Risk Mesh.</h2><p className="text-muted-foreground font-medium italic">Autonomous fraud detection and compliance monitoring.</p></div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="p-10 rounded-[3rem] border-2 border-border bg-card space-y-8">
+          <div className="flex items-center gap-4"><ShieldAlert className="h-8 w-8 text-red-500" /><h3 className="text-xl font-black italic uppercase">Active Threats</h3></div>
+          <div className="space-y-6">
+            {[{ type: "IP COLLISION", desc: "Multiple identities sharing same route", level: "HIGH" }, { type: "VELOCITY GAP", desc: "Unusual click frequency detected", level: "MEDIUM" }].map(threat => (
+              <div key={threat.type} className="p-6 rounded-2xl bg-secondary/50 border border-border flex items-center justify-between"><div><p className="text-[10px] font-black text-red-500">{threat.type}</p><p className="text-sm font-bold text-muted-foreground italic">{threat.desc}</p></div><Badge variant="destructive" className="font-black text-[8px] uppercase">{threat.level}</Badge></div>
+            ))}
           </div>
         </div>
-        <div className="lg:col-span-4 space-y-8">
-          <div className="p-10 rounded-[3rem] border-2 border-border bg-foreground text-background">
-            <h4 className="text-xl font-black italic uppercase mb-8">Top Yield Nodes.</h4>
-            <div className="space-y-6">
-              {[
-                { name: "Dubai Alpha", flow: "32%" },
-                { name: "Tokyo Core", flow: "28%" },
-                { name: "London Edge", flow: "24%" },
-                { name: "NYC Proxy", flow: "16%" },
-              ].map(node => (
-                <div key={node.name} className="space-y-2">
-                  <div className="flex items-center justify-between font-black text-[10px] uppercase tracking-widest italic">
-                    <span>{node.name}</span>
-                    <span>{node.flow}</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-background/20 rounded-full overflow-hidden">
-                    <div className="h-full bg-primary" style={{ width: node.flow }} />
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div className="p-10 rounded-[3rem] bg-foreground text-background space-y-8 relative overflow-hidden"><div className="flex items-center gap-4"><UserCheck className="h-8 w-8 text-success" /><h3 className="text-xl font-black italic uppercase text-white">Compliance Protocols</h3></div><div className="space-y-4">{["GDPR Removal Protocol", "FTC Disclosure Monitor", "AML Verification Loop"].map(rule => (<div key={rule} className="flex items-center gap-4 p-4 border border-white/10 rounded-2xl bg-white/5"><CheckCircle2 className="h-5 w-5 text-success" /><span className="text-xs font-black uppercase text-white/80 italic">{rule}</span></div>))}</div></div>
+      </div>
+    </div>
+  );
+};
+
+const AdminSettings = () => {
+  const { landingContent, setLandingContent, exchangeRate, setExchangeRate } = useData();
+  const { toast } = useToast();
+  return (
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <div><h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">System Config.</h2><p className="text-muted-foreground font-medium italic">Configure core platform parameters.</p></div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div className="p-10 rounded-[3rem] border-2 border-border bg-card space-y-6">
+          <h3 className="text-xl font-black italic uppercase tracking-tight">Exchange Mesh</h3>
+          <div className="p-6 rounded-2xl bg-secondary space-y-4">
+            <div className="flex justify-between items-center"><span className="text-[10px] font-black uppercase opacity-60 italic">USD / GHS (Live Rate)</span><Badge className="bg-primary/10 text-primary border-none">Active</Badge></div>
+            <div className="flex items-center gap-4"><Input type="number" value={exchangeRate} onChange={(e) => setExchangeRate(Number(e.target.value))} className="h-16 rounded-2xl bg-background border-none font-black text-2xl px-6" /><Button onClick={() => toast({ title: "Rate Synchronized" })} className="h-16 px-8 rounded-2xl font-black text-xs uppercase tracking-widest">Update</Button></div>
           </div>
-          <div className="p-10 rounded-[3rem] border-2 border-border bg-card">
-            <h4 className="text-xl font-black italic uppercase mb-8">Live Log Stream.</h4>
-            <div className="space-y-4">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="flex gap-4 items-start pb-4 border-b border-border last:border-0 opacity-60">
-                  <div className="h-2 w-2 rounded-full bg-primary mt-1" />
-                  <p className="text-[10px] font-bold italic uppercase leading-tight">AUTH SUCCESS: Partner {i}024 initiated quantum link.</p>
-                </div>
-              ))}
-            </div>
+        </div>
+        <div className="p-10 rounded-[3rem] border-2 border-border bg-card space-y-6">
+          <h3 className="text-xl font-black italic uppercase tracking-tight">Front-End Protocol</h3>
+          <div className="space-y-4">
+            <div className="space-y-2"><label className="text-[10px] font-black uppercase text-muted-foreground">Heading Overlay</label><Input value={landingContent.heroTitle} onChange={(e) => setLandingContent({ ...landingContent, heroTitle: e.target.value })} className="h-14 rounded-xl bg-secondary border-none font-bold italic" /></div>
+            <Button onClick={() => toast({ title: "Broadcast Successful" })} className="w-full h-14 rounded-xl font-black uppercase text-xs tracking-widest">Broadcast Changes</Button>
           </div>
         </div>
       </div>
@@ -440,138 +384,81 @@ const AdminAnalytics = () => {
   );
 };
 
-const AdminAudit = () => (
-  <div className="space-y-12 animate-in fade-in duration-700">
-    <div className="flex items-end justify-between">
-      <div>
-        <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Audit Registry.</h2>
-        <p className="text-muted-foreground font-medium italic text-lg">Immutable log of every administrative protocol executed on the ledger.</p>
-      </div>
-      <Button variant="outline" className="h-14 px-8 rounded-2xl border-2 font-black uppercase text-xs tracking-widest gap-2">
-        <Server className="h-4 w-4" /> Export Ledger
-      </Button>
-    </div>
-
-    <div className="rounded-[4rem] border-2 border-border bg-card overflow-hidden">
-      <div className="divide-y divide-border/50">
-        {[
-          { event: 'NODE_AUTH', user: 'Admin_01', detail: 'Authorized Elite Marketing Group (Node 0x1)', time: '2m ago', risk: 'LOW' },
-          { event: 'PAYOUT_RECONCILE', user: 'SYSTEM', detail: 'Bulk reconciliation of $142.8K inflow completed', time: '14m ago', risk: 'MINIMAL' },
-          { event: 'ASSET_DEPLOY', user: 'Admin_02', detail: 'New Inventory Item "Quantum Ledger Pro" deployed', time: '1h ago', risk: 'LOW' },
-          { event: 'RISK_SUPPRESSION', user: 'ENGINE', detail: 'Blocked 1,402 attempts from high-latency IP range', time: '2h ago', risk: 'CRITICAL' },
-        ].map((log, i) => (
-          <div key={i} className="p-10 flex items-center justify-between hover:bg-secondary/20 transition-colors group">
-            <div className="flex items-center gap-8">
-              <div className={`h-12 w-12 rounded-xl flex items-center justify-center font-black text-[10px] ${log.risk === 'CRITICAL' ? 'bg-red-500/10 text-red-500' : 'bg-primary/10 text-primary'}`}>
-                {log.event[0]}
-              </div>
-              <div>
-                <p className="font-black text-foreground uppercase tracking-tight">{log.event}</p>
-                <p className="text-xs text-muted-foreground font-medium italic">{log.detail}</p>
-              </div>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] font-black uppercase text-foreground">{log.user}</p>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase opacity-40">{log.time}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
-
-const AdminSecurity = () => (
-  <div className="space-y-12 animate-in fade-in duration-700">
-    <div className="flex items-end justify-between">
-      <div>
-        <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Security Mesh.</h2>
-        <p className="text-muted-foreground font-medium italic text-lg">System-wide risk suppression and anti-fraud protocol management.</p>
-      </div>
-    </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div className="p-12 rounded-[4rem] bg-foreground text-background space-y-10 group relative overflow-hidden">
-        <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:scale-125 transition-transform duration-1000">
-          <ShieldAlert className="h-48 w-48" />
-        </div>
-        <h4 className="text-3xl font-black italic uppercase tracking-tighter relative z-10">Suppression Matrix.</h4>
-        <div className="space-y-6 relative z-10">
-          {[
-            { label: 'Click Injection Filter', status: 'ACTIVE', color: 'bg-primary' },
-            { label: 'Proxy Node Blocking', status: 'ACTIVE', color: 'bg-primary' },
-            { label: 'Latency Outlier Purge', status: 'LEARNING', color: 'bg-amber-400' },
-          ].map(item => (
-            <div key={item.label} className="flex items-center justify-between p-6 rounded-3xl bg-background/10 border border-background/20">
-              <span className="font-black text-xs uppercase tracking-widest italic">{item.label}</span>
-              <Badge className={`${item.color} text-white font-black text-[8px] uppercase tracking-widest`}>{item.status}</Badge>
-            </div>
-          ))}
-        </div>
-        <Button className="w-full h-16 rounded-3xl bg-background text-foreground font-black uppercase text-xs tracking-[0.3em] hover:bg-primary hover:text-white transition-all">Recalibrate Intelligence Engine</Button>
-      </div>
-
-      <div className="p-12 rounded-[4rem] border-2 border-border bg-card space-y-10">
-        <h4 className="text-3xl font-black italic uppercase tracking-tighter">Auth Protocols.</h4>
-        <div className="space-y-8">
-          <div className="p-8 rounded-3xl bg-secondary/50 border border-border flex items-center justify-between">
-            <div>
-              <p className="font-black text-xs uppercase tracking-widest mb-1">MFA Enforcement</p>
-              <p className="text-[10px] text-muted-foreground font-medium italic">Require 2FA for all Super Admin actions.</p>
-            </div>
-            <div className="h-8 w-14 bg-success rounded-full flex items-center px-1 shadow-inner cursor-pointer hover:scale-105 transition-transform"><div className="h-6 w-6 bg-white rounded-full shadow-lg ml-auto" /></div>
-          </div>
-          <div className="p-8 rounded-3xl bg-secondary/50 border border-border flex items-center justify-between">
-            <div>
-              <p className="font-black text-xs uppercase tracking-widest mb-1">Geofencing Nodes</p>
-              <p className="text-[10px] text-muted-foreground font-medium italic">Restrict Admin access to verified IP blocks.</p>
-            </div>
-            <div className="h-8 w-14 bg-slate-700 rounded-full flex items-center px-1 shadow-inner cursor-pointer hover:scale-105 transition-transform"><div className="h-6 w-6 bg-slate-400 rounded-full shadow-lg" /></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
+// --- Main Admin Dashboard Component ---
 
 const AdminDashboard = () => {
+  const location = useLocation();
+
+  const activeTab = useMemo(() => {
+    const path = location.pathname;
+    if (path.includes("/users")) return "users";
+    if (path.includes("/inventory")) return "inventory";
+    if (path.includes("/commissions")) return "commissions";
+    if (path.includes("/payouts")) return "payouts";
+    if (path.includes("/analytics")) return "analytics";
+    if (path.includes("/fraud")) return "fraud";
+    if (path.includes("/settings")) return "settings";
+    return "overview";
+  }, [location.pathname]);
+
   return (
     <div className="flex min-h-screen bg-transparent">
       <DashboardSidebar type="admin" />
-
       <main className="flex-1 overflow-auto bg-transparent">
-        <header className="sticky top-0 z-30 bg-background/60 backdrop-blur-3xl border-b border-border px-10 py-10">
-          <div className="flex items-center justify-between gap-8">
-            <div className="flex items-center gap-8">
-              <div className="h-20 w-20 rounded-[2.5rem] bg-foreground flex items-center justify-center shadow-2xl relative group overflow-hidden border border-border">
-                <Cpu className="h-10 w-10 text-background group-hover:scale-110 transition-transform" />
-                <div className="absolute inset-0 bg-primary/10 animate-pulse pointer-events-none" />
+        <div className="sticky top-0 z-20 bg-background/60 backdrop-blur-xl border-b border-border px-10 py-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="flex items-center gap-6">
+              <div className="h-16 w-16 rounded-[2.2rem] bg-foreground flex items-center justify-center shadow-2xl relative">
+                <LayoutDashboard className="h-8 w-8 text-background" />
+                <div className="absolute top-0 right-0 h-4 w-4 bg-primary rounded-full border-4 border-background animate-pulse" />
               </div>
               <div>
-                <h1 className="text-4xl font-black text-foreground italic uppercase tracking-tighter">Command Node 01.</h1>
-                <div className="flex items-center gap-3 mt-1.5">
-                  <Badge className="bg-success text-white border-none rounded-full px-5 py-1 text-[10px] font-black uppercase tracking-widest">Master Auth Active</Badge>
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground italic flex items-center gap-2">
-                    <Globe className="h-3.5 w-3.5" /> Institutional Hub Secured
-                  </span>
+                <h1 className="text-3xl font-black text-foreground italic tracking-tight uppercase">SuperAdmin Console.</h1>
+                <div className="flex items-center gap-4 mt-1">
+                  <Badge className="text-[10px] font-black uppercase px-3 py-0.5 rounded-full border-2 bg-primary/10 text-primary border-primary/20">System Root</Badge>
+                  <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-nowrap">
+                    <div className="flex items-center gap-2"><Globe className="h-3 w-3" /> Nodes Active</div>
+                    <div className="flex items-center gap-2 text-success"><ShieldCheck className="h-3 w-3" /> Mesh Live</div>
+                  </div>
                 </div>
               </div>
             </div>
+            <div className="flex items-center gap-4">
+              <div className="hidden lg:flex items-center gap-6 mr-6 border-r border-border pr-8 text-right">
+                <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Global Treasury</p>
+                <p className="text-lg font-black text-foreground italic">$2,142,500.00</p>
+              </div>
+              <Button className="h-14 px-8 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] gap-3 shadow-2xl shadow-primary/20">
+                <Cpu className="h-4 w-4" /> Hard Sync
+              </Button>
+            </div>
           </div>
-        </header>
-
-        <div className="p-10 max-w-[1600px] mx-auto min-h-[calc(100vh-140px)] flex flex-col">
-          <Routes>
-            <Route index element={<AdminHUD />} />
-            <Route path="inventory" element={<AdminInventory />} />
-            <Route path="sellers" element={<AdminSellers />} />
-            <Route path="payouts" element={<AdminPayouts />} />
-            <Route path="analytics" element={<AdminAnalytics />} />
-            <Route path="audit" element={<AdminAudit />} />
-            <Route path="security" element={<AdminSecurity />} />
-            <Route path="settings" element={<AdminSettings />} />
-            <Route path="*" element={<AdminHUD />} />
-          </Routes>
+          <nav className="flex gap-8 mt-10 overflow-x-auto pb-2 scrollbar-hide">
+            {[
+              { id: "overview", label: "Overview", to: "/dashboard/admin", icon: BarChart3 },
+              { id: "users", label: "Identity", to: "/dashboard/admin/users", icon: Users },
+              { id: "inventory", label: "Assets", to: "/dashboard/admin/inventory", icon: Layers },
+              { id: "commissions", label: "Rewards", to: "/dashboard/admin/commissions", icon: TrendingUp },
+              { id: "payouts", label: "Capital", to: "/dashboard/admin/payouts", icon: CreditCard },
+              { id: "analytics", label: "Behavior", to: "/dashboard/admin/analytics", icon: Activity },
+              { id: "fraud", label: "Risk", to: "/dashboard/admin/fraud", icon: ShieldAlert },
+              { id: "settings", label: "Config", to: "/dashboard/admin/settings", icon: Settings },
+            ].map(tab => (
+              <Link key={tab.id} to={tab.to} className={`flex items-center gap-3 text-[10px] font-black uppercase tracking-widest pb-4 border-b-4 transition-all whitespace-nowrap ${activeTab === tab.id ? 'text-primary border-primary' : 'text-muted-foreground border-transparent hover:text-foreground'}`} >
+                <tab.icon className="h-3.5 w-3.5" /> {tab.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
+        <div className="p-10 max-w-7xl mx-auto">
+          {activeTab === "overview" && <AdminHUD />}
+          {activeTab === "users" && <AdminUsers />}
+          {activeTab === "inventory" && <AdminInventory />}
+          {activeTab === "commissions" && <AdminCommissions />}
+          {activeTab === "payouts" && <AdminPayouts />}
+          {activeTab === "analytics" && <AdminAnalytics />}
+          {activeTab === "fraud" && <AdminFraud />}
+          {activeTab === "settings" && <AdminSettings />}
         </div>
       </main>
     </div>

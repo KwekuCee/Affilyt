@@ -5,7 +5,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import PurchaseModal from "@/components/PurchaseModal";
-import { useProducts, DBProduct } from "@/hooks/useProducts";
+import { useAuth } from "@/context/AuthContext";
+import { useData } from "@/context/DataContext";
 import { Slider } from "@/components/ui/slider";
 import { Search, CheckSquare, Square, ChevronDown, Link as LinkIcon, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -14,28 +15,41 @@ const Storefront = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const [priceRange, setPriceRange] = useState([0, 1500]);
-  const [selectedProduct, setSelectedProduct] = useState<DBProduct | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [searchParams] = useSearchParams();
   const refId = searchParams.get("ref");
 
-  const { data: products = [], isLoading } = useProducts();
+  const { role, packageType } = useAuth();
+  const { products: systemProducts } = useData();
+  const isLoading = false;
 
   const categories = useMemo(() => {
-    const cats = [...new Set(products.map(p => p.category))];
+    const cats = [...new Set(systemProducts.map(p => p.category))];
     return [
-      { label: "All Products", count: products.length },
-      ...cats.map(c => ({ label: c, count: products.filter(p => p.category === c).length }))
+      { label: "All Products", count: systemProducts.length },
+      ...cats.map(c => ({ label: c, count: systemProducts.filter(p => p.category === c).length }))
     ];
-  }, [products]);
+  }, [systemProducts]);
 
   const filtered = useMemo(() => {
-    return products.filter((p) => {
+    return systemProducts.filter((p) => {
+      // Package rules:
+      // Pro: all (Basic + Standard + Pro)
+      // Standard: Basic + Standard
+      // Basic / Guest: Basic
+      const tierRank = { "Basic": 0, "Standard": 1, "Pro": 2 };
+      const userTier = role === "SUPERADMIN" ? "Pro" : (packageType || "Basic");
+      const userRank = tierRank[userTier as keyof typeof tierRank];
+      const productRank = tierRank[p.minimumTier as keyof typeof tierRank];
+
+      if (productRank > userRank) return false;
+
       const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === "All Products" || p.category === selectedCategory;
       const matchesPrice = Number(p.price) >= priceRange[0] && Number(p.price) <= priceRange[1];
       return matchesSearch && matchesCategory && matchesPrice;
     });
-  }, [products, searchQuery, selectedCategory, priceRange]);
+  }, [systemProducts, searchQuery, selectedCategory, priceRange, packageType, role]);
 
   return (
     <div className="min-h-screen bg-background">
