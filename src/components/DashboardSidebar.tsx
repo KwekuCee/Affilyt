@@ -1,5 +1,5 @@
 import { NavLink as RouterNavLink, useLocation, Link, useNavigate } from "react-router-dom";
-import { LayoutDashboard, Store, DollarSign, Settings, Package, Users, CreditCard, BarChart3, ArrowLeft, Moon, Sun, HelpCircle, LogOut } from "lucide-react";
+import { LayoutDashboard, Store, DollarSign, Settings, Package, Users, CreditCard, BarChart3, ArrowLeft, Moon, Sun, HelpCircle, LogOut, Server, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const affiliateLinks = [
