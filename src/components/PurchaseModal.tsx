@@ -1,11 +1,11 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShieldCheck, Check, ArrowRight } from "lucide-react";
-import { Product } from "@/lib/data";
+import { DBProduct } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "react-router-dom";
 
 interface PurchaseModalProps {
-  product: Product | null;
+  product: DBProduct | null;
   onClose: () => void;
 }
 
@@ -38,7 +38,7 @@ const PurchaseModal = ({ product, onClose }: PurchaseModalProps) => {
 
             <div className="mb-5">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Acquisition Price</p>
-              <p className="text-4xl font-black text-foreground mt-1">${product.price.toFixed(2)} <span className="text-sm font-normal text-muted-foreground">USD</span></p>
+              <p className="text-4xl font-black text-foreground mt-1">${Number(product.price).toFixed(2)} <span className="text-sm font-normal text-muted-foreground">USD</span></p>
             </div>
 
             <Button className="w-full rounded-lg bg-primary text-primary-foreground h-12 text-sm font-bold gap-2 mb-3" onClick={onClose}>
@@ -48,7 +48,7 @@ const PurchaseModal = ({ product, onClose }: PurchaseModalProps) => {
             <div className="space-y-2.5 border-t border-border pt-4 mt-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Escrow Fee (1.5%)</span>
-                <span className="text-foreground font-medium">+${(product.price * 0.015).toFixed(2)}</span>
+                <span className="text-foreground font-medium">+${(Number(product.price) * 0.015).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Technical Audit</span>
@@ -56,7 +56,7 @@ const PurchaseModal = ({ product, onClose }: PurchaseModalProps) => {
               </div>
               <div className="flex justify-between text-sm font-bold border-t border-border pt-2.5">
                 <span className="text-foreground">Total Estimate</span>
-                <span className="text-foreground">${(product.price * 1.015).toFixed(2)}</span>
+                <span className="text-foreground">${(Number(product.price) * 1.015).toFixed(2)}</span>
               </div>
             </div>
 

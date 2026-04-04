@@ -5,41 +5,44 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import PurchaseModal from "@/components/PurchaseModal";
-import { products, Product } from "@/lib/data";
+import { useProducts, DBProduct } from "@/hooks/useProducts";
 import { Slider } from "@/components/ui/slider";
-import { Search, CheckSquare, Square, ChevronDown, Link as LinkIcon } from "lucide-react";
+import { Search, CheckSquare, Square, ChevronDown, Link as LinkIcon, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-
-const categories = [
-  { label: "All Products", count: products.length },
-  { label: "Courses", count: products.filter(p => p.category === "Courses").length },
-  { label: "Software", count: products.filter(p => p.category === "Software").length },
-  { label: "E-books", count: products.filter(p => p.category === "E-books").length },
-];
 
 const Storefront = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All Products");
-  const [priceRange, setPriceRange] = useState([49, 299]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [priceRange, setPriceRange] = useState([0, 1500]);
+  const [selectedProduct, setSelectedProduct] = useState<DBProduct | null>(null);
   const [searchParams] = useSearchParams();
   const refId = searchParams.get("ref");
+
+  const { data: products = [], isLoading } = useProducts();
+
+  const categories = useMemo(() => {
+    const cats = [...new Set(products.map(p => p.category))];
+    return [
+      { label: "All Products", count: products.length },
+      ...cats.map(c => ({ label: c, count: products.filter(p => p.category === c).length }))
+    ];
+  }, [products]);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
       const matchesSearch = p.title.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === "All Products" || p.category === selectedCategory;
-      const matchesPrice = p.price >= priceRange[0] && p.price <= priceRange[1];
+      const matchesPrice = Number(p.price) >= priceRange[0] && Number(p.price) <= priceRange[1];
       return matchesSearch && matchesCategory && matchesPrice;
     });
-  }, [searchQuery, selectedCategory, priceRange]);
+  }, [products, searchQuery, selectedCategory, priceRange]);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       {refId && (
-        <div className="border-b border-success/20 bg-success/5 py-2 text-center text-sm text-success font-medium">
+        <div className="border-b border-primary/20 bg-primary/5 py-2 text-center text-sm text-primary font-medium">
           <LinkIcon className="inline h-3.5 w-3.5 mr-1.5" />
           REFERRAL ACTIVE: BUY VIA AFFILIATE FOR PRIORITY SUPPORT
         </div>
@@ -71,7 +74,12 @@ const Storefront = () => {
             <h3 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Discovery</h3>
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Search resources..." className="pl-9 h-8 text-xs rounded-lg bg-secondary border-0" />
+              <Input
+                placeholder="Search resources..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 h-8 text-xs rounded-lg bg-secondary border-0"
+              />
             </div>
           </div>
 
@@ -104,7 +112,7 @@ const Storefront = () => {
               <h3 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Investment</h3>
               <span className="text-[10px] font-semibold text-primary">${priceRange[0]}—${priceRange[1]}</span>
             </div>
-            <Slider min={0} max={500} step={10} value={priceRange} onValueChange={setPriceRange} />
+            <Slider min={0} max={1500} step={10} value={priceRange} onValueChange={setPriceRange} />
             <div className="mt-2 flex justify-between text-[10px] text-muted-foreground">
               <span>${priceRange[0]}</span>
               <span>${priceRange[1]}</span>
@@ -116,7 +124,7 @@ const Storefront = () => {
         <main className="flex-1">
           <div className="mb-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-success" />
+              <span className="h-2 w-2 rounded-full bg-primary" />
               <h2 className="text-sm font-semibold text-foreground">{filtered.length} Active Listings</h2>
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -127,7 +135,12 @@ const Storefront = () => {
             </div>
           </div>
 
-          {filtered.length === 0 ? (
+          {isLoading ? (
+            <div className="py-20 text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
+              <p className="text-muted-foreground text-sm">Loading assets...</p>
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="py-20 text-center">
               <p className="text-muted-foreground">No products match your filters.</p>
             </div>
@@ -138,12 +151,6 @@ const Storefront = () => {
               ))}
             </div>
           )}
-
-          <div className="mt-10 flex justify-center">
-            <button className="flex items-center gap-2 rounded-lg border border-border px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:bg-secondary transition-colors">
-              Load More Results <ChevronDown className="h-3.5 w-3.5" />
-            </button>
-          </div>
         </main>
       </div>
 
