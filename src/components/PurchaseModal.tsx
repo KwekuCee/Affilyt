@@ -56,7 +56,7 @@ const PurchaseModal = ({ product, onClose }: PurchaseModalProps) => {
               </div>
               <div className="flex justify-between text-sm font-bold border-t border-border pt-2.5">
                 <span className="text-foreground">Total Estimate</span>
-                <span className="text-foreground">${(product.price * 1.015).toFixed(2)}</span>
+                <span className="text-foreground">${(Number(product.price) * 1.015).toFixed(2)}</span>
               </div>
             </div>
 
