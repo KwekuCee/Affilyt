@@ -38,7 +38,7 @@ const PurchaseModal = ({ product, onClose }: PurchaseModalProps) => {
 
             <div className="mb-5">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Acquisition Price</p>
-              <p className="text-4xl font-black text-foreground mt-1">${product.price.toFixed(2)} <span className="text-sm font-normal text-muted-foreground">USD</span></p>
+              <p className="text-4xl font-black text-foreground mt-1">${Number(product.price).toFixed(2)} <span className="text-sm font-normal text-muted-foreground">USD</span></p>
             </div>
 
             <Button className="w-full rounded-lg bg-primary text-primary-foreground h-12 text-sm font-bold gap-2 mb-3" onClick={onClose}>
