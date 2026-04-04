@@ -14,16 +14,301 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      affiliate_applications: {
+        Row: {
+          approved_at: string | null
+          created_at: string
+          id: string
+          payment_reference: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          payment_reference?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          created_at?: string
+          id?: string
+          payment_reference?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      affiliate_links: {
+        Row: {
+          affiliate_id: string
+          clicks: number | null
+          created_at: string
+          id: string
+          product_id: string
+          short_code: string
+        }
+        Insert: {
+          affiliate_id: string
+          clicks?: number | null
+          created_at?: string
+          id?: string
+          product_id: string
+          short_code: string
+        }
+        Update: {
+          affiliate_id?: string
+          clicks?: number | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          short_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_links_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commissions: {
+        Row: {
+          affiliate_id: string
+          amount: number
+          created_at: string
+          id: string
+          order_id: string
+          status: string
+        }
+        Insert: {
+          affiliate_id: string
+          amount: number
+          created_at?: string
+          id?: string
+          order_id: string
+          status?: string
+        }
+        Update: {
+          affiliate_id?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          order_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commissions_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          affiliate_id: string | null
+          affiliate_link_id: string | null
+          amount: number
+          buyer_email: string
+          commission_amount: number | null
+          created_at: string
+          id: string
+          product_id: string
+          status: string
+        }
+        Insert: {
+          affiliate_id?: string | null
+          affiliate_link_id?: string | null
+          amount: number
+          buyer_email: string
+          commission_amount?: number | null
+          created_at?: string
+          id?: string
+          product_id: string
+          status?: string
+        }
+        Update: {
+          affiliate_id?: string | null
+          affiliate_link_id?: string | null
+          amount?: number
+          buyer_email?: string
+          commission_amount?: number | null
+          created_at?: string
+          id?: string
+          product_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_affiliate_link_id_fkey"
+            columns: ["affiliate_link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payouts: {
+        Row: {
+          affiliate_id: string
+          amount: number
+          created_at: string
+          id: string
+          processed_at: string | null
+          status: string
+        }
+        Insert: {
+          affiliate_id: string
+          amount: number
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          status?: string
+        }
+        Update: {
+          affiliate_id?: string
+          amount?: number
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          commission_rate: number
+          conversion_rate: number | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          epc: number | null
+          features: string[] | null
+          id: string
+          image_url: string | null
+          price: number
+          refund_rate: number | null
+          status: string
+          title: string
+          trust_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          commission_rate?: number
+          conversion_rate?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          epc?: number | null
+          features?: string[] | null
+          id?: string
+          image_url?: string | null
+          price?: number
+          refund_rate?: number | null
+          status?: string
+          title: string
+          trust_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          commission_rate?: number
+          conversion_rate?: number | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          epc?: number | null
+          features?: string[] | null
+          id?: string
+          image_url?: string | null
+          price?: number
+          refund_rate?: number | null
+          status?: string
+          title?: string
+          trust_score?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "affiliate" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +435,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "affiliate", "user"],
+    },
   },
 } as const
