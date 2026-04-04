@@ -33,7 +33,8 @@ import {
   Layers,
   ArrowRight,
   MessageSquare,
-  Globe
+  Globe,
+  Edit
 } from "lucide-react";
 import {
   BarChart,
