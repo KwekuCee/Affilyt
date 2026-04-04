@@ -1,11 +1,11 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ShieldCheck, Check, ArrowRight } from "lucide-react";
-import { Product } from "@/lib/data";
+import { DBProduct } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "react-router-dom";
 
 interface PurchaseModalProps {
-  product: Product | null;
+  product: DBProduct | null;
   onClose: () => void;
 }
 
