@@ -48,7 +48,7 @@ const PurchaseModal = ({ product, onClose }: PurchaseModalProps) => {
             <div className="space-y-2.5 border-t border-border pt-4 mt-4">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Escrow Fee (1.5%)</span>
-                <span className="text-foreground font-medium">+${(product.price * 0.015).toFixed(2)}</span>
+                <span className="text-foreground font-medium">+${(Number(product.price) * 0.015).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Technical Audit</span>
