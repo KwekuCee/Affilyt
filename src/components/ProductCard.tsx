@@ -1,20 +1,14 @@
 import { motion } from "framer-motion";
-import { Product } from "@/lib/data";
+import { DBProduct } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
 import { Zap } from "lucide-react";
 import React from "react";
 
 interface ProductCardProps {
-  product: Product;
-  onBuy: (product: Product) => void;
+  product: DBProduct;
+  onBuy: (product: DBProduct) => void;
   index: number;
 }
-
-const categoryColors: Record<string, string> = {
-  "Courses": "bg-primary text-primary-foreground",
-  "Software": "bg-primary text-primary-foreground",
-  "E-books": "bg-primary text-primary-foreground",
-};
 
 const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(({ product, onBuy, index }, ref) => {
   return (
@@ -27,12 +21,12 @@ const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(({ produc
     >
       <div className="relative aspect-[16/10] overflow-hidden">
         <img
-          src={product.image}
+          src={product.image_url || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80"}
           alt={product.title}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
         />
-        <span className={`absolute top-3 left-3 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${categoryColors[product.category] || "bg-primary text-primary-foreground"}`}>
+        <span className="absolute top-3 left-3 rounded-md px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-primary text-primary-foreground">
           {product.category}
         </span>
       </div>
@@ -42,7 +36,7 @@ const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(({ produc
         <div className="flex items-center justify-between">
           <div>
             <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Investment</p>
-            <p className="text-lg font-black text-foreground">${product.price.toFixed(2)}</p>
+            <p className="text-lg font-black text-foreground">${Number(product.price).toFixed(2)}</p>
           </div>
           <Button
             onClick={() => onBuy(product)}
