@@ -47,7 +47,7 @@ const Landing = () => {
 
     // Helper to get icon component from string
     const getIcon = (name: string) => {
-        const Icon = (LucideIcons as any)[name] || LucideIcons.HelpCircle;
+        const Icon = (LucideIcons as any)[name] || LucideIcons.CircleHelp;
         return Icon;
     };
 
