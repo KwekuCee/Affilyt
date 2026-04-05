@@ -193,6 +193,26 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     ];
 
     useEffect(() => {
+        const fetchExchangeRate = async () => {
+            try {
+                const response = await fetch("https://open.er-api.com/v6/latest/USD");
+                const data = await response.json();
+                if (data && data.rates && data.rates.GHS) {
+                    setExchangeRate(data.rates.GHS);
+                    console.log("Exchange rate updated:", data.rates.GHS);
+                }
+            } catch (error) {
+                console.error("Failed to fetch exchange rate:", error);
+            }
+        };
+
+        fetchExchangeRate();
+        const interval = setInterval(fetchExchangeRate, 30 * 60 * 1000); // Update every 30 minutes
+
+        return () => clearInterval(interval);
+    }, []);
+
+    useEffect(() => {
         localStorage.setItem("system_products", JSON.stringify(products));
     }, [products]);
 

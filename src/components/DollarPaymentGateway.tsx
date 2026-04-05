@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useData } from "@/context/DataContext";
 
 const KORAPAY_PUBLIC_KEY = "pk_live_AAZBw2DtmnyrGHfDJmNqkE4dKhw9gKQHVbz8Gds5";
 
@@ -69,6 +70,8 @@ const DollarPaymentGateway = ({
     }
   };
 
+  const { exchangeRate } = useData();
+
   const handlePay = () => {
     if (!scriptLoaded || !window.Korapay) {
       toast.error("Payment gateway is loading, please try again.");
@@ -76,13 +79,14 @@ const DollarPaymentGateway = ({
     }
 
     const reference = generateReference();
+    const ghsAmount = Number((amount * exchangeRate).toFixed(2));
     setStep("processing");
 
     window.Korapay.initialize({
       key: KORAPAY_PUBLIC_KEY,
       reference,
-      amount,
-      currency: "USD",
+      amount: ghsAmount,
+      currency: "GHS",
       customer: {
         name: buyerEmail ? buyerEmail.split("@")[0] : "Customer",
         email: buyerEmail || "customer@example.com",
@@ -92,6 +96,8 @@ const DollarPaymentGateway = ({
         affiliate_id: affiliateId,
         affiliate_link_id: affiliateLinkId,
         buyer_email: buyerEmail,
+        usd_amount: amount,
+        exchange_rate: exchangeRate,
       },
       notification_url: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/korapay-verify`,
       onClose: () => {
@@ -137,7 +143,13 @@ const DollarPaymentGateway = ({
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className="mb-6">
               <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Total Payable</p>
-              <p className="text-4xl font-black text-foreground italic">${amount.toFixed(2)}</p>
+              <div className="flex items-baseline gap-3">
+                <p className="text-4xl font-black text-foreground italic">${amount.toFixed(2)}</p>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase opacity-60">GHS Equivalent</span>
+                  <span className="text-xs font-black text-primary/80">₵{(amount * exchangeRate).toFixed(2)}</span>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-3">

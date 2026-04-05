@@ -79,7 +79,7 @@ const Footer = () => {
 
                 <div className="mt-20 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold">
-                        © 2024 THE AFFILIATE HUB. ALL RIGHTS RESERVED.
+                        © 2026 THE AFFILIATE HUB. ALL RIGHTS RESERVED.
                     </p>
                     <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-secondary/50 border border-border backdrop-blur-sm group">
                         <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
