@@ -57,14 +57,14 @@ const Landing = () => {
     const pricingPlans = packages.map(pkg => ({
         name: pkg.name,
         price: `$${pkg.price}`,
-        description: pkg.name === "Basic" ? "Institutional entry for operational veterans." :
-            pkg.name === "Standard" ? "The preferred accelerator path. Strategic support included." :
-                "Ultimate institutional package. Direct executive access.",
+        description: pkg.name === "Basic" ? "Great for beginners. Includes basic tools to start selling." :
+            pkg.name === "Standard" ? "Our most popular choice. Includes full training and support." :
+                "The absolute best. Includes VIP benefits and priority help.",
         features: [
             `${pkg.commission}% Commission`,
-            pkg.name === "Basic" ? "Monthly Payouts" : pkg.name === "Standard" ? "Bi-weekly Payouts" : "Weekly Payouts",
-            "Institutional Assets",
-            "Network Access"
+            pkg.name === "Basic" ? "Monthly Payouts" : pkg.name === "Standard" ? "Every Two Weeks" : "Weekly Payouts",
+            "Marketing Materials",
+            "Full Network Access"
         ],
         isPopular: pkg.name === "Standard"
     }));
@@ -85,12 +85,12 @@ const Landing = () => {
                                 transition={{ duration: 0.6 }}
                             >
                                 <Badge className="mb-6 px-4 py-1.5 rounded-full bg-primary/10 text-primary border-none text-xs font-black uppercase tracking-[0.2em]">
-                                    The New Standard of Affiliate Tech
+                                    Start Your Journey Today
                                 </Badge>
                                 <h1 className="text-5xl md:text-7xl font-black tracking-tighter text-foreground leading-[1.1] mb-6">
                                     {landingContent.heroTitle.split(" ").map((word, i) => (
                                         <span key={i}>
-                                            {word === "Infrastructure" ? <span className="text-primary italic">{word} </span> : word + " "}
+                                            {(word === "Hub" || word === "Affiliate") ? <span className="text-primary italic">{word} </span> : word + " "}
                                         </span>
                                     ))}
                                 </h1>

@@ -58,7 +58,7 @@ const Storefront = () => {
       {refId && (
         <div className="border-b border-primary/20 bg-primary/5 py-2 text-center text-sm text-primary font-medium">
           <LinkIcon className="inline h-3.5 w-3.5 mr-1.5" />
-          REFERRAL ACTIVE: BUY VIA AFFILIATE FOR PRIORITY SUPPORT
+          REFERRAL ACTIVE: SUPPORT OUR PARTNERS BY BUYING HERE
         </div>
       )}
 
@@ -67,15 +67,15 @@ const Storefront = () => {
         <div className="container mx-auto px-4 py-16 md:py-24">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-white/60 mb-4">
-              <span>PUBLIC STOREFRONT</span>
+              <span>MARKETPLACE</span>
               <span>/</span>
-              <span className="text-white/90">INSTITUTIONAL MARKETPLACE</span>
+              <span className="text-white/90">OUR PRODUCTS</span>
             </div>
             <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight max-w-2xl">
-              Institutional <span className="text-white/50">Assets.</span>
+              Digital <span className="text-white/50">Products.</span>
             </h1>
             <p className="mt-4 text-base md:text-lg text-white/60 max-w-xl leading-relaxed">
-              Premium, verified digital products engineered for enterprise growth and professional affiliate operations.
+              High-quality digital products designed to help you grow your personal and professional business.
             </p>
           </motion.div>
         </div>

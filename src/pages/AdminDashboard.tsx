@@ -36,7 +36,6 @@ import {
   Target,
   Globe2,
   Store,
-  Settings as SettingsIcon,
   ChevronRight,
   Star,
   Globe,
@@ -44,9 +43,15 @@ import {
   Server,
   LayoutDashboard,
   Layers,
-  Settings,
+  Settings as SettingsIcon,
   TrendingUp,
-  Award
+  Award,
+  Trophy,
+  HelpCircle,
+  Clock,
+  Gift,
+  User as UserIcon,
+  Shield
 } from "lucide-react";
 import { Routes, Route, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -56,7 +61,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { useData, SellerTier, UserStatus, User, Payout, AnalyticsEvent } from "@/context/DataContext";
+import { useData, SellerTier, UserStatus, User, Payout, AnalyticsEvent, Contest } from "@/context/DataContext";
 
 // --- Sub-Components ---
 
@@ -358,6 +363,60 @@ const AdminFraud = () => {
   );
 };
 
+const AdminContests = () => {
+  const { contests, setContests } = useData();
+  const { toast } = useToast();
+
+  const deployContest = () => {
+    const newContest: Contest = {
+      id: `C${contests.length + 1}`,
+      title: "New Accelerator Flow",
+      description: "Define institutional targets for this node.",
+      target: 500,
+      reward: 1000,
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: "2024-12-31",
+      participants: 0,
+      status: "DRAFT"
+    };
+    setContests([...contests, newContest]);
+    toast({ title: "Contest Initialized", description: "Draft created in the accelerator ledger." });
+  };
+
+  return (
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <div className="flex items-end justify-between">
+        <div>
+          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Accelerator Mesh.</h2>
+          <p className="text-muted-foreground font-medium italic">Deploy and synchronize high-yield performance contests.</p>
+        </div>
+        <Button onClick={deployContest} className="h-14 px-8 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-widest gap-3 shadow-xl">
+          <Trophy className="h-5 w-5" /> Initialize Flow
+        </Button>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {contests.map(c => (
+          <div key={c.id} className="p-10 rounded-[3rem] bg-card border-2 border-border shadow-2xl relative overflow-hidden group">
+            <div className="flex justify-between items-start mb-8">
+              <Badge className={`border-none font-black text-[8px] uppercase px-4 py-1.5 rounded-full ${c.status === 'ACTIVE' ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'}`}>{c.status}</Badge>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="h-10 w-10 p-0 rounded-xl"><Edit className="h-4 w-4" /></Button>
+                <Button size="sm" variant="outline" className="h-10 w-10 p-0 rounded-xl hover:bg-red-500/10 text-red-500"><Trash2 className="h-4 w-4" /></Button>
+              </div>
+            </div>
+            <h3 className="text-2xl font-black text-foreground italic uppercase mb-2">{c.title}</h3>
+            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest opacity-60 mb-8">{c.startDate} — {c.endDate}</p>
+            <div className="space-y-6 pt-6 border-t border-border">
+              <div className="flex justify-between items-center text-xs font-black uppercase"><span className="text-muted-foreground">Target Velocity</span><span className="text-foreground">{c.target} Conv.</span></div>
+              <div className="flex justify-between items-center text-xs font-black uppercase"><span className="text-muted-foreground">Yield Magnitude</span><span className="text-primary text-xl">${c.reward}</span></div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 const AdminSettings = () => {
   const { landingContent, setLandingContent, exchangeRate, setExchangeRate } = useData();
   const { toast } = useToast();
@@ -382,6 +441,97 @@ const AdminSettings = () => {
       </div>
     </div>
   );
+  const { user } = useAuth();
+  const { landingContent, setLandingContent, exchangeRate, setExchangeRate } = useData();
+  const { toast } = useToast();
+  const [subTab, setSubTab] = useState("profile");
+
+  return (
+    <div className="space-y-10 animate-in fade-in duration-700">
+      <div>
+        <h2 className="text-4xl font-black text-foreground uppercase tracking-tighter mb-2">System Settings</h2>
+        <p className="text-muted-foreground font-medium italic">Manage global platform configurations and administrator profile.</p>
+      </div>
+
+      <div className="flex gap-6 border-b border-border pb-6 overflow-x-auto scrollbar-hide">
+        {[
+          { id: "profile", label: "Admin Profile", icon: UserIcon },
+          { id: "account", label: "Security", icon: Shield },
+          { id: "platform", label: "System Config", icon: SettingsIcon }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setSubTab(tab.id)}
+            className={`flex items-center gap-3 px-6 py-3 rounded-2xl transition-all font-black uppercase text-[10px] tracking-[0.2em] ${subTab === tab.id ? 'bg-primary text-white shadow-lg' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
+          >
+            <tab.icon className="h-4 w-4" /> {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {subTab === "profile" && (
+          <>
+            <div className="p-10 rounded-[3rem] bg-card border-2 border-border shadow-xl space-y-8">
+              <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-4">Administrator Identity</h3>
+              <div className="space-y-6">
+                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Full Name</label><Input defaultValue={user?.name} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
+                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Email Address</label><Input defaultValue={user?.email} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
+                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Admin Bio</label><textarea className="w-full h-32 rounded-2xl bg-secondary border-none font-bold p-6 text-sm outline-none resize-none" placeholder="Administrative notes..."></textarea></div>
+              </div>
+            </div>
+            <div className="p-10 rounded-[3rem] bg-foreground text-background shadow-2xl relative overflow-hidden flex flex-col justify-center text-center">
+              <div className="h-32 w-32 rounded-[2.5rem] bg-primary mx-auto mb-8 flex items-center justify-center text-5xl font-black italic"> A </div>
+              <h4 className="text-2xl font-black italic uppercase text-white mb-2">{user?.name}</h4>
+              <p className="text-[10px] uppercase font-black tracking-widest text-white/40">SYSTEM SUPERADMIN</p>
+              <Button onClick={() => toast({ title: "Admin Saved", description: "Your admin profile has been updated." })} className="mt-8 w-full h-16 rounded-3xl bg-primary text-white font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20">Update Admin Profile</Button>
+            </div>
+          </>
+        )}
+
+        {subTab === "account" && (
+          <div className="lg:col-span-2 p-10 rounded-[3rem] bg-card border-2 border-border shadow-xl space-y-10">
+            <div className="flex items-center gap-4"> <h3 className="text-xl font-black uppercase tracking-tight">Security Settings</h3> </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-6">
+                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">System Master Password</label><Input type="password" placeholder="••••••••" className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
+                <Button className="w-full h-14 rounded-xl bg-foreground text-background font-black uppercase text-xs">Reset All Tokens</Button>
+              </div>
+              <div className="p-8 rounded-3xl bg-secondary/50 border-2 border-dashed border-border flex flex-col justify-center space-y-4 text-center">
+                <p className="text-[10px] font-black uppercase text-muted-foreground">Admin Session Integrity</p>
+                <p className="text-2xl font-black italic">Fully Secured</p>
+                <Badge className="bg-success text-white border-none mx-auto uppercase px-4 py-1">Nodes Verified</Badge>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {subTab === "platform" && (
+          <div className="lg:col-span-2 p-10 rounded-[3rem] bg-card border-2 border-border shadow-xl space-y-10">
+            <div className="flex items-center gap-4"> <h3 className="text-xl font-black uppercase tracking-tight">Global Platform Configuration</h3> </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+              <div className="space-y-6 p-8 rounded-3xl bg-secondary/30">
+                <h4 className="text-[10px] font-black uppercase text-muted-foreground italic tracking-widest">Currency & Conversion</h4>
+                <div className="space-y-4">
+                  <div className="space-y-2"><label className="text-[10px] font-bold opacity-60">Exchange Rate (USD to GHS)</label>
+                    <Input type="number" value={exchangeRate} onChange={(e) => setExchangeRate(Number(e.target.value))} className="h-16 rounded-2xl bg-background border-none font-black text-2xl" /></div>
+                  <Button onClick={() => toast({ title: "Exchange Rate Saved" })} className="w-full h-14 rounded-2xl font-black uppercase text-xs bg-primary text-white">Save Rate</Button>
+                </div>
+              </div>
+              <div className="space-y-6 p-8 rounded-3xl bg-secondary/30">
+                <h4 className="text-[10px] font-black uppercase text-muted-foreground italic tracking-widest">Landing Page Content</h4>
+                <div className="space-y-4">
+                  <div className="space-y-2"><label className="text-[10px] font-bold opacity-60">Hero Title text</label>
+                    <Input value={landingContent.heroTitle} onChange={(e) => setLandingContent({ ...landingContent, heroTitle: e.target.value })} className="h-16 rounded-2xl bg-background border-none font-bold italic" /></div>
+                  <Button onClick={() => toast({ title: "Content Updated" })} className="w-full h-14 rounded-2xl font-black uppercase text-xs bg-foreground text-background">Update website Content</Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
 // --- Main Admin Dashboard Component ---
@@ -394,6 +544,7 @@ const AdminDashboard = () => {
     if (path.includes("/users")) return "users";
     if (path.includes("/inventory")) return "inventory";
     if (path.includes("/commissions")) return "commissions";
+    if (path.includes("/contests")) return "contests";
     if (path.includes("/payouts")) return "payouts";
     if (path.includes("/analytics")) return "analytics";
     if (path.includes("/fraud")) return "fraud";
@@ -405,7 +556,7 @@ const AdminDashboard = () => {
     <div className="flex min-h-screen bg-transparent">
       <DashboardSidebar type="admin" />
       <main className="flex-1 overflow-auto bg-transparent">
-        <div className="sticky top-0 z-20 bg-background/60 backdrop-blur-xl border-b border-border px-10 py-6">
+        <header className="sticky top-0 z-20 bg-background/60 backdrop-blur-xl border-b border-border px-10 py-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div className="flex items-center gap-6">
               <div className="h-16 w-16 rounded-[2.2rem] bg-foreground flex items-center justify-center shadow-2xl relative">
@@ -413,48 +564,31 @@ const AdminDashboard = () => {
                 <div className="absolute top-0 right-0 h-4 w-4 bg-primary rounded-full border-4 border-background animate-pulse" />
               </div>
               <div>
-                <h1 className="text-3xl font-black text-foreground italic tracking-tight uppercase">SuperAdmin Console.</h1>
+                <h1 className="text-3xl font-black text-foreground uppercase tracking-tight">
+                  {activeTab === "overview" ? "Admin Panel" : `${activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('inventory', 'Products').replace('fraud', 'Security')}`}
+                </h1>
                 <div className="flex items-center gap-4 mt-1">
-                  <Badge className="text-[10px] font-black uppercase px-3 py-0.5 rounded-full border-2 bg-primary/10 text-primary border-primary/20">System Root</Badge>
-                  <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest text-nowrap">
-                    <div className="flex items-center gap-2"><Globe className="h-3 w-3" /> Nodes Active</div>
-                    <div className="flex items-center gap-2 text-success"><ShieldCheck className="h-3 w-3" /> Mesh Live</div>
+                  <Badge className="text-[10px] font-black uppercase px-3 py-0.5 rounded-full border-2 bg-primary/10 text-primary border-primary/20">SuperAdmin</Badge>
+                  <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                    <span className="flex items-center gap-2 text-success text-nowrap"><ShieldCheck className="h-3 w-3" /> Secured</span>
+                    <span className="flex items-center gap-2 text-nowrap"><Globe className="h-3 w-3" /> Live Syncing</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden lg:flex items-center gap-6 mr-6 border-r border-border pr-8 text-right">
-                <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Global Treasury</p>
-                <p className="text-lg font-black text-foreground italic">$2,142,500.00</p>
-              </div>
+            <div className="flex items-center gap-6">
               <Button className="h-14 px-8 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] gap-3 shadow-2xl shadow-primary/20">
-                <Cpu className="h-4 w-4" /> Hard Sync
+                <RefreshCw className="h-4 w-4" /> Refresh System
               </Button>
             </div>
           </div>
-          <nav className="flex gap-8 mt-10 overflow-x-auto pb-2 scrollbar-hide">
-            {[
-              { id: "overview", label: "Overview", to: "/dashboard/admin", icon: BarChart3 },
-              { id: "users", label: "Identity", to: "/dashboard/admin/users", icon: Users },
-              { id: "inventory", label: "Assets", to: "/dashboard/admin/inventory", icon: Layers },
-              { id: "commissions", label: "Rewards", to: "/dashboard/admin/commissions", icon: TrendingUp },
-              { id: "payouts", label: "Capital", to: "/dashboard/admin/payouts", icon: CreditCard },
-              { id: "analytics", label: "Behavior", to: "/dashboard/admin/analytics", icon: Activity },
-              { id: "fraud", label: "Risk", to: "/dashboard/admin/fraud", icon: ShieldAlert },
-              { id: "settings", label: "Config", to: "/dashboard/admin/settings", icon: Settings },
-            ].map(tab => (
-              <Link key={tab.id} to={tab.to} className={`flex items-center gap-3 text-[10px] font-black uppercase tracking-widest pb-4 border-b-4 transition-all whitespace-nowrap ${activeTab === tab.id ? 'text-primary border-primary' : 'text-muted-foreground border-transparent hover:text-foreground'}`} >
-                <tab.icon className="h-3.5 w-3.5" /> {tab.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
+        </header>
         <div className="p-10 max-w-7xl mx-auto">
           {activeTab === "overview" && <AdminHUD />}
           {activeTab === "users" && <AdminUsers />}
           {activeTab === "inventory" && <AdminInventory />}
           {activeTab === "commissions" && <AdminCommissions />}
+          {activeTab === "contests" && <AdminContests />}
           {activeTab === "payouts" && <AdminPayouts />}
           {activeTab === "analytics" && <AdminAnalytics />}
           {activeTab === "fraud" && <AdminFraud />}

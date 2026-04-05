@@ -12,10 +12,10 @@ const Footer = () => {
                             <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <Shield className="h-5 w-5 text-primary-foreground" />
                             </div>
-                            <span>The Executive Ledger</span>
+                            <span>Affiliate Hub</span>
                         </Link>
                         <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-                            Institutional-grade infrastructure for modern digital asset growth. Scale your affiliate operations with precision and trust.
+                            Everything you need to grow your affiliate business and earn more. Simple, fast, and trusted.
                         </p>
                         <div className="flex items-center gap-3">
                             {[
@@ -54,13 +54,13 @@ const Footer = () => {
 
                     {/* Support Channels */}
                     <div className="space-y-6">
-                        <h5 className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Direct Access</h5>
+                        <h5 className="text-[10px] font-bold uppercase tracking-[0.3em] text-primary">Direct Help</h5>
                         <div className="flex flex-col gap-4">
-                            <a href="mailto:support@executiveledger.com" className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group">
+                            <a href="mailto:support@affiliatehub.com" className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group">
                                 <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center group-hover:scale-105 transition-transform">
                                     <Mail className="h-4 w-4 text-blue-500" />
                                 </div>
-                                support@executiveledger.com
+                                support@affiliatehub.com
                             </a>
                             <a href="#" className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors group">
                                 <div className="h-8 w-8 rounded-lg bg-green-500/10 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -70,7 +70,7 @@ const Footer = () => {
                             </a>
                             <div className="p-4 rounded-2xl bg-secondary/30 border border-border mt-2">
                                 <p className="text-[10px] text-muted-foreground leading-relaxed font-medium">
-                                    Institutional partners have 24/7 dedicated support via their account managers.
+                                    Our top partners get 24/7 dedicated support via their account managers.
                                 </p>
                             </div>
                         </div>
@@ -79,7 +79,7 @@ const Footer = () => {
 
                 <div className="mt-20 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-6">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold">
-                        © 2024 THE EXECUTIVE LEDGER. ALL RIGHTS RESERVED.
+                        © 2024 THE AFFILIATE HUB. ALL RIGHTS RESERVED.
                     </p>
                     <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-secondary/50 border border-border backdrop-blur-sm group">
                         <div className="h-2 w-2 rounded-full bg-success animate-pulse" />

@@ -25,15 +25,15 @@ const BecomeAffiliate = () => {
 
     const displayPackages = packages.map(pkg => ({
         ...pkg,
-        description: pkg.name === "Basic" ? "Institutional entry for operational veterans. Does not include the comprehensive training suite." :
-            pkg.name === "Standard" ? "The preferred accelerator path. Includes full training protocols and strategic support." :
-                "The ultimate institutional package. Exclusive VIP benefits and direct executive routing.",
+        description: pkg.name === "Basic" ? "Great for beginners. Includes basic tools to start selling." :
+            pkg.name === "Standard" ? "Our most popular choice. Includes full training and support." :
+                "The absolute best. Includes VIP benefits and priority help.",
         features: [
             `${pkg.commission}% Recurring Commission`,
-            pkg.name === "Basic" ? "Core Analytics Dashboard" : pkg.name === "Standard" ? "Full Training Program" : "Priority VIP Training",
-            pkg.name === "Basic" ? "Monthly Payout Routing" : pkg.name === "Standard" ? "Bi-weekly Express Payouts" : "Weekly Express Payouts",
-            "Global Partner Network",
-            "Digital Asset Suite"
+            pkg.name === "Basic" ? "Basic Analytics" : pkg.name === "Standard" ? "Full Training Program" : "Priority VIP Training",
+            pkg.name === "Basic" ? "Monthly Payouts" : pkg.name === "Standard" ? "Every Two Weeks" : "Weekly Payouts",
+            "Partner Network",
+            "Marketing Tools"
         ],
         icon: pkg.name === "Basic" ? Award : pkg.name === "Standard" ? Star : Zap,
         isPopular: pkg.name === "Standard",
@@ -79,12 +79,12 @@ const BecomeAffiliate = () => {
                         >
                             <div className="text-center mb-16">
                                 <Badge className="mb-6 px-4 py-1.5 rounded-full bg-primary/10 text-primary border-none text-xs font-black uppercase tracking-[0.2em]">
-                                    Institutional Onboarding
+                                    GET STARTED
                                 </Badge>
                                 <h1 className="text-4xl md:text-7xl font-black leading-tight tracking-tight text-foreground mb-6">
-                                    Select Your <span className="text-primary italic">Inflow Tier.</span>
+                                    Choose Your <span className="text-primary italic">Plan.</span>
                                 </h1>
-                                <p className="text-muted-foreground font-medium italic">All packages are authorized for a 1-year operational cycle.</p>
+                                <p className="text-muted-foreground font-medium italic">All plans last for 1 entire year.</p>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">

@@ -53,7 +53,7 @@ const LandingNavbar = () => {
                                 <Shield className="h-5 w-5 text-primary-foreground" />
                             </div>
                             <span className="font-black text-xl tracking-tighter text-foreground italic whitespace-nowrap">
-                                THE <span className="text-primary not-italic">LEDGER.</span>
+                                AFFILIATE <span className="text-primary not-italic">HUB.</span>
                             </span>
                         </Link>
                     </div>
@@ -93,7 +93,7 @@ const LandingNavbar = () => {
                         </Link>
                         <Link to="/become-affiliate">
                             <Button size="sm" className="rounded-full px-6 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
-                                Join Network <ArrowRight className="h-3 w-3" />
+                                Join Now <ArrowRight className="h-3 w-3" />
                             </Button>
                         </Link>
                     </div>

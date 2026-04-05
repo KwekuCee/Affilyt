@@ -51,6 +51,36 @@ export interface Package {
     payoutSchedule: string;
 }
 
+export interface Contest {
+    id: string;
+    title: string;
+    description: string;
+    target: number;
+    reward: number;
+    startDate: string;
+    endDate: string;
+    participants: number;
+    status: "ACTIVE" | "COMPLETED" | "DRAFT";
+}
+
+export interface LeaderboardEntry {
+    rank: number;
+    name: string;
+    earnings: number;
+    conversions: number;
+    tier: SellerTier;
+}
+
+export interface BlogItem {
+    id: string;
+    title: string;
+    excerpt: string;
+    author: string;
+    date: string;
+    category: string;
+    image: string;
+}
+
 export interface LandingContent {
     heroTitle: string;
     heroSubtitle: string;
@@ -73,6 +103,10 @@ interface DataContextType {
     setPayouts: React.Dispatch<React.SetStateAction<Payout[]>>;
     analytics: AnalyticsEvent[];
     setAnalytics: React.Dispatch<React.SetStateAction<AnalyticsEvent[]>>;
+    contests: Contest[];
+    setContests: React.Dispatch<React.SetStateAction<Contest[]>>;
+    leaderboard: LeaderboardEntry[];
+    blogs: BlogItem[];
     globalCommission: number;
     setGlobalCommission: (rate: number) => void;
     minPayoutThreshold: number;
@@ -99,18 +133,18 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const [landingContent, setLandingContent] = useState<LandingContent>({
         heroTitle: "Build your dream business with Africa's #1 Affiliate Hub.",
-        heroSubtitle: "Join 10,000+ entrepreneurs scaling digital empires through our institutional-grade infrastructure.",
+        heroSubtitle: "Join 10,000+ partners growing their income with our easy-to-use platform.",
         stats: [
-            { label: "Active Nodes", value: "12,842", icon: "Users" },
-            { label: "Total Inflow", value: "$4.2M+", icon: "TrendingUp" },
+            { label: "Active Partners", value: "12,842", icon: "Users" },
+            { label: "Total Paid Out", value: "$4.2M+", icon: "TrendingUp" },
             { label: "Global Reach", value: "142", icon: "Globe" },
-            { label: "Uptime Protocol", value: "99.9%", icon: "ShieldCheck" }
+            { label: "Platform Uptime", value: "99.9%", icon: "ShieldCheck" }
         ],
         features: [
-            { title: "Institutional Ledger", description: "Verifiable, low-latency tracking for every referral node in your network.", icon: "Layers", color: "bg-blue-500/10 text-blue-500" },
-            { title: "Velocity Payouts", description: "Automated distribution of capital through secure, verified channels.", icon: "Zap", color: "bg-amber-500/10 text-amber-500" },
-            { title: "Market Alpha", description: "Access proprietary market intelligence and high-yield digital assets.", icon: "BarChart3", color: "bg-emerald-500/10 text-emerald-500" },
-            { title: "Elite Relay", description: "Direct executive support for high-performance scaling operations.", icon: "Users", color: "bg-primary/10 text-primary" }
+            { title: "Simple Sales Tracking", description: "Easy and accurate tracking for every referral you make.", icon: "Layers", color: "bg-blue-500/10 text-blue-500" },
+            { title: "Fast Payments", description: "Get your earnings quickly through secure, verified channels.", icon: "Zap", color: "bg-amber-500/10 text-amber-500" },
+            { title: "Marketplace Access", description: "Access high-quality products and marketing materials.", icon: "BarChart3", color: "bg-emerald-500/10 text-emerald-500" },
+            { title: "Priority Support", description: "Direct help and support to help you scale your business.", icon: "Users", color: "bg-primary/10 text-primary" }
         ]
     });
 
@@ -140,6 +174,24 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         { id: "E2", type: "CONVERSION", affiliateId: "1", productId: "P1", timestamp: new Date().toISOString(), ip: "41.215.160.5", geo: "Nigeria", device: "MOBILE", amount: 150 },
     ]);
 
+    const [contests, setContests] = useState<Contest[]>([
+        { id: "C1", title: "Top Performer Contest", description: "First to 1,000 sales receives a high-end gaming laptop.", target: 1000, reward: 2500, startDate: "2024-04-01", endDate: "2024-05-01", participants: 450, status: "ACTIVE" },
+        { id: "C2", title: "Monthly Sales Sprint", description: "Top 5 earners this month receive a 10% commission bonus.", target: 10000, reward: 5000, startDate: "2024-04-15", endDate: "2024-06-30", participants: 120, status: "ACTIVE" }
+    ]);
+
+    const leaderboard: LeaderboardEntry[] = [
+        { rank: 1, name: "Satoshi Nakamoto", earnings: 142500, conversions: 12400, tier: "Pro" },
+        { rank: 2, name: "Vitalik Buterin", earnings: 98400, conversions: 8200, tier: "Pro" },
+        { rank: 3, name: "Brian Armstrong", earnings: 72100, conversions: 5400, tier: "Standard" },
+        { rank: 4, name: "Kweku Cee", earnings: 12540, conversions: 3200, tier: "Pro" },
+        { rank: 5, name: "Ama Serwaa", earnings: 4200, conversions: 110, tier: "Standard" },
+    ];
+
+    const blogs: BlogItem[] = [
+        { id: "1", title: "How to Track Your Sales", excerpt: "Learn how our tracking system helps you see your earnings in real-time.", author: "James Wilson", date: "April 02, 2024", category: "Guides", image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=800&q=80" },
+        { id: "2", title: "Growing Your Affiliate Business", excerpt: "Expert tips on how to reach more customers and increase your sales.", author: "Sarah Jones", date: "April 04, 2024", category: "Strategy", image: "https://images.unsplash.com/photo-1551434678-e076c223a692?auto=format&fit=crop&w=800&q=80" }
+    ];
+
     useEffect(() => {
         localStorage.setItem("system_products", JSON.stringify(products));
     }, [products]);
@@ -153,6 +205,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
             users, setUsers,
             payouts, setPayouts,
             analytics, setAnalytics,
+            contests, setContests,
+            leaderboard,
+            blogs,
             globalCommission, setGlobalCommission,
             minPayoutThreshold, setMinPayoutThreshold
         }}>
