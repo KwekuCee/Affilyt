@@ -566,18 +566,18 @@ const AffiliateSettings = () => {
               <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-4">Personal Information</h3>
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Full Name</label><Input defaultValue={user?.name} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
-                  <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Username</label><Input defaultValue={user?.username} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Full Name</label><Input defaultValue={affiliateName} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
+                  <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Username</label><Input defaultValue={affiliateId} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
                 </div>
-                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Email Address</label><Input defaultValue={user?.email} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
+                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Email Address</label><Input defaultValue="affiliate@example.com" className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
                 <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Phone Number</label><Input placeholder="+233..." className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
                 <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Bio / Bio-Brief</label><textarea className="w-full h-32 rounded-2xl bg-secondary border-none font-bold p-6 text-sm outline-none resize-none" placeholder="Tell us a little about your marketing experience..."></textarea></div>
               </div>
             </div>
             <div className="p-10 rounded-[3rem] bg-foreground text-background shadow-2xl relative overflow-hidden flex flex-col justify-center text-center">
-              <div className="h-32 w-32 rounded-[2.5rem] bg-primary mx-auto mb-8 flex items-center justify-center text-5xl font-black"> {user?.name?.charAt(0)} </div>
-              <h4 className="text-2xl font-black italic uppercase text-white mb-2">{user?.name}</h4>
-              <p className="text-[10px] uppercase font-black tracking-widest text-white/40 mb-10">{user?.role} Affiliate Account</p>
+              <div className="h-32 w-32 rounded-[2.5rem] bg-primary mx-auto mb-8 flex items-center justify-center text-5xl font-black"> {affiliateName?.charAt(0)} </div>
+              <h4 className="text-2xl font-black italic uppercase text-white mb-2">{affiliateName}</h4>
+              <p className="text-[10px] uppercase font-black tracking-widest text-white/40 mb-10">Affiliate Account</p>
               <Button onClick={() => toast({ title: "Profile Updated", description: "All changes have been saved successfully." })} className="w-full h-16 rounded-3xl bg-primary text-white font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/30">Save Profile changes</Button>
             </div>
           </>
