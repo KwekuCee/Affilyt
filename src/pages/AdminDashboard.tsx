@@ -418,30 +418,7 @@ const AdminContests = () => {
 };
 
 const AdminSettings = () => {
-  const { landingContent, setLandingContent, exchangeRate, setExchangeRate } = useData();
-  const { toast } = useToast();
-  return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div><h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">System Config.</h2><p className="text-muted-foreground font-medium italic">Configure core platform parameters.</p></div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="p-10 rounded-[3rem] border-2 border-border bg-card space-y-6">
-          <h3 className="text-xl font-black italic uppercase tracking-tight">Exchange Mesh</h3>
-          <div className="p-6 rounded-2xl bg-secondary space-y-4">
-            <div className="flex justify-between items-center"><span className="text-[10px] font-black uppercase opacity-60 italic">USD / GHS (Live Rate)</span><Badge className="bg-primary/10 text-primary border-none">Active</Badge></div>
-            <div className="flex items-center gap-4"><Input type="number" value={exchangeRate} onChange={(e) => setExchangeRate(Number(e.target.value))} className="h-16 rounded-2xl bg-background border-none font-black text-2xl px-6" /><Button onClick={() => toast({ title: "Rate Synchronized" })} className="h-16 px-8 rounded-2xl font-black text-xs uppercase tracking-widest">Update</Button></div>
-          </div>
-        </div>
-        <div className="p-10 rounded-[3rem] border-2 border-border bg-card space-y-6">
-          <h3 className="text-xl font-black italic uppercase tracking-tight">Front-End Protocol</h3>
-          <div className="space-y-4">
-            <div className="space-y-2"><label className="text-[10px] font-black uppercase text-muted-foreground">Heading Overlay</label><Input value={landingContent.heroTitle} onChange={(e) => setLandingContent({ ...landingContent, heroTitle: e.target.value })} className="h-14 rounded-xl bg-secondary border-none font-bold italic" /></div>
-            <Button onClick={() => toast({ title: "Broadcast Successful" })} className="w-full h-14 rounded-xl font-black uppercase text-xs tracking-widest">Broadcast Changes</Button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-  const { user } = useAuth();
+  const { affiliateName } = useAuth();
   const { landingContent, setLandingContent, exchangeRate, setExchangeRate } = useData();
   const { toast } = useToast();
   const [subTab, setSubTab] = useState("profile");
@@ -475,14 +452,14 @@ const AdminSettings = () => {
             <div className="p-10 rounded-[3rem] bg-card border-2 border-border shadow-xl space-y-8">
               <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-4">Administrator Identity</h3>
               <div className="space-y-6">
-                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Full Name</label><Input defaultValue={user?.name} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
-                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Email Address</label><Input defaultValue={user?.email} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
+                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Full Name</label><Input defaultValue={affiliateName} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
+                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Email Address</label><Input defaultValue="admin@system.com" className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
                 <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Admin Bio</label><textarea className="w-full h-32 rounded-2xl bg-secondary border-none font-bold p-6 text-sm outline-none resize-none" placeholder="Administrative notes..."></textarea></div>
               </div>
             </div>
             <div className="p-10 rounded-[3rem] bg-foreground text-background shadow-2xl relative overflow-hidden flex flex-col justify-center text-center">
               <div className="h-32 w-32 rounded-[2.5rem] bg-primary mx-auto mb-8 flex items-center justify-center text-5xl font-black italic"> A </div>
-              <h4 className="text-2xl font-black italic uppercase text-white mb-2">{user?.name}</h4>
+              <h4 className="text-2xl font-black italic uppercase text-white mb-2">{affiliateName}</h4>
               <p className="text-[10px] uppercase font-black tracking-widest text-white/40">SYSTEM SUPERADMIN</p>
               <Button onClick={() => toast({ title: "Admin Saved", description: "Your admin profile has been updated." })} className="mt-8 w-full h-16 rounded-3xl bg-primary text-white font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20">Update Admin Profile</Button>
             </div>
