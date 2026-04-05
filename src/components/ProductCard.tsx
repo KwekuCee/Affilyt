@@ -1,16 +1,30 @@
 import { motion } from "framer-motion";
-import { DBProduct } from "@/hooks/useProducts";
 import { Button } from "@/components/ui/button";
 import { Zap } from "lucide-react";
 import React from "react";
 
+export interface DisplayProduct {
+  id: string;
+  title: string;
+  price: number;
+  description?: string | null;
+  category: string;
+  image?: string;
+  image_url?: string | null;
+  features?: string[] | null;
+  commission_rate?: number;
+  minimumTier?: string;
+}
+
 interface ProductCardProps {
-  product: DBProduct;
-  onBuy: (product: DBProduct) => void;
+  product: DisplayProduct;
+  onBuy: (product: DisplayProduct) => void;
   index: number;
 }
 
 const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(({ product, onBuy, index }, ref) => {
+  const imageUrl = product.image_url || product.image || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80";
+
   return (
     <motion.div
       ref={ref}
@@ -21,7 +35,7 @@ const ProductCard = React.forwardRef<HTMLDivElement, ProductCardProps>(({ produc
     >
       <div className="relative aspect-[16/10] overflow-hidden">
         <img
-          src={product.image_url || "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80"}
+          src={imageUrl}
           alt={product.title}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
