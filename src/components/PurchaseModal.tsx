@@ -97,6 +97,9 @@ const PurchaseModal = ({ product, onClose }: PurchaseModalProps) => {
                 <DollarPaymentGateway
                   amount={Number(product.price) * 1.015}
                   itemLabel={product.title}
+                  productId={product.id}
+                  affiliateId={refId || undefined}
+                  buyerEmail=""
                   onSuccess={handleSuccess}
                   onCancel={() => setShowPayment(false)}
                 />
