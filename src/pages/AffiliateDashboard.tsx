@@ -531,7 +531,7 @@ const AffiliateBlogs = () => {
 };
 
 const AffiliateSettings = () => {
-  const { user } = useAuth();
+  const { affiliateName, affiliateId } = useAuth();
   const { toast } = useToast();
   const [subTab, setSubTab] = useState("profile");
 
