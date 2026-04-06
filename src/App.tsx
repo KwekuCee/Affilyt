@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/context/AuthContext";
 import { DataProvider } from "@/context/DataContext";
-import RoleToggle from "@/components/RoleToggle";
 import Landing from "@/pages/Landing";
 import Storefront from "@/pages/Storefront";
 import AffiliateDashboard from "@/pages/AffiliateDashboard";
@@ -15,7 +14,6 @@ import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
-
 import GlobalBackground from "@/components/GlobalBackground";
 
 const queryClient = new QueryClient();
@@ -40,7 +38,6 @@ const App = () => (
               <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <RoleToggle />
           </BrowserRouter>
         </DataProvider>
       </AuthProvider>

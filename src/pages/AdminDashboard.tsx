@@ -1,198 +1,195 @@
-import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
-  Users,
-  ShieldCheck,
-  DollarSign,
-  ShieldAlert,
-  BarChart3,
-  Search,
-  CheckCircle2,
-  XCircle,
-  MoreVertical,
-  Download,
-  AlertCircle,
-  FileText,
-  UserCheck,
-  Ban,
-  Fingerprint,
-  Cpu,
-  ArrowUpRight,
-  MousePointerClick,
-  Smartphone,
-  Monitor,
-  Calendar,
-  Plus,
-  Filter,
-  RefreshCw,
-  Mail,
-  Trash2,
-  Eye,
-  Activity,
-  Zap,
-  Map as MapIcon,
-  MessageSquare,
-  Edit,
-  Target,
-  Globe2,
-  Store,
-  ChevronRight,
-  Star,
-  Globe,
-  CreditCard,
-  Server,
-  LayoutDashboard,
-  Layers,
-  Settings as SettingsIcon,
-  TrendingUp,
-  Award,
-  Trophy,
-  HelpCircle,
-  Clock,
-  Gift,
-  User as UserIcon,
-  Shield
+  DollarSign, Users, ShieldCheck, Zap, Globe, Plus, Search, Eye, Trash2,
+  LayoutDashboard, Store, CreditCard, Settings as SettingsIcon, FileText,
+  MessageSquare, Star, Award, Trophy, Shield, Edit, RefreshCw
 } from "lucide-react";
-import { Routes, Route, useLocation, Link } from "react-router-dom";
+import { Link, useLocation, Routes, Route } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import StatsCard from "@/components/StatsCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useData, SellerTier, UserStatus, User, Payout, AnalyticsEvent, Contest } from "@/context/DataContext";
+import { useData } from "@/context/DataContext";
+import { supabase } from "@/integrations/supabase/client";
 
-// --- Sub-Components ---
-
+// --- Overview ---
 const AdminHUD = () => {
-  const { toast } = useToast();
+  const [stats, setStats] = useState({ orders: 0, revenue: 0, affiliates: 0, products: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const [ordersRes, productsRes, profilesRes] = await Promise.all([
+        supabase.from("orders").select("amount", { count: "exact" }),
+        supabase.from("products").select("id", { count: "exact" }),
+        supabase.from("profiles").select("id", { count: "exact" }).not("package_tier", "is", null),
+      ]);
+      const revenue = (ordersRes.data || []).reduce((sum: number, o: any) => sum + Number(o.amount), 0);
+      setStats({
+        orders: ordersRes.count || 0,
+        revenue,
+        affiliates: profilesRes.count || 0,
+        products: productsRes.count || 0,
+      });
+    };
+    fetchStats();
+  }, []);
+
   return (
     <div className="space-y-10 animate-in fade-in duration-700">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatsCard title="Real-time Inflow" value="$142.8K" icon={DollarSign} trend="+12.4% Growth" />
-        <StatsCard title="Active Nodes" value="8,412" icon={Globe} trend="All regions green" />
-        <StatsCard title="Conversion Velocity" value="8.4%" icon={Zap} trend="-1.2% vs last cycle" />
-        <StatsCard title="Risk Level" value="Minimal" icon={ShieldCheck} trend="0 threats detected" />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="p-10 rounded-[3rem] bg-card border-2 border-border shadow-xl">
-          <h3 className="text-xl font-black italic uppercase tracking-tight mb-8">System Verification Stream</h3>
-          <div className="space-y-6">
-            {[
-              { name: "Satoshi_N", action: "Requested Pro Access", status: "PENDING", time: "2m ago" },
-              { name: "Vitalik_B", action: "KYC Verified", status: "SUCCESS", time: "15m ago" },
-              { name: "Charles_H", action: "Payout Authorized ($12k)", status: "SUCCESS", time: "1h ago" }
-            ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between p-5 rounded-[2rem] bg-secondary/50 border border-border group hover:border-primary/50 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="h-10 w-10 rounded-xl bg-foreground flex items-center justify-center font-black text-xs text-background">{item.name.charAt(0)}</div>
-                  <div>
-                    <p className="text-xs font-black uppercase text-foreground">{item.name}</p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase">{item.action}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <Badge className={`text-[8px] font-black uppercase px-3 py-0.5 rounded-full ${item.status === 'SUCCESS' ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'}`}>{item.status}</Badge>
-                  <p className="text-[8px] font-bold text-muted-foreground uppercase mt-1">{item.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="p-10 rounded-[3rem] bg-foreground text-background shadow-xl relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-12 opacity-10">
-            <Cpu className="h-32 w-32" />
-          </div>
-          <h3 className="text-xl font-black italic uppercase tracking-tight mb-8 text-white">Institutional Capacity</h3>
-          <div className="space-y-8">
-            <div className="space-y-2">
-              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-60">
-                <span>Node Fulfillment</span>
-                <span>84%</span>
-              </div>
-              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-primary" style={{ width: '84%' }} />
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest opacity-60">
-                <span>Security Protocol Uptime</span>
-                <span>99.98%</span>
-              </div>
-              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
-                <div className="h-full bg-success" style={{ width: '99.9%' }} />
-              </div>
-            </div>
-          </div>
-          <Button className="w-full h-16 rounded-[2rem] bg-primary text-white font-black uppercase text-xs tracking-widest mt-12 group">
-            Deploy System Update <RefreshCw className="ml-2 h-4 w-4 group-hover:rotate-180 transition-transform duration-700" />
-          </Button>
-        </div>
+        <StatsCard title="Total Revenue" value={`$${stats.revenue.toLocaleString()}`} icon={DollarSign} trend="From all sales" />
+        <StatsCard title="Active Affiliates" value={stats.affiliates.toString()} icon={Users} trend="Paid members" />
+        <StatsCard title="Total Orders" value={stats.orders.toString()} icon={CreditCard} trend="Completed orders" />
+        <StatsCard title="Products" value={stats.products.toString()} icon={Store} trend="Active listings" />
       </div>
     </div>
   );
 };
 
-const AdminUsers = () => {
-  const { users, setUsers } = useData();
-  const [searchTerm, setSearchTerm] = useState("");
+// --- Products Management ---
+const AdminProducts = () => {
+  const [products, setProducts] = useState<any[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title: "", description: "", price: "", category: "Courses", commission_rate: "50", min_tier: "Basic", image_url: "" });
   const { toast } = useToast();
 
-  const toggleStatus = (userId: string) => {
-    setUsers(users.map(u => {
-      if (u.id === userId) {
-        const nextStatus: Record<UserStatus, UserStatus> = { "ACTIVE": "SUSPENDED", "SUSPENDED": "ACTIVE", "PENDING": "ACTIVE", "ARCHIVED": "ACTIVE" };
-        const newStatus = nextStatus[u.status];
-        toast({ title: `User ${newStatus}`, description: `${u.name} is now ${newStatus}.` });
-        return { ...u, status: newStatus };
-      }
-      return u;
-    }));
+  const fetchProducts = async () => {
+    const { data } = await supabase.from("products").select("*").order("created_at", { ascending: false });
+    setProducts(data || []);
   };
 
-  const filteredUsers = users.filter(u => u.name.toLowerCase().includes(searchTerm.toLowerCase()) || u.email.toLowerCase().includes(searchTerm.toLowerCase()));
+  useEffect(() => { fetchProducts(); }, []);
+
+  const handleAdd = async () => {
+    const { error } = await supabase.from("products").insert({
+      title: form.title, description: form.description, price: Number(form.price),
+      category: form.category, commission_rate: Number(form.commission_rate),
+      min_tier: form.min_tier, image_url: form.image_url || null, status: "active",
+    });
+    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Product Added!" });
+    setForm({ title: "", description: "", price: "", category: "Courses", commission_rate: "50", min_tier: "Basic", image_url: "" });
+    setShowForm(false);
+    fetchProducts();
+  };
+
+  const handleDelete = async (id: string) => {
+    await supabase.from("products").delete().eq("id", id);
+    toast({ title: "Product Deleted" });
+    fetchProducts();
+  };
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col md:flex-row items-end justify-between gap-6">
-        <div>
-          <h2 className="text-4xl font-black text-foreground tracking-tighter mb-2 italic uppercase">User Matrix.</h2>
-          <p className="text-muted-foreground font-medium italic">Comprehensive management of the global affiliate pool.</p>
-        </div>
-        <div className="flex items-center gap-4 w-full md:w-auto">
-          <div className="relative flex-1 md:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} placeholder="Search identity..." className="h-14 pl-12 rounded-2xl bg-card border-2 border-border font-bold" />
-          </div>
-        </div>
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Products</h2>
+        <Button onClick={() => setShowForm(!showForm)} className="rounded-2xl font-black text-xs uppercase gap-2">
+          <Plus className="h-4 w-4" /> Add Product
+        </Button>
       </div>
+
+      {showForm && (
+        <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input placeholder="Product Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <Input placeholder="Price (USD)" type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+          </div>
+          <Textarea placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-2xl bg-secondary border-none font-medium min-h-[100px]" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Input placeholder="Category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <Input placeholder="Commission %" type="number" value={form.commission_rate} onChange={e => setForm({ ...form, commission_rate: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <select value={form.min_tier} onChange={e => setForm({ ...form, min_tier: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold px-4 text-foreground">
+              <option value="Basic">Basic Tier</option>
+              <option value="Standard">Standard Tier</option>
+              <option value="Pro">Pro Tier</option>
+            </select>
+            <Input placeholder="Image URL" value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+          </div>
+          <Button onClick={handleAdd} className="h-14 rounded-2xl font-black text-sm uppercase px-10">Save Product</Button>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredUsers.map((user) => (
-          <div key={user.id} className="group p-8 rounded-[3rem] bg-card border-2 border-border hover:border-primary/50 transition-all duration-300 shadow-xl flex flex-col relative overflow-hidden">
-            <div className="flex items-center gap-6 mb-8">
-              <div className="h-16 w-16 rounded-2xl bg-secondary flex items-center justify-center font-black text-2xl text-primary border border-border">{user.name.charAt(0)}</div>
+        {products.map(p => (
+          <div key={p.id} className="p-6 rounded-[2rem] bg-card border-2 border-border hover:border-primary/50 transition-all">
+            {p.image_url && <img src={p.image_url} alt={p.title} className="h-32 w-full object-cover rounded-xl mb-4" />}
+            <h3 className="font-black text-foreground mb-1">{p.title}</h3>
+            <div className="flex items-center gap-2 mb-2">
+              <Badge className="bg-primary/10 text-primary border-none text-[10px]">{p.category}</Badge>
+              <Badge className="bg-secondary text-muted-foreground border-none text-[10px]">{p.min_tier || "Basic"} Tier</Badge>
+            </div>
+            <p className="text-2xl font-black text-foreground">${Number(p.price).toFixed(2)}</p>
+            <p className="text-xs text-muted-foreground mb-4">{p.commission_rate}% commission</p>
+            <Button onClick={() => handleDelete(p.id)} variant="outline" size="sm" className="rounded-xl gap-1 text-[10px]">
+              <Trash2 className="h-3 w-3" /> Remove
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// --- Testimonials Management ---
+const AdminTestimonials = () => {
+  const [items, setItems] = useState<any[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", role: "", content: "", image_url: "", rating: "5" });
+  const { toast } = useToast();
+
+  const fetch_ = async () => {
+    const { data } = await supabase.from("testimonials").select("*").order("created_at", { ascending: false });
+    setItems(data || []);
+  };
+  useEffect(() => { fetch_(); }, []);
+
+  const handleAdd = async () => {
+    await supabase.from("testimonials").insert({ name: form.name, role: form.role, content: form.content, image_url: form.image_url || null, rating: Number(form.rating) });
+    toast({ title: "Testimonial Added!" });
+    setForm({ name: "", role: "", content: "", image_url: "", rating: "5" });
+    setShowForm(false);
+    fetch_();
+  };
+
+  const handleDelete = async (id: string) => {
+    await supabase.from("testimonials").delete().eq("id", id);
+    toast({ title: "Deleted" });
+    fetch_();
+  };
+
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Testimonials</h2>
+        <Button onClick={() => setShowForm(!showForm)} className="rounded-2xl font-black text-xs uppercase gap-2"><Plus className="h-4 w-4" /> Add</Button>
+      </div>
+      {showForm && (
+        <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Input placeholder="Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <Input placeholder="Role / Title" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <Input placeholder="Image URL" value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+          </div>
+          <Textarea placeholder="Testimonial content" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="rounded-2xl bg-secondary border-none min-h-[100px]" />
+          <Button onClick={handleAdd} className="h-14 rounded-2xl font-black text-sm uppercase px-10">Save</Button>
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {items.map(t => (
+          <div key={t.id} className="p-6 rounded-[2rem] bg-card border-2 border-border">
+            <p className="text-foreground font-medium italic mb-4">"{t.content}"</p>
+            <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-black text-foreground italic uppercase tracking-tight">{user.name}</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border-none ${user.status === 'ACTIVE' ? 'bg-success/10 text-success' : 'bg-amber-500/10 text-amber-500'}`}>{user.status}</Badge>
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase">{user.packageTier}</span>
-                </div>
+                <p className="font-black text-foreground">{t.name}</p>
+                <p className="text-xs text-muted-foreground">{t.role}</p>
               </div>
-            </div>
-            <div className="space-y-4 mb-8 flex-1">
-              <div className="flex justify-between items-center text-sm"><span className="text-muted-foreground italic">Cumulative Inflow</span><span className="text-foreground font-black">${user.earnings.toLocaleString()}</span></div>
-              <div className="flex justify-between items-center text-sm"><span className="text-muted-foreground italic">Route Traffic</span><span className="text-foreground font-black">{user.clicks.toLocaleString()} Clicks</span></div>
-              <div className="flex justify-between items-center text-sm"><span className="text-muted-foreground italic">Trust Index</span><span className="text-xs font-black">{user.performanceScore}%</span></div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 mt-auto">
-              <Button onClick={() => toggleStatus(user.id)} variant="outline" className="h-12 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-secondary hover:bg-red-500/10 border-none">
-                {user.status === 'ACTIVE' ? <Ban className="h-4 w-4" /> : <UserCheck className="h-4 w-4" />} {user.status === 'ACTIVE' ? "Suspend" : "Activate"}
-              </Button>
-              <Button className="h-12 rounded-xl text-[10px] font-black uppercase tracking-widest gap-2 bg-foreground text-background border-none"> <Activity className="h-4 w-4" /> Inspect</Button>
+              <Button onClick={() => handleDelete(t.id)} variant="ghost" size="sm"><Trash2 className="h-4 w-4" /></Button>
             </div>
           </div>
         ))}
@@ -201,51 +198,65 @@ const AdminUsers = () => {
   );
 };
 
-const AdminInventory = () => {
-  const { products: systemProducts, setProducts } = useData();
+// --- Blog Management ---
+const AdminBlogs = () => {
+  const [items, setItems] = useState<any[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title: "", excerpt: "", content: "", author: "", category: "General", image_url: "", is_published: true });
   const { toast } = useToast();
 
-  const toggleTier = (productId: string) => {
-    const tiers: SellerTier[] = ["Basic", "Standard", "Pro"];
-    setProducts(prev => prev.map(p => {
-      if (p.id === productId) {
-        const currentIndex = tiers.indexOf(p.minimumTier);
-        const nextTier = tiers[(currentIndex + 1) % tiers.length];
-        return { ...p, minimumTier: nextTier };
-      }
-      return p;
-    }));
+  const fetch_ = async () => {
+    const { data } = await supabase.from("blog_posts").select("*").order("created_at", { ascending: false });
+    setItems(data || []);
+  };
+  useEffect(() => { fetch_(); }, []);
+
+  const handleAdd = async () => {
+    await supabase.from("blog_posts").insert(form);
+    toast({ title: "Blog Post Added!" });
+    setForm({ title: "", excerpt: "", content: "", author: "", category: "General", image_url: "", is_published: true });
+    setShowForm(false);
+    fetch_();
+  };
+
+  const handleDelete = async (id: string) => {
+    await supabase.from("blog_posts").delete().eq("id", id);
+    toast({ title: "Deleted" });
+    fetch_();
   };
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div className="flex items-end justify-between">
-        <div>
-          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Institutional Ledger.</h2>
-          <p className="text-muted-foreground font-medium italic">Configure asset visibility across operational tiers.</p>
-        </div>
-        <Button className="h-14 px-8 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-widest gap-3 shadow-xl">
-          <Plus className="h-5 w-5" /> Deploy New Asset
-        </Button>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Blog Posts</h2>
+        <Button onClick={() => setShowForm(!showForm)} className="rounded-2xl font-black text-xs uppercase gap-2"><Plus className="h-4 w-4" /> Add Post</Button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {systemProducts.map((p) => (
-          <div key={p.id} className="p-8 rounded-[3rem] bg-card border-2 border-border hover:border-primary/30 transition-all group relative overflow-hidden">
-            <div className="h-48 rounded-3xl overflow-hidden mb-6 relative">
-              <img src={p.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-              <div className="absolute top-4 right-4 h-10 w-10 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/20"><Store className="h-5 w-5 text-white" /></div>
-              <div className="absolute bottom-4 left-4">
-                <Badge onClick={() => toggleTier(p.id)} className={`cursor-pointer border-none font-black text-[8px] uppercase tracking-widest px-3 py-1 rounded-full ${p.minimumTier === "Basic" ? "bg-slate-500 text-white" : p.minimumTier === "Standard" ? "bg-primary text-white" : "bg-amber-500 text-white"}`}>Tier: {p.minimumTier}</Badge>
-              </div>
-            </div>
-            <h4 className="text-xl font-black text-foreground italic uppercase tracking-tighter mb-2">{p.title}</h4>
-            <div className="flex items-center justify-between pt-4 border-t border-border mt-4">
-              <span className="text-2xl font-black text-primary">${p.price}</span>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="h-10 w-10 px-0 rounded-xl border-2"><Edit className="h-4 w-4" /></Button>
-                <Button size="sm" variant="outline" className="h-10 w-10 px-0 rounded-xl border-2 hover:bg-red-500/10 text-red-500 border-red-500/20"><Trash2 className="h-4 w-4" /></Button>
-              </div>
-            </div>
+      {showForm && (
+        <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <Input placeholder="Author" value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+          </div>
+          <Input placeholder="Excerpt" value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+          <Textarea placeholder="Full content" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="rounded-2xl bg-secondary border-none min-h-[150px]" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Input placeholder="Category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <Input placeholder="Image URL" value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <label className="flex items-center gap-3 text-sm font-bold text-foreground">
+              <input type="checkbox" checked={form.is_published} onChange={e => setForm({ ...form, is_published: e.target.checked })} className="h-5 w-5 rounded" /> Published
+            </label>
+          </div>
+          <Button onClick={handleAdd} className="h-14 rounded-2xl font-black text-sm uppercase px-10">Save Post</Button>
+        </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {items.map(b => (
+          <div key={b.id} className="p-6 rounded-[2rem] bg-card border-2 border-border">
+            {b.image_url && <img src={b.image_url} alt={b.title} className="h-32 w-full object-cover rounded-xl mb-4" />}
+            <Badge className={`text-[10px] mb-2 ${b.is_published ? 'bg-success/10 text-success' : 'bg-amber-500/10 text-amber-500'} border-none`}>{b.is_published ? "Published" : "Draft"}</Badge>
+            <h3 className="font-black text-foreground mb-1">{b.title}</h3>
+            <p className="text-xs text-muted-foreground mb-4 line-clamp-2">{b.excerpt}</p>
+            <Button onClick={() => handleDelete(b.id)} variant="ghost" size="sm"><Trash2 className="h-4 w-4" /></Button>
           </div>
         ))}
       </div>
@@ -253,163 +264,123 @@ const AdminInventory = () => {
   );
 };
 
-const AdminCommissions = () => {
-  const { globalCommission, setGlobalCommission, minPayoutThreshold, setMinPayoutThreshold } = useData();
+// --- Resources Management ---
+const AdminResources = () => {
+  const [items, setItems] = useState<any[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title: "", description: "", file_url: "", category: "General", min_tier: "Basic" });
   const { toast } = useToast();
 
-  return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div>
-        <h2 className="text-4xl font-black text-foreground tracking-tighter mb-2 italic uppercase">Commission Mesh.</h2>
-        <p className="text-muted-foreground font-medium italic">Configure institutional payout protocols and tier adjustments.</p>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="p-10 rounded-[3rem] bg-card border-2 border-border space-y-8">
-          <div className="flex items-center gap-4 mb-4"><div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center"><TrendingUp className="h-6 w-6 text-primary" /></div><h3 className="text-xl font-black italic uppercase tracking-tight">Global Parameters</h3></div>
-          <div className="space-y-6">
-            <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Default Rate (%)</label><div className="flex items-center gap-4"><Input type="number" value={globalCommission} onChange={(e) => setGlobalCommission(Number(e.target.value))} className="h-16 rounded-2xl bg-secondary border-none font-black text-2xl px-6" /><Button onClick={() => toast({ title: "Settings Updated" })} className="h-16 px-8 rounded-2xl font-black uppercase text-xs tracking-widest">Seal</Button></div></div>
-            <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Payout Threshold ($)</label><div className="flex items-center gap-4"><Input type="number" value={minPayoutThreshold} onChange={(e) => setMinPayoutThreshold(Number(e.target.value))} className="h-16 rounded-2xl bg-secondary border-none font-black text-2xl px-6" /><Button onClick={() => toast({ title: "Threshold Synchronized" })} className="h-16 px-8 rounded-2xl font-black uppercase text-xs tracking-widest">Seal</Button></div></div>
-          </div>
-        </div>
-        <div className="p-10 rounded-[3rem] bg-foreground text-background space-y-8 relative overflow-hidden">
-          <div className="flex items-center gap-4 mb-4"><div className="h-12 w-12 rounded-2xl bg-white/10 flex items-center justify-center"><Star className="h-6 w-6 text-primary" /></div><h3 className="text-xl font-black italic uppercase tracking-tight text-white">Tiered Bonus System</h3></div>
-          <div className="space-y-4">
-            {[{ label: "Elite (500+ Sales)", rate: "+5%" }, { label: "Veteran (200+ Sales)", rate: "+2%" }].map(tier => (
-              <div key={tier.label} className="p-5 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between"><div><p className="text-[10px] font-black uppercase tracking-widest">{tier.label}</p><p className="text-2xl font-black text-primary">{tier.rate}</p></div><Badge className="bg-white/10 text-white border-none text-[8px] uppercase font-black px-4">Active</Badge></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+  const fetch_ = async () => {
+    const { data } = await supabase.from("resources").select("*").order("created_at", { ascending: false });
+    setItems(data || []);
+  };
+  useEffect(() => { fetch_(); }, []);
 
-const AdminPayouts = () => {
-  const { payouts, setPayouts } = useData();
-  const { toast } = useToast();
-  const handleProcess = (id: string) => {
-    setPayouts(payouts.map(p => p.id === id ? { ...p, status: "PROCESSED" } : p));
-    toast({ title: "Funds Transmitted", description: "Capital has been routed successfully." });
+  const handleAdd = async () => {
+    await supabase.from("resources").insert(form);
+    toast({ title: "Resource Added!" });
+    setForm({ title: "", description: "", file_url: "", category: "General", min_tier: "Basic" });
+    setShowForm(false);
+    fetch_();
+  };
+
+  const handleDelete = async (id: string) => {
+    await supabase.from("resources").delete().eq("id", id);
+    fetch_();
   };
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div className="flex items-end justify-between">
-        <div><h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Payout Portal.</h2><p className="text-muted-foreground font-medium italic">Approve and track global distributions.</p></div>
-        <Button className="h-14 rounded-2xl bg-foreground text-background font-black uppercase text-xs tracking-widest gap-3 px-8 shadow-2xl"><Download className="h-5 w-5" /> Batch Protocol</Button>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Resources</h2>
+        <Button onClick={() => setShowForm(!showForm)} className="rounded-2xl font-black text-xs uppercase gap-2"><Plus className="h-4 w-4" /> Add</Button>
       </div>
-      <div className="rounded-[3rem] border-2 border-border bg-card overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="border-b-2 border-border bg-secondary/30"><tr className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground"><th className="px-8 py-6">Partner Identity</th><th className="px-8 py-6">Amount</th><th className="px-8 py-6">Method</th><th className="px-8 py-6">Status</th><th className="px-8 py-6 text-right">Auth</th></tr></thead>
-          <tbody className="divide-y-2 divide-border">
-            {payouts.map((p) => (
-              <tr key={p.id} className="group hover:bg-secondary/10 transition-all font-bold text-sm">
-                <td className="px-8 py-6"><p className="text-foreground italic uppercase">{p.userName}</p><p className="text-[10px] text-muted-foreground">{p.invoiceId}</p></td>
-                <td className="px-8 py-6 text-lg font-black italic text-foreground">${p.amount}</td>
-                <td className="px-8 py-6 uppercase text-[10px] opacity-60 italic">{p.method}</td>
-                <td className="px-8 py-6"><Badge className={`text-[8px] font-black uppercase border-none ${p.status === 'PROCESSED' ? 'bg-success/10 text-success' : 'bg-amber-500/10 text-amber-500'}`}>{p.status}</Badge></td>
-                <td className="px-8 py-6 text-right">{p.status === 'PENDING' ? <Button onClick={() => handleProcess(p.id)} size="sm" className="h-10 px-6 rounded-xl font-black text-xs uppercase bg-primary text-white">Authorize</Button> : <Button variant="outline" size="sm" className="h-10 w-10 p-0 rounded-xl"><FileText className="h-4 w-4" /></Button>}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-};
-
-const AdminAnalytics = () => {
-  const { analytics } = useData();
-  return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div><h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Tracking Logs.</h2><p className="text-muted-foreground font-medium italic">High-fidelity real-time behavioral data streams.</p></div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatsCard title="Mean Depth" value="1.2M+" icon={Activity} trend="+15.4% Rise" />
-        <StatsCard title="Mobile Route" value="64.2%" icon={Smartphone} trend="Majority Inflow" />
-        <StatsCard title="Global Nodes" value="142" icon={Globe} trend="Active Regions" />
-        <StatsCard title="Protocol Trust" value="99.98%" icon={ShieldCheck} trend="Verified" />
-      </div>
-      <div className="rounded-[3rem] border-2 border-border bg-card overflow-hidden">
-        <div className="px-8 py-6 bg-secondary/30 border-b-2 border-border flex justify-between items-center"><h3 className="text-[10px] font-black uppercase tracking-[0.4em]">Live Telemetry Stream</h3><Badge className="bg-success text-white border-none animate-pulse">Live</Badge></div>
-        <div className="divide-y-2 divide-border">
-          {analytics.slice(0, 10).map((event) => (
-            <div key={event.id} className="p-6 flex items-center justify-between group hover:bg-secondary/10 transition-all">
-              <div className="flex items-center gap-6"><div className={`h-12 w-12 rounded-xl flex items-center justify-center ${event.type === 'CONVERSION' ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'}`}>{event.type === 'CONVERSION' ? <CheckCircle2 className="h-6 w-6" /> : <MousePointerClick className="h-6 w-6" />}</div><div><p className="font-black text-foreground italic uppercase text-sm">{event.type} Detected</p><p className="text-[10px] font-bold text-muted-foreground uppercase">IP: {event.ip} • Region: {event.geo}</p></div></div>
-              <div className="text-right"><p className="text-sm font-black text-foreground">Auth: {event.affiliateId}</p><p className="text-[10px] font-bold text-muted-foreground uppercase">{new Date(event.timestamp).toLocaleTimeString()}</p></div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const AdminFraud = () => {
-  return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div><h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Risk Mesh.</h2><p className="text-muted-foreground font-medium italic">Autonomous fraud detection and compliance monitoring.</p></div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        <div className="p-10 rounded-[3rem] border-2 border-border bg-card space-y-8">
-          <div className="flex items-center gap-4"><ShieldAlert className="h-8 w-8 text-red-500" /><h3 className="text-xl font-black italic uppercase">Active Threats</h3></div>
-          <div className="space-y-6">
-            {[{ type: "IP COLLISION", desc: "Multiple identities sharing same route", level: "HIGH" }, { type: "VELOCITY GAP", desc: "Unusual click frequency detected", level: "MEDIUM" }].map(threat => (
-              <div key={threat.type} className="p-6 rounded-2xl bg-secondary/50 border border-border flex items-center justify-between"><div><p className="text-[10px] font-black text-red-500">{threat.type}</p><p className="text-sm font-bold text-muted-foreground italic">{threat.desc}</p></div><Badge variant="destructive" className="font-black text-[8px] uppercase">{threat.level}</Badge></div>
-            ))}
+      {showForm && (
+        <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
+          <Input placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+          <Textarea placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-2xl bg-secondary border-none" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Input placeholder="File URL" value={form.file_url} onChange={e => setForm({ ...form, file_url: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <Input placeholder="Category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <select value={form.min_tier} onChange={e => setForm({ ...form, min_tier: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold px-4 text-foreground">
+              <option value="Basic">Basic</option><option value="Standard">Standard</option><option value="Pro">Pro</option>
+            </select>
           </div>
+          <Button onClick={handleAdd} className="h-14 rounded-2xl font-black text-sm uppercase px-10">Save</Button>
         </div>
-        <div className="p-10 rounded-[3rem] bg-foreground text-background space-y-8 relative overflow-hidden"><div className="flex items-center gap-4"><UserCheck className="h-8 w-8 text-success" /><h3 className="text-xl font-black italic uppercase text-white">Compliance Protocols</h3></div><div className="space-y-4">{["GDPR Removal Protocol", "FTC Disclosure Monitor", "AML Verification Loop"].map(rule => (<div key={rule} className="flex items-center gap-4 p-4 border border-white/10 rounded-2xl bg-white/5"><CheckCircle2 className="h-5 w-5 text-success" /><span className="text-xs font-black uppercase text-white/80 italic">{rule}</span></div>))}</div></div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {items.map(r => (
+          <div key={r.id} className="p-6 rounded-[2rem] bg-card border-2 border-border flex items-center justify-between">
+            <div>
+              <h3 className="font-black text-foreground">{r.title}</h3>
+              <p className="text-xs text-muted-foreground">{r.category} · {r.min_tier} Tier</p>
+            </div>
+            <Button onClick={() => handleDelete(r.id)} variant="ghost" size="sm"><Trash2 className="h-4 w-4" /></Button>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
+// --- Contests Management ---
 const AdminContests = () => {
-  const { contests, setContests } = useData();
+  const [items, setItems] = useState<any[]>([]);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ title: "", description: "", target: "100", reward_value: "500", start_date: "", end_date: "", status: "active" });
   const { toast } = useToast();
 
-  const deployContest = () => {
-    const newContest: Contest = {
-      id: `C${contests.length + 1}`,
-      title: "New Accelerator Flow",
-      description: "Define institutional targets for this node.",
-      target: 500,
-      reward: 1000,
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: "2024-12-31",
-      participants: 0,
-      status: "DRAFT"
-    };
-    setContests([...contests, newContest]);
-    toast({ title: "Contest Initialized", description: "Draft created in the accelerator ledger." });
+  const fetch_ = async () => {
+    const { data } = await supabase.from("contests").select("*").order("created_at", { ascending: false });
+    setItems(data || []);
+  };
+  useEffect(() => { fetch_(); }, []);
+
+  const handleAdd = async () => {
+    await supabase.from("contests").insert({
+      ...form, target: Number(form.target), reward_value: Number(form.reward_value),
+    });
+    toast({ title: "Contest Created!" });
+    setShowForm(false);
+    fetch_();
+  };
+
+  const handleDelete = async (id: string) => {
+    await supabase.from("contests").delete().eq("id", id);
+    fetch_();
   };
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div className="flex items-end justify-between">
-        <div>
-          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter mb-2">Accelerator Mesh.</h2>
-          <p className="text-muted-foreground font-medium italic">Deploy and synchronize high-yield performance contests.</p>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
+        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Contests</h2>
+        <Button onClick={() => setShowForm(!showForm)} className="rounded-2xl font-black text-xs uppercase gap-2"><Plus className="h-4 w-4" /> Create</Button>
+      </div>
+      {showForm && (
+        <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
+          <Input placeholder="Contest Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+          <Textarea placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-2xl bg-secondary border-none" />
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <Input placeholder="Target Sales" type="number" value={form.target} onChange={e => setForm({ ...form, target: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <Input placeholder="Reward ($)" type="number" value={form.reward_value} onChange={e => setForm({ ...form, reward_value: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <Input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+          </div>
+          <Button onClick={handleAdd} className="h-14 rounded-2xl font-black text-sm uppercase px-10">Create Contest</Button>
         </div>
-        <Button onClick={deployContest} className="h-14 px-8 rounded-2xl bg-primary text-white font-black text-xs uppercase tracking-widest gap-3 shadow-xl">
-          <Trophy className="h-5 w-5" /> Initialize Flow
-        </Button>
-      </div>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {contests.map(c => (
-          <div key={c.id} className="p-10 rounded-[3rem] bg-card border-2 border-border shadow-2xl relative overflow-hidden group">
-            <div className="flex justify-between items-start mb-8">
-              <Badge className={`border-none font-black text-[8px] uppercase px-4 py-1.5 rounded-full ${c.status === 'ACTIVE' ? 'bg-success/10 text-success' : 'bg-primary/10 text-primary'}`}>{c.status}</Badge>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="h-10 w-10 p-0 rounded-xl"><Edit className="h-4 w-4" /></Button>
-                <Button size="sm" variant="outline" className="h-10 w-10 p-0 rounded-xl hover:bg-red-500/10 text-red-500"><Trash2 className="h-4 w-4" /></Button>
-              </div>
+      )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {items.map(c => (
+          <div key={c.id} className="p-6 rounded-[2rem] bg-card border-2 border-border">
+            <h3 className="font-black text-foreground mb-1">{c.title}</h3>
+            <p className="text-xs text-muted-foreground mb-2">{c.description}</p>
+            <div className="flex items-center gap-3">
+              <Badge className="bg-primary/10 text-primary border-none text-[10px]">Target: {c.target}</Badge>
+              <Badge className="bg-success/10 text-success border-none text-[10px]">Reward: ${Number(c.reward_value).toFixed(2)}</Badge>
             </div>
-            <h3 className="text-2xl font-black text-foreground italic uppercase mb-2">{c.title}</h3>
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest opacity-60 mb-8">{c.startDate} — {c.endDate}</p>
-            <div className="space-y-6 pt-6 border-t border-border">
-              <div className="flex justify-between items-center text-xs font-black uppercase"><span className="text-muted-foreground">Target Velocity</span><span className="text-foreground">{c.target} Conv.</span></div>
-              <div className="flex justify-between items-center text-xs font-black uppercase"><span className="text-muted-foreground">Yield Magnitude</span><span className="text-primary text-xl">${c.reward}</span></div>
-            </div>
+            <Button onClick={() => handleDelete(c.id)} variant="ghost" size="sm" className="mt-4"><Trash2 className="h-4 w-4" /></Button>
           </div>
         ))}
       </div>
@@ -417,160 +388,89 @@ const AdminContests = () => {
   );
 };
 
+// --- Settings ---
 const AdminSettings = () => {
-  const { affiliateName } = useAuth();
-  const { landingContent, setLandingContent, exchangeRate, setExchangeRate } = useData();
-  const { toast } = useToast();
-  const [subTab, setSubTab] = useState("profile");
-
+  const { profile, user } = useAuth();
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div>
-        <h2 className="text-4xl font-black text-foreground uppercase tracking-tighter mb-2">System Settings</h2>
-        <p className="text-muted-foreground font-medium italic">Manage global platform configurations and administrator profile.</p>
-      </div>
-
-      <div className="flex gap-6 border-b border-border pb-6 overflow-x-auto scrollbar-hide">
-        {[
-          { id: "profile", label: "Admin Profile", icon: UserIcon },
-          { id: "account", label: "Security", icon: Shield },
-          { id: "platform", label: "System Config", icon: SettingsIcon }
-        ].map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setSubTab(tab.id)}
-            className={`flex items-center gap-3 px-6 py-3 rounded-2xl transition-all font-black uppercase text-[10px] tracking-[0.2em] ${subTab === tab.id ? 'bg-primary text-white shadow-lg' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}
-          >
-            <tab.icon className="h-4 w-4" /> {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-        {subTab === "profile" && (
-          <>
-            <div className="p-10 rounded-[3rem] bg-card border-2 border-border shadow-xl space-y-8">
-              <h3 className="text-xl font-black uppercase tracking-tight flex items-center gap-4">Administrator Identity</h3>
-              <div className="space-y-6">
-                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Full Name</label><Input defaultValue={affiliateName} className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
-                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Email Address</label><Input defaultValue="admin@system.com" className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
-                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">Admin Bio</label><textarea className="w-full h-32 rounded-2xl bg-secondary border-none font-bold p-6 text-sm outline-none resize-none" placeholder="Administrative notes..."></textarea></div>
-              </div>
-            </div>
-            <div className="p-10 rounded-[3rem] bg-foreground text-background shadow-2xl relative overflow-hidden flex flex-col justify-center text-center">
-              <div className="h-32 w-32 rounded-[2.5rem] bg-primary mx-auto mb-8 flex items-center justify-center text-5xl font-black italic"> A </div>
-              <h4 className="text-2xl font-black italic uppercase text-white mb-2">{affiliateName}</h4>
-              <p className="text-[10px] uppercase font-black tracking-widest text-white/40">SYSTEM SUPERADMIN</p>
-              <Button onClick={() => toast({ title: "Admin Saved", description: "Your admin profile has been updated." })} className="mt-8 w-full h-16 rounded-3xl bg-primary text-white font-black uppercase text-xs tracking-widest shadow-xl shadow-primary/20">Update Admin Profile</Button>
-            </div>
-          </>
-        )}
-
-        {subTab === "account" && (
-          <div className="lg:col-span-2 p-10 rounded-[3rem] bg-card border-2 border-border shadow-xl space-y-10">
-            <div className="flex items-center gap-4"> <h3 className="text-xl font-black uppercase tracking-tight">Security Settings</h3> </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-6">
-                <div className="space-y-2"><label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">System Master Password</label><Input type="password" placeholder="••••••••" className="h-14 rounded-2xl bg-secondary border-none font-bold" /></div>
-                <Button className="w-full h-14 rounded-xl bg-foreground text-background font-black uppercase text-xs">Reset All Tokens</Button>
-              </div>
-              <div className="p-8 rounded-3xl bg-secondary/50 border-2 border-dashed border-border flex flex-col justify-center space-y-4 text-center">
-                <p className="text-[10px] font-black uppercase text-muted-foreground">Admin Session Integrity</p>
-                <p className="text-2xl font-black italic">Fully Secured</p>
-                <Badge className="bg-success text-white border-none mx-auto uppercase px-4 py-1">Nodes Verified</Badge>
-              </div>
-            </div>
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Admin Settings</h2>
+      <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <p className="text-[10px] font-black uppercase text-muted-foreground mb-2">Admin Name</p>
+            <p className="text-lg font-black text-foreground">{profile?.full_name || "Admin"}</p>
           </div>
-        )}
-
-        {subTab === "platform" && (
-          <div className="lg:col-span-2 p-10 rounded-[3rem] bg-card border-2 border-border shadow-xl space-y-10">
-            <div className="flex items-center gap-4"> <h3 className="text-xl font-black uppercase tracking-tight">Global Platform Configuration</h3> </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-              <div className="space-y-6 p-8 rounded-3xl bg-secondary/30">
-                <h4 className="text-[10px] font-black uppercase text-muted-foreground italic tracking-widest">Currency & Conversion</h4>
-                <div className="space-y-4">
-                  <div className="space-y-2"><label className="text-[10px] font-bold opacity-60">Exchange Rate (USD to GHS)</label>
-                    <Input type="number" value={exchangeRate} onChange={(e) => setExchangeRate(Number(e.target.value))} className="h-16 rounded-2xl bg-background border-none font-black text-2xl" /></div>
-                  <Button onClick={() => toast({ title: "Exchange Rate Saved" })} className="w-full h-14 rounded-2xl font-black uppercase text-xs bg-primary text-white">Save Rate</Button>
-                </div>
-              </div>
-              <div className="space-y-6 p-8 rounded-3xl bg-secondary/30">
-                <h4 className="text-[10px] font-black uppercase text-muted-foreground italic tracking-widest">Landing Page Content</h4>
-                <div className="space-y-4">
-                  <div className="space-y-2"><label className="text-[10px] font-bold opacity-60">Hero Title text</label>
-                    <Input value={landingContent.heroTitle} onChange={(e) => setLandingContent({ ...landingContent, heroTitle: e.target.value })} className="h-16 rounded-2xl bg-background border-none font-bold italic" /></div>
-                  <Button onClick={() => toast({ title: "Content Updated" })} className="w-full h-14 rounded-2xl font-black uppercase text-xs bg-foreground text-background">Update website Content</Button>
-                </div>
-              </div>
-            </div>
+          <div>
+            <p className="text-[10px] font-black uppercase text-muted-foreground mb-2">Email</p>
+            <p className="text-lg font-bold text-foreground">{user?.email}</p>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
 };
 
-// --- Main Admin Dashboard Component ---
-
+// --- Main Dashboard ---
 const AdminDashboard = () => {
+  const { user, isAdmin, isLoading, signOut, profile } = useAuth();
+  const navigate = useNavigate();
   const location = useLocation();
 
-  const activeTab = useMemo(() => {
-    const path = location.pathname;
-    if (path.includes("/users")) return "users";
-    if (path.includes("/inventory")) return "inventory";
-    if (path.includes("/commissions")) return "commissions";
-    if (path.includes("/contests")) return "contests";
-    if (path.includes("/payouts")) return "payouts";
-    if (path.includes("/analytics")) return "analytics";
-    if (path.includes("/fraud")) return "fraud";
-    if (path.includes("/settings")) return "settings";
-    return "overview";
-  }, [location.pathname]);
+  useEffect(() => {
+    if (!isLoading && (!user || !isAdmin)) {
+      navigate("/login");
+    }
+  }, [user, isAdmin, isLoading, navigate]);
+
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+  if (!user || !isAdmin) return null;
+
+  const currentPath = location.pathname.replace("/dashboard/admin", "") || "/";
+
+  const sidebarItems = [
+    { label: "Overview", icon: LayoutDashboard, path: "/dashboard/admin" },
+    { label: "Products", icon: Store, path: "/dashboard/admin/products" },
+    { label: "Testimonials", icon: Star, path: "/dashboard/admin/testimonials" },
+    { label: "Blog Posts", icon: FileText, path: "/dashboard/admin/blogs" },
+    { label: "Resources", icon: Award, path: "/dashboard/admin/resources" },
+    { label: "Contests", icon: Trophy, path: "/dashboard/admin/contests" },
+    { label: "Settings", icon: SettingsIcon, path: "/dashboard/admin/settings" },
+  ];
 
   return (
-    <div className="flex min-h-screen bg-transparent">
-      <DashboardSidebar type="admin" />
-      <main className="flex-1 overflow-auto bg-transparent">
-        <header className="sticky top-0 z-20 bg-background/60 backdrop-blur-xl border-b border-border px-10 py-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="flex items-center gap-6">
-              <div className="h-16 w-16 rounded-[2.2rem] bg-foreground flex items-center justify-center shadow-2xl relative">
-                <LayoutDashboard className="h-8 w-8 text-background" />
-                <div className="absolute top-0 right-0 h-4 w-4 bg-primary rounded-full border-4 border-background animate-pulse" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-foreground uppercase tracking-tight">
-                  {activeTab === "overview" ? "Admin Panel" : `${activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('inventory', 'Products').replace('fraud', 'Security')}`}
-                </h1>
-                <div className="flex items-center gap-4 mt-1">
-                  <Badge className="text-[10px] font-black uppercase px-3 py-0.5 rounded-full border-2 bg-primary/10 text-primary border-primary/20">SuperAdmin</Badge>
-                  <div className="flex items-center gap-4 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                    <span className="flex items-center gap-2 text-success text-nowrap"><ShieldCheck className="h-3 w-3" /> Secured</span>
-                    <span className="flex items-center gap-2 text-nowrap"><Globe className="h-3 w-3" /> Live Syncing</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center gap-6">
-              <Button className="h-14 px-8 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] gap-3 shadow-2xl shadow-primary/20">
-                <RefreshCw className="h-4 w-4" /> Refresh System
-              </Button>
-            </div>
+    <div className="min-h-screen flex bg-background">
+      <aside className="hidden lg:flex w-72 flex-col border-r border-border bg-card/50 p-6 sticky top-0 h-screen">
+        <Link to="/" className="flex items-center gap-2 mb-10 group">
+          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
+            <Shield className="h-5 w-5 text-primary-foreground" />
           </div>
-        </header>
-        <div className="p-10 max-w-7xl mx-auto">
-          {activeTab === "overview" && <AdminHUD />}
-          {activeTab === "users" && <AdminUsers />}
-          {activeTab === "inventory" && <AdminInventory />}
-          {activeTab === "commissions" && <AdminCommissions />}
-          {activeTab === "contests" && <AdminContests />}
-          {activeTab === "payouts" && <AdminPayouts />}
-          {activeTab === "analytics" && <AdminAnalytics />}
-          {activeTab === "fraud" && <AdminFraud />}
-          {activeTab === "settings" && <AdminSettings />}
+          <span className="font-black text-xl tracking-tighter text-foreground italic">AFFIL<span className="text-primary not-italic">YT.</span></span>
+        </Link>
+        <div className="mb-6 p-4 rounded-2xl bg-secondary/50">
+          <p className="text-xs font-black text-foreground">{profile?.full_name || "Admin"}</p>
+          <p className="text-[10px] text-muted-foreground">Super Admin</p>
         </div>
+        <nav className="space-y-1 flex-1">
+          {sidebarItems.map(item => (
+            <Link key={item.path} to={item.path}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}>
+              <item.icon className="h-4 w-4" /> {item.label}
+            </Link>
+          ))}
+        </nav>
+        <Button onClick={() => { signOut(); navigate("/"); }} variant="outline" className="mt-4 rounded-xl font-black text-xs uppercase">Sign Out</Button>
+      </aside>
+
+      <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
+        <Routes>
+          <Route index element={<AdminHUD />} />
+          <Route path="products" element={<AdminProducts />} />
+          <Route path="testimonials" element={<AdminTestimonials />} />
+          <Route path="blogs" element={<AdminBlogs />} />
+          <Route path="resources" element={<AdminResources />} />
+          <Route path="contests" element={<AdminContests />} />
+          <Route path="settings" element={<AdminSettings />} />
+        </Routes>
       </main>
     </div>
   );
