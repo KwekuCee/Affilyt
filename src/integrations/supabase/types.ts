@@ -76,6 +76,45 @@ export type Database = {
           },
         ]
       }
+      blog_posts: {
+        Row: {
+          author: string
+          category: string | null
+          content: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author: string
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       commissions: {
         Row: {
           affiliate_id: string
@@ -110,6 +149,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      contests: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          reward_value: number | null
+          start_date: string | null
+          status: string | null
+          target: number | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          reward_value?: number | null
+          start_date?: string | null
+          status?: string | null
+          target?: number | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          reward_value?: number | null
+          start_date?: string | null
+          status?: string | null
+          target?: number | null
+          title?: string
+        }
+        Relationships: []
       }
       orders: {
         Row: {
@@ -201,6 +276,7 @@ export type Database = {
           features: string[] | null
           id: string
           image_url: string | null
+          min_tier: string | null
           price: number
           refund_rate: number | null
           status: string
@@ -219,6 +295,7 @@ export type Database = {
           features?: string[] | null
           id?: string
           image_url?: string | null
+          min_tier?: string | null
           price?: number
           refund_rate?: number | null
           status?: string
@@ -237,6 +314,7 @@ export type Database = {
           features?: string[] | null
           id?: string
           image_url?: string | null
+          min_tier?: string | null
           price?: number
           refund_rate?: number | null
           status?: string
@@ -248,31 +326,115 @@ export type Database = {
       }
       profiles: {
         Row: {
+          affiliate_link: string | null
           avatar_url: string | null
           bio: string | null
+          country: string | null
           created_at: string
           full_name: string | null
           id: string
+          momo_number: string | null
+          momo_provider: string | null
+          package_tier: string | null
+          phone: string | null
+          skrill_email: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          affiliate_link?: string | null
           avatar_url?: string | null
           bio?: string | null
+          country?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
+          momo_number?: string | null
+          momo_provider?: string | null
+          package_tier?: string | null
+          phone?: string | null
+          skrill_email?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          affiliate_link?: string | null
           avatar_url?: string | null
           bio?: string | null
+          country?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
+          momo_number?: string | null
+          momo_provider?: string | null
+          package_tier?: string | null
+          phone?: string | null
+          skrill_email?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      resources: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          file_url: string | null
+          id: string
+          min_tier: string | null
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          min_tier?: string | null
+          title: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          file_url?: string | null
+          id?: string
+          min_tier?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          name: string
+          rating: number | null
+          role: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name: string
+          rating?: number | null
+          role: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string
+          rating?: number | null
+          role?: string
         }
         Relationships: []
       }
