@@ -195,7 +195,10 @@ export type Database = {
           commission_amount: number | null
           created_at: string
           id: string
+          platform_fee: number | null
           product_id: string
+          seller_earnings: number | null
+          seller_id: string | null
           status: string
         }
         Insert: {
@@ -206,7 +209,10 @@ export type Database = {
           commission_amount?: number | null
           created_at?: string
           id?: string
+          platform_fee?: number | null
           product_id: string
+          seller_earnings?: number | null
+          seller_id?: string | null
           status?: string
         }
         Update: {
@@ -217,7 +223,10 @@ export type Database = {
           commission_amount?: number | null
           created_at?: string
           id?: string
+          platform_fee?: number | null
           product_id?: string
+          seller_earnings?: number | null
+          seller_id?: string | null
           status?: string
         }
         Relationships: [
@@ -266,6 +275,8 @@ export type Database = {
       }
       products: {
         Row: {
+          approval_status: string
+          business_name: string | null
           category: string
           commission_rate: number
           conversion_rate: number | null
@@ -279,12 +290,15 @@ export type Database = {
           min_tier: string | null
           price: number
           refund_rate: number | null
+          seller_id: string | null
           status: string
           title: string
           trust_score: number | null
           updated_at: string
         }
         Insert: {
+          approval_status?: string
+          business_name?: string | null
           category?: string
           commission_rate?: number
           conversion_rate?: number | null
@@ -298,12 +312,15 @@ export type Database = {
           min_tier?: string | null
           price?: number
           refund_rate?: number | null
+          seller_id?: string | null
           status?: string
           title: string
           trust_score?: number | null
           updated_at?: string
         }
         Update: {
+          approval_status?: string
+          business_name?: string | null
           category?: string
           commission_rate?: number
           conversion_rate?: number | null
@@ -317,6 +334,7 @@ export type Database = {
           min_tier?: string | null
           price?: number
           refund_rate?: number | null
+          seller_id?: string | null
           status?: string
           title?: string
           trust_score?: number | null
@@ -329,6 +347,9 @@ export type Database = {
           affiliate_link: string | null
           avatar_url: string | null
           bio: string | null
+          business_description: string | null
+          business_name: string | null
+          business_website: string | null
           country: string | null
           created_at: string
           full_name: string | null
@@ -345,6 +366,9 @@ export type Database = {
           affiliate_link?: string | null
           avatar_url?: string | null
           bio?: string | null
+          business_description?: string | null
+          business_name?: string | null
+          business_website?: string | null
           country?: string | null
           created_at?: string
           full_name?: string | null
@@ -361,6 +385,9 @@ export type Database = {
           affiliate_link?: string | null
           avatar_url?: string | null
           bio?: string | null
+          business_description?: string | null
+          business_name?: string | null
+          business_website?: string | null
           country?: string | null
           created_at?: string
           full_name?: string | null
@@ -402,6 +429,66 @@ export type Database = {
           id?: string
           min_tier?: string | null
           title?: string
+        }
+        Relationships: []
+      }
+      seller_payouts: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          processed_at: string | null
+          seller_id: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          seller_id: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          seller_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      seller_subscriptions: {
+        Row: {
+          amount: number
+          created_at: string
+          expires_at: string
+          id: string
+          payment_reference: string | null
+          started_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          expires_at?: string
+          id?: string
+          payment_reference?: string | null
+          started_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          expires_at?: string
+          id?: string
+          payment_reference?: string | null
+          started_at?: string
+          status?: string
+          user_id?: string
         }
         Relationships: []
       }
