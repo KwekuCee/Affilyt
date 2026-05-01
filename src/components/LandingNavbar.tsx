@@ -60,12 +60,15 @@ const LandingNavbar = () => {
                         </div>
                     </div>
 
-                    <div className="hidden lg:flex flex-1 justify-end items-center gap-3">
+                    <div className="hidden lg:flex flex-1 justify-end items-center gap-2">
                         <Link to="/login">
-                            <Button variant="ghost" size="sm" className="font-black text-[10px] uppercase tracking-widest hover:bg-primary/10 px-4 rounded-xl">Login</Button>
+                            <Button variant="ghost" size="sm" className="font-black text-[10px] uppercase tracking-widest hover:bg-primary/10 px-3 rounded-xl">Login</Button>
+                        </Link>
+                        <Link to="/become-seller">
+                            <Button variant="outline" size="sm" className="rounded-full px-4 font-black text-[10px] uppercase tracking-widest">Become a Seller</Button>
                         </Link>
                         <Link to="/become-affiliate">
-                            <Button size="sm" className="rounded-full px-6 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
+                            <Button size="sm" className="rounded-full px-5 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
                                 Join Now <ArrowRight className="h-3 w-3" />
                             </Button>
                         </Link>
@@ -91,6 +94,9 @@ const LandingNavbar = () => {
                         <div className="flex flex-col gap-4">
                             <Link to="/login" onClick={() => setIsOpen(false)}>
                                 <Button variant="outline" className="w-full rounded-2xl py-6 font-black uppercase text-xs">Login</Button>
+                            </Link>
+                            <Link to="/become-seller" onClick={() => setIsOpen(false)}>
+                                <Button variant="outline" className="w-full rounded-2xl py-6 font-black uppercase text-xs">Become a Seller</Button>
                             </Link>
                             <Link to="/become-affiliate" onClick={() => setIsOpen(false)}>
                                 <Button className="w-full rounded-2xl py-6 font-black uppercase text-xs">Join Affilyt</Button>
