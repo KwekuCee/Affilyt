@@ -457,26 +457,8 @@ const SellerDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen flex bg-background">
-      <aside className="hidden lg:flex w-72 flex-col border-r border-border bg-card/50 p-6 sticky top-0 h-screen">
-        <Link to="/" className="flex items-center gap-2 mb-10 group">
-          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center"><Shield className="h-5 w-5 text-primary-foreground" /></div>
-          <span className="font-black text-xl tracking-tighter text-foreground italic">AFFIL<span className="text-primary not-italic">YT.</span></span>
-        </Link>
-        <div className="mb-6 p-4 rounded-2xl bg-secondary/50">
-          <div className="flex items-center gap-2 mb-1"><Store className="h-3 w-3 text-primary" /><p className="text-[10px] font-black uppercase text-primary">Seller</p></div>
-          <p className="text-xs font-black text-foreground">{profile?.business_name || profile?.full_name || "Seller"}</p>
-        </div>
-        <nav className="space-y-1 flex-1">
-          {items.map((item) => (
-            <Link key={item.path} to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}>
-              <item.icon className="h-4 w-4" /> {item.label}
-            </Link>
-          ))}
-        </nav>
-        <Button onClick={() => { signOut(); navigate("/"); }} variant="outline" className="mt-4 rounded-xl font-black text-xs uppercase">Sign Out</Button>
-      </aside>
+    <div className="min-h-screen flex bg-background theme-seller">
+      <DashboardSidebar type="seller" />
       <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
         <Routes>
           <Route index element={<SellerOverview />} />

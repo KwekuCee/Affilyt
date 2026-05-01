@@ -9,6 +9,7 @@ import {
 import { Link, useLocation, Routes, Route } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import HelpAI from "@/components/HelpAI";
 import StatsCard from "@/components/StatsCard";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,11 @@ const AdminHUD = () => {
 const AdminProducts = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", price: "", category: "Courses", commission_rate: "50", min_tier: "Basic", image_url: "" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    title: "", description: "", price: "", category: "Courses",
+    commission_rate: "50", min_tier: "Basic", image_url: ""
+  });
   const { toast } = useToast();
 
   const fetchProducts = async () => {
@@ -67,70 +72,138 @@ const AdminProducts = () => {
   useEffect(() => { fetchProducts(); }, []);
 
   const handleAdd = async () => {
-    const { error } = await supabase.from("products").insert({
+    const payload = {
       title: form.title, description: form.description, price: Number(form.price),
       category: form.category, commission_rate: Number(form.commission_rate),
       min_tier: form.min_tier, image_url: form.image_url || null, status: "active",
-    });
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
-    toast({ title: "Product Added!" });
+    };
+
+    if (editingId) {
+      const { error } = await supabase.from("products").update(payload).eq("id", editingId);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Product Updated!" });
+    } else {
+      const { error } = await supabase.from("products").insert(payload);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Product Added to Marketplace!" });
+    }
+
     setForm({ title: "", description: "", price: "", category: "Courses", commission_rate: "50", min_tier: "Basic", image_url: "" });
     setShowForm(false);
+    setEditingId(null);
     fetchProducts();
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Permanently remove this product?")) return;
     await supabase.from("products").delete().eq("id", id);
     toast({ title: "Product Deleted" });
     fetchProducts();
   };
 
+  const startEdit = (p: any) => {
+    setForm({
+      title: p.title, description: p.description || "", price: p.price.toString(),
+      category: p.category || "Courses", commission_rate: p.commission_rate.toString(),
+      min_tier: p.min_tier || "Basic", image_url: p.image_url || ""
+    });
+    setEditingId(p.id);
+    setShowForm(true);
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Products</h2>
-        <Button onClick={() => setShowForm(!showForm)} className="rounded-2xl font-black text-xs uppercase gap-2">
-          <Plus className="h-4 w-4" /> Add Product
+    <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter">Marketplace Inventory</h2>
+          <p className="text-muted-foreground font-medium">Control the products available for affiliates to promote.</p>
+        </div>
+        <Button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ title: "", description: "", price: "", category: "Courses", commission_rate: "50", min_tier: "Basic", image_url: "" }); }} className="rounded-2xl font-black text-sm uppercase py-6 px-8 shadow-xl shadow-primary/20">
+          {showForm ? "Cancel" : <><Plus className="mr-2 h-5 w-5" /> Add Product</>}
         </Button>
       </div>
 
       {showForm && (
-        <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input placeholder="Product Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <Input placeholder="Price (USD)" type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+        <div className="p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/10 shadow-2xl space-y-8 animate-in zoom-in-95 duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Product Name</label>
+              <Input placeholder="Mastering High-Ticket Sales" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Price (USD)</label>
+              <Input placeholder="99.00" type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+            </div>
           </div>
-          <Textarea placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-2xl bg-secondary border-none font-medium min-h-[100px]" />
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Product Description</label>
+            <Textarea placeholder="What's included in this package?" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-[2rem] bg-secondary/50 border-none p-8 font-medium min-h-[120px] text-lg" />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Input placeholder="Category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <Input placeholder="Commission %" type="number" value={form.commission_rate} onChange={e => setForm({ ...form, commission_rate: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <select value={form.min_tier} onChange={e => setForm({ ...form, min_tier: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold px-4 text-foreground">
-              <option value="Basic">Basic Tier</option>
-              <option value="Standard">Standard Tier</option>
-              <option value="Pro">Pro Tier</option>
-            </select>
-            <Input placeholder="Image URL" value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Category</label>
+              <Input placeholder="Courses" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold px-6" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Commission %</label>
+              <Input placeholder="50" type="number" value={form.commission_rate} onChange={e => setForm({ ...form, commission_rate: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold px-6" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Required Tier</label>
+              <select value={form.min_tier} onChange={e => setForm({ ...form, min_tier: e.target.value })} className="h-16 w-full rounded-[1.25rem] bg-secondary/50 border-none font-bold px-6 text-foreground text-sm uppercase">
+                <option value="Basic">Basic Tier</option>
+                <option value="Standard">Standard Tier</option>
+                <option value="Pro">Pro Tier</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Image URL</label>
+              <Input placeholder="https://..." value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold px-6" />
+            </div>
           </div>
-          <Button onClick={handleAdd} className="h-14 rounded-2xl font-black text-sm uppercase px-10">Save Product</Button>
+          <Button onClick={handleAdd} className="h-16 w-full rounded-[1.5rem] font-black text-lg uppercase tracking-tight shadow-xl shadow-primary/20">
+            {editingId ? "Update Product Data" : "Deploy Product"}
+          </Button>
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {products.map(p => (
-          <div key={p.id} className="p-6 rounded-[2rem] bg-card border-2 border-border hover:border-primary/50 transition-all">
-            {p.image_url && <img src={p.image_url} alt={p.title} className="h-32 w-full object-cover rounded-xl mb-4" />}
-            <h3 className="font-black text-foreground mb-1">{p.title}</h3>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge className="bg-primary/10 text-primary border-none text-[10px]">{p.category}</Badge>
-              <Badge className="bg-secondary text-muted-foreground border-none text-[10px]">{p.min_tier || "Basic"} Tier</Badge>
+          <div key={p.id} className="group rounded-[3rem] bg-card/30 backdrop-blur-sm border-2 border-border overflow-hidden hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+            <div className="h-48 w-full overflow-hidden relative">
+              {p.image_url ? <img src={p.image_url} alt={p.title} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" /> : <div className="h-full w-full bg-secondary flex items-center justify-center text-muted-foreground/20 italic font-black text-4xl uppercase">No Cover</div>}
+              <div className="absolute top-6 right-6 flex gap-2">
+                <Badge className="bg-primary/20 text-primary backdrop-blur-md border-none px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                  {p.min_tier || "Basic"}
+                </Badge>
+              </div>
             </div>
-            <p className="text-2xl font-black text-foreground">${Number(p.price).toFixed(2)}</p>
-            <p className="text-xs text-muted-foreground mb-4">{p.commission_rate}% commission</p>
-            <Button onClick={() => handleDelete(p.id)} variant="outline" size="sm" className="rounded-xl gap-1 text-[10px]">
-              <Trash2 className="h-3 w-3" /> Remove
-            </Button>
+            <div className="p-8 space-y-6">
+              <div>
+                <span className="text-[10px] font-black uppercase text-primary tracking-widest">{p.category}</span>
+                <h3 className="text-2xl font-black text-foreground leading-tight line-clamp-1">{p.title}</h3>
+                <p className="text-sm text-muted-foreground font-medium line-clamp-2 mt-2">{p.description}</p>
+              </div>
+
+              <div className="flex items-end justify-between">
+                <div>
+                  <p className="text-3xl font-black text-foreground tracking-tighter">${Number(p.price).toFixed(2)}</p>
+                  <p className="text-[10px] font-bold text-success uppercase">{p.commission_rate}% payout rate</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button onClick={() => startEdit(p)} variant="secondary" size="icon" className="h-12 w-12 rounded-2xl"><Edit className="h-5 w-5" /></Button>
+                  <Button onClick={() => handleDelete(p.id)} variant="ghost" size="icon" className="h-12 w-12 rounded-2xl text-red-500 hover:bg-red-500/10"><Trash2 className="h-5 w-5" /></Button>
+                </div>
+              </div>
+            </div>
           </div>
         ))}
+        {products.length === 0 && (
+          <div className="col-span-3 p-20 rounded-[3rem] bg-card/20 border-2 border-dashed border-border text-center">
+            <Store className="h-16 w-16 text-muted-foreground/20 mx-auto mb-6" />
+            <p className="text-xl font-bold text-muted-foreground">Marketplace is empty. Start adding products.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -140,7 +213,8 @@ const AdminProducts = () => {
 const AdminTestimonials = () => {
   const [items, setItems] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: "", role: "", content: "", image_url: "", rating: "5" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({ name: "", role: "", content: "", image_url: "", rating: "5", is_active: true });
   const { toast } = useToast();
 
   const fetch_ = async () => {
@@ -150,49 +224,114 @@ const AdminTestimonials = () => {
   useEffect(() => { fetch_(); }, []);
 
   const handleAdd = async () => {
-    await supabase.from("testimonials").insert({ name: form.name, role: form.role, content: form.content, image_url: form.image_url || null, rating: Number(form.rating) });
-    toast({ title: "Testimonial Added!" });
-    setForm({ name: "", role: "", content: "", image_url: "", rating: "5" });
+    if (editingId) {
+      const { error } = await supabase.from("testimonials").update({ ...form, rating: Number(form.rating) }).eq("id", editingId);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Testimonial Updated!" });
+    } else {
+      const { error } = await supabase.from("testimonials").insert({ ...form, rating: Number(form.rating) });
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Testimonial Added!" });
+    }
+    setForm({ name: "", role: "", content: "", image_url: "", rating: "5", is_active: true });
     setShowForm(false);
+    setEditingId(null);
     fetch_();
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure?")) return;
     await supabase.from("testimonials").delete().eq("id", id);
     toast({ title: "Deleted" });
     fetch_();
   };
 
+  const startEdit = (t: any) => {
+    setForm({ name: t.name, role: t.role, content: t.content, image_url: t.image_url || "", rating: t.rating.toString(), is_active: t.is_active });
+    setEditingId(t.id);
+    setShowForm(true);
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Testimonials</h2>
-        <Button onClick={() => setShowForm(!showForm)} className="rounded-2xl font-black text-xs uppercase gap-2"><Plus className="h-4 w-4" /> Add</Button>
+    <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter">Testimonials</h2>
+          <p className="text-muted-foreground font-medium">Manage social proof and success stories.</p>
+        </div>
+        <Button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: "", role: "", content: "", image_url: "", rating: "5", is_active: true }); }} className="rounded-2xl font-black text-sm uppercase py-6 px-8 shadow-xl shadow-primary/20 hover:scale-105 transition-transform">
+          {showForm ? "Cancel" : <><Plus className="mr-2 h-5 w-5" /> Add Story</>}
+        </Button>
       </div>
+
       {showForm && (
-        <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Input placeholder="Name" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <Input placeholder="Role / Title" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <Input placeholder="Image URL" value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+        <div className="p-8 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/10 shadow-2xl space-y-8 animate-in zoom-in-95 duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Name</label>
+              <Input placeholder="John Doe" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6 focus:ring-2 ring-primary" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Role / Title</label>
+              <Input placeholder="Pro Affiliate" value={form.role} onChange={e => setForm({ ...form, role: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6 focus:ring-2 ring-primary" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Image URL</label>
+              <Input placeholder="https://..." value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6 focus:ring-2 ring-primary" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Rating (1-5)</label>
+              <select value={form.rating} onChange={e => setForm({ ...form, rating: e.target.value })} className="h-16 w-full rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6 focus:ring-2 ring-primary text-foreground">
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="2">2 Stars</option>
+                <option value="1">1 Star</option>
+              </select>
+            </div>
           </div>
-          <Textarea placeholder="Testimonial content" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="rounded-2xl bg-secondary border-none min-h-[100px]" />
-          <Button onClick={handleAdd} className="h-14 rounded-2xl font-black text-sm uppercase px-10">Save</Button>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">The Story</label>
+            <Textarea placeholder="How has our platform helped them?" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="rounded-[2rem] bg-secondary/50 border-none p-8 font-medium min-h-[150px] text-lg focus:ring-2 ring-primary" />
+          </div>
+          <div className="flex items-center gap-4">
+            <Button onClick={handleAdd} className="h-16 flex-1 rounded-[1.5rem] font-black text-lg uppercase tracking-tight shadow-xl shadow-primary/20">
+              {editingId ? "Update Story" : "Publish Story"}
+            </Button>
+          </div>
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {items.map(t => (
-          <div key={t.id} className="p-6 rounded-[2rem] bg-card border-2 border-border">
-            <p className="text-foreground font-medium italic mb-4">"{t.content}"</p>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="font-black text-foreground">{t.name}</p>
-                <p className="text-xs text-muted-foreground">{t.role}</p>
+          <div key={t.id} className="group p-8 rounded-[3rem] bg-card/30 backdrop-blur-sm border-2 border-border hover:border-primary/40 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2">
+            <div className="flex justify-between items-start mb-6">
+              <div className="flex gap-1">
+                {[...Array(t.rating)].map((_, i) => <Star key={i} className="h-4 w-4 fill-primary text-primary" />)}
               </div>
-              <Button onClick={() => handleDelete(t.id)} variant="ghost" size="sm"><Trash2 className="h-4 w-4" /></Button>
+              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <Button onClick={() => startEdit(t)} variant="secondary" size="icon" className="h-10 w-10 rounded-xl"><Edit className="h-4 w-4" /></Button>
+                <Button onClick={() => handleDelete(t.id)} variant="destructive" size="icon" className="h-10 w-10 rounded-xl"><Trash2 className="h-4 w-4" /></Button>
+              </div>
+            </div>
+            <p className="text-xl font-medium text-foreground italic mb-8 leading-relaxed">"{t.content}"</p>
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-2xl bg-secondary flex items-center justify-center overflow-hidden border-2 border-primary/10">
+                {t.image_url ? <img src={t.image_url} alt={t.name} className="h-full w-full object-cover" /> : <Users className="h-6 w-6 text-muted-foreground" />}
+              </div>
+              <div>
+                <p className="font-black text-lg text-foreground tracking-tight">{t.name}</p>
+                <p className="text-xs font-black uppercase text-primary tracking-widest">{t.role}</p>
+              </div>
             </div>
           </div>
         ))}
+        {items.length === 0 && (
+          <div className="col-span-2 p-20 rounded-[3rem] bg-card/20 border-2 border-dashed border-border flex flex-col items-center justify-center text-center">
+            <Star className="h-16 w-16 text-muted-foreground/20 mb-6" />
+            <p className="text-xl font-bold text-muted-foreground">No testimonials yet. Be the first to share a success story.</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -202,6 +341,7 @@ const AdminTestimonials = () => {
 const AdminBlogs = () => {
   const [items, setItems] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ title: "", excerpt: "", content: "", author: "", category: "General", image_url: "", is_published: true });
   const { toast } = useToast();
 
@@ -212,51 +352,111 @@ const AdminBlogs = () => {
   useEffect(() => { fetch_(); }, []);
 
   const handleAdd = async () => {
-    await supabase.from("blog_posts").insert(form);
-    toast({ title: "Blog Post Added!" });
+    if (editingId) {
+      const { error } = await supabase.from("blog_posts").update(form).eq("id", editingId);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Post Updated!" });
+    } else {
+      const { error } = await supabase.from("blog_posts").insert(form);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Blog Post Published!" });
+    }
     setForm({ title: "", excerpt: "", content: "", author: "", category: "General", image_url: "", is_published: true });
     setShowForm(false);
+    setEditingId(null);
     fetch_();
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Delete this post permanently?")) return;
     await supabase.from("blog_posts").delete().eq("id", id);
     toast({ title: "Deleted" });
     fetch_();
   };
 
+  const startEdit = (b: any) => {
+    setForm({ title: b.title, excerpt: b.excerpt || "", content: b.content || "", author: b.author, category: b.category || "General", image_url: b.image_url || "", is_published: b.is_published });
+    setEditingId(b.id);
+    setShowForm(true);
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Blog Posts</h2>
-        <Button onClick={() => setShowForm(!showForm)} className="rounded-2xl font-black text-xs uppercase gap-2"><Plus className="h-4 w-4" /> Add Post</Button>
+    <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter">Library & Insights</h2>
+          <p className="text-muted-foreground font-medium">Publish educational content and platform updates.</p>
+        </div>
+        <Button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ title: "", excerpt: "", content: "", author: "", category: "General", image_url: "", is_published: true }); }} className="rounded-2xl font-black text-sm uppercase py-6 px-8 shadow-xl shadow-primary/20">
+          {showForm ? "Cancel" : <><Plus className="mr-2 h-5 w-5" /> New Post</>}
+        </Button>
       </div>
+
       {showForm && (
-        <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <Input placeholder="Author" value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+        <div className="p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/10 shadow-2xl space-y-8 animate-in zoom-in-95 duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Headline</label>
+              <Input placeholder="The future of affiliate marketing..." value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Author</label>
+              <Input placeholder="Admin Name" value={form.author} onChange={e => setForm({ ...form, author: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+            </div>
           </div>
-          <Input placeholder="Excerpt" value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-          <Textarea placeholder="Full content" value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="rounded-2xl bg-secondary border-none min-h-[150px]" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Input placeholder="Category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <Input placeholder="Image URL" value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <label className="flex items-center gap-3 text-sm font-bold text-foreground">
-              <input type="checkbox" checked={form.is_published} onChange={e => setForm({ ...form, is_published: e.target.checked })} className="h-5 w-5 rounded" /> Published
-            </label>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Short Excerpt</label>
+            <Input placeholder="A brief summary for the preview card..." value={form.excerpt} onChange={e => setForm({ ...form, excerpt: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
           </div>
-          <Button onClick={handleAdd} className="h-14 rounded-2xl font-black text-sm uppercase px-10">Save Post</Button>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Full Content</label>
+            <Textarea placeholder="Write your masterpiece here..." value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} className="rounded-[2rem] bg-secondary/50 border-none p-8 font-medium min-h-[300px] text-lg" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Category</label>
+              <Input placeholder="Marketing, News, etc." value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Cover Image URL</label>
+              <Input placeholder="https://..." value={form.image_url} onChange={e => setForm({ ...form, image_url: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+            </div>
+            <div className="flex items-center gap-4 pt-8">
+              <label className="flex items-center gap-3 text-sm font-black text-foreground cursor-pointer group">
+                <input type="checkbox" checked={form.is_published} onChange={e => setForm({ ...form, is_published: e.target.checked })} className="h-6 w-6 rounded-lg border-2 border-primary accent-primary transition-all" />
+                <span className="uppercase tracking-tighter">Visible to Public</span>
+              </label>
+            </div>
+          </div>
+          <Button onClick={handleAdd} className="h-16 w-full rounded-[1.5rem] font-black text-lg uppercase tracking-tight shadow-xl shadow-primary/20">
+            {editingId ? "Save Changes" : "Publish to Library"}
+          </Button>
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {items.map(b => (
-          <div key={b.id} className="p-6 rounded-[2rem] bg-card border-2 border-border">
-            {b.image_url && <img src={b.image_url} alt={b.title} className="h-32 w-full object-cover rounded-xl mb-4" />}
-            <Badge className={`text-[10px] mb-2 ${b.is_published ? 'bg-success/10 text-success' : 'bg-amber-500/10 text-amber-500'} border-none`}>{b.is_published ? "Published" : "Draft"}</Badge>
-            <h3 className="font-black text-foreground mb-1">{b.title}</h3>
-            <p className="text-xs text-muted-foreground mb-4 line-clamp-2">{b.excerpt}</p>
-            <Button onClick={() => handleDelete(b.id)} variant="ghost" size="sm"><Trash2 className="h-4 w-4" /></Button>
+          <div key={b.id} className="group rounded-[3rem] bg-card/30 backdrop-blur-sm border-2 border-border overflow-hidden hover:border-primary/40 transition-all duration-500 hover:shadow-2xl">
+            <div className="h-48 w-full overflow-hidden relative">
+              {b.image_url ? <img src={b.image_url} alt={b.title} className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" /> : <div className="h-full w-full bg-secondary flex items-center justify-center"><FileText className="h-12 w-12 text-muted-foreground/30" /></div>}
+              <div className="absolute top-6 right-6">
+                <Badge className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none ${b.is_published ? 'bg-success/20 text-success backdrop-blur-md' : 'bg-amber-500/20 text-amber-500 backdrop-blur-md'}`}>
+                  {b.is_published ? "Live" : "Draft"}
+                </Badge>
+              </div>
+            </div>
+            <div className="p-8 space-y-4">
+              <span className="text-[10px] font-black uppercase text-primary tracking-widest">{b.category}</span>
+              <h3 className="text-2xl font-black text-foreground leading-tight line-clamp-2">{b.title}</h3>
+              <p className="text-sm text-muted-foreground font-medium line-clamp-2 leading-relaxed">{b.excerpt}</p>
+              <div className="pt-4 flex items-center justify-between">
+                <span className="text-[10px] font-bold text-muted-foreground">By {b.author}</span>
+                <div className="flex gap-2">
+                  <Button onClick={() => startEdit(b)} variant="secondary" size="icon" className="h-10 w-10 rounded-xl"><Edit className="h-4 w-4" /></Button>
+                  <Button onClick={() => handleDelete(b.id)} variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-red-500 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></Button>
+                </div>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -268,7 +468,8 @@ const AdminBlogs = () => {
 const AdminResources = () => {
   const [items, setItems] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", file_url: "", category: "General", min_tier: "Basic" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState({ title: "", description: "", file_url: "", category: "PDF", min_tier: "Basic" });
   const { toast } = useToast();
 
   const fetch_ = async () => {
@@ -278,46 +479,105 @@ const AdminResources = () => {
   useEffect(() => { fetch_(); }, []);
 
   const handleAdd = async () => {
-    await supabase.from("resources").insert(form);
-    toast({ title: "Resource Added!" });
-    setForm({ title: "", description: "", file_url: "", category: "General", min_tier: "Basic" });
+    if (editingId) {
+      const { error } = await supabase.from("resources").update(form).eq("id", editingId);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Resource Updated!" });
+    } else {
+      const { error } = await supabase.from("resources").insert(form);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Resource Added!" });
+    }
+    setForm({ title: "", description: "", file_url: "", category: "PDF", min_tier: "Basic" });
     setShowForm(false);
+    setEditingId(null);
     fetch_();
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Delete this resource?")) return;
     await supabase.from("resources").delete().eq("id", id);
+    toast({ title: "Deleted" });
     fetch_();
   };
 
+  const startEdit = (r: any) => {
+    setForm({ title: r.title, description: r.description || "", file_url: r.file_url || "", category: r.category || "PDF", min_tier: r.min_tier || "Basic" });
+    setEditingId(r.id);
+    setShowForm(true);
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Resources</h2>
-        <Button onClick={() => setShowForm(!showForm)} className="rounded-2xl font-black text-xs uppercase gap-2"><Plus className="h-4 w-4" /> Add</Button>
+    <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter">Vault & Assets</h2>
+          <p className="text-muted-foreground font-medium">Upload swipe files, templates, and training materials.</p>
+        </div>
+        <Button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ title: "", description: "", file_url: "", category: "PDF", min_tier: "Basic" }); }} className="rounded-2xl font-black text-sm uppercase py-6 px-8 shadow-xl shadow-primary/20">
+          {showForm ? "Cancel" : <><Plus className="mr-2 h-5 w-5" /> Add Resource</>}
+        </Button>
       </div>
+
       {showForm && (
-        <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
-          <Input placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-          <Textarea placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-2xl bg-secondary border-none" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Input placeholder="File URL" value={form.file_url} onChange={e => setForm({ ...form, file_url: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <Input placeholder="Category" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <select value={form.min_tier} onChange={e => setForm({ ...form, min_tier: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold px-4 text-foreground">
-              <option value="Basic">Basic</option><option value="Standard">Standard</option><option value="Pro">Pro</option>
-            </select>
+        <div className="p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/10 shadow-2xl space-y-8 animate-in zoom-in-95 duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Resource Title</label>
+              <Input placeholder="High-Ticket Script Pack" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Asset Category</label>
+              <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} className="h-16 w-full rounded-[1.25rem] bg-secondary/50 border-none font-bold px-6 text-foreground text-sm uppercase">
+                <option value="PDF">PDF Guide</option>
+                <option value="Templates">Templates</option>
+                <option value="Video">Video Training</option>
+                <option value="Bonus">Exclusive Bonus</option>
+              </select>
+            </div>
           </div>
-          <Button onClick={handleAdd} className="h-14 rounded-2xl font-black text-sm uppercase px-10">Save</Button>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Download URL / Link</label>
+            <Input placeholder="https://..." value={form.file_url} onChange={e => setForm({ ...form, file_url: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Required Access Tier</label>
+              <select value={form.min_tier} onChange={e => setForm({ ...form, min_tier: e.target.value })} className="h-16 w-full rounded-[1.25rem] bg-secondary/50 border-none font-bold px-6 text-foreground text-sm uppercase">
+                <option value="Basic">Basic Access</option>
+                <option value="Standard">Standard Access</option>
+                <option value="Pro">Pro Access</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Quick Description</label>
+              <Input placeholder="Briefly describe what this asset is..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+            </div>
+          </div>
+          <Button onClick={handleAdd} className="h-16 w-full rounded-[1.5rem] font-black text-lg uppercase tracking-tight shadow-xl shadow-primary/20">
+            {editingId ? "Update Asset" : "Add to Vault"}
+          </Button>
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {items.map(r => (
-          <div key={r.id} className="p-6 rounded-[2rem] bg-card border-2 border-border flex items-center justify-between">
-            <div>
-              <h3 className="font-black text-foreground">{r.title}</h3>
-              <p className="text-xs text-muted-foreground">{r.category} · {r.min_tier} Tier</p>
+          <div key={r.id} className="group p-8 rounded-[3rem] bg-card/30 backdrop-blur-sm border-2 border-border hover:border-primary/40 transition-all duration-500 hover:shadow-2xl">
+            <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <Zap className="h-8 w-8 text-primary shadow-glow" />
             </div>
-            <Button onClick={() => handleDelete(r.id)} variant="ghost" size="sm"><Trash2 className="h-4 w-4" /></Button>
+            <Badge className="mb-4 bg-secondary text-muted-foreground border-none text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full">
+              {r.category} • {r.min_tier}
+            </Badge>
+            <h3 className="text-xl font-black text-foreground mb-2 line-clamp-1 italic uppercase tracking-tighter">{r.title}</h3>
+            <p className="text-xs text-muted-foreground font-medium mb-6 line-clamp-2">{r.description || "No description provided."}</p>
+            <div className="flex items-center justify-between">
+              <Button onClick={() => window.open(r.file_url, "_blank")} variant="outline" className="rounded-xl font-bold text-[10px] uppercase h-10 px-4">View Asset</Button>
+              <div className="flex gap-1">
+                <Button onClick={() => startEdit(r)} variant="ghost" size="icon" className="h-10 w-10 rounded-xl"><Edit className="h-4 w-4" /></Button>
+                <Button onClick={() => handleDelete(r.id)} variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-red-500 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></Button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -329,6 +589,7 @@ const AdminResources = () => {
 const AdminContests = () => {
   const [items, setItems] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({ title: "", description: "", target: "100", reward_value: "500", start_date: "", end_date: "", status: "active" });
   const { toast } = useToast();
 
@@ -339,48 +600,127 @@ const AdminContests = () => {
   useEffect(() => { fetch_(); }, []);
 
   const handleAdd = async () => {
-    await supabase.from("contests").insert({
+    const payload = {
       ...form, target: Number(form.target), reward_value: Number(form.reward_value),
-    });
-    toast({ title: "Contest Created!" });
+    };
+    if (editingId) {
+      const { error } = await supabase.from("contests").update(payload).eq("id", editingId);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Contest Optimized!" });
+    } else {
+      const { error } = await supabase.from("contests").insert(payload);
+      if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+      toast({ title: "Contest Launched!" });
+    }
+    setForm({ title: "", description: "", target: "100", reward_value: "500", start_date: "", end_date: "", status: "active" });
     setShowForm(false);
+    setEditingId(null);
     fetch_();
   };
 
   const handleDelete = async (id: string) => {
+    if (!confirm("Terminate this contest?")) return;
     await supabase.from("contests").delete().eq("id", id);
+    toast({ title: "Deleted" });
     fetch_();
   };
 
+  const startEdit = (c: any) => {
+    setForm({
+      title: c.title, description: c.description || "", target: c.target.toString(),
+      reward_value: c.reward_value.toString(), start_date: c.start_date || "",
+      end_date: c.end_date || "", status: c.status || "active"
+    });
+    setEditingId(c.id);
+    setShowForm(true);
+  };
+
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Contests</h2>
-        <Button onClick={() => setShowForm(!showForm)} className="rounded-2xl font-black text-xs uppercase gap-2"><Plus className="h-4 w-4" /> Create</Button>
+    <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter">Leaderboard Wars</h2>
+          <p className="text-muted-foreground font-medium">Create and manage affiliate competitions and rewards.</p>
+        </div>
+        <Button onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ title: "", description: "", target: "100", reward_value: "500", start_date: "", end_date: "", status: "active" }); }} className="rounded-2xl font-black text-sm uppercase py-6 px-8 shadow-xl shadow-primary/20">
+          {showForm ? "Cancel" : <><Plus className="mr-2 h-5 w-5" /> Launch Contest</>}
+        </Button>
       </div>
+
       {showForm && (
-        <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
-          <Input placeholder="Contest Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-          <Textarea placeholder="Description" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-2xl bg-secondary border-none" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            <Input placeholder="Target Sales" type="number" value={form.target} onChange={e => setForm({ ...form, target: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <Input placeholder="Reward ($)" type="number" value={form.reward_value} onChange={e => setForm({ ...form, reward_value: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
-            <Input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className="h-14 rounded-2xl bg-secondary border-none font-bold" />
+        <div className="p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/10 shadow-2xl space-y-8 animate-in zoom-in-95 duration-500">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Contest Title</label>
+              <Input placeholder="July Leaderboard Sprint" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Reward Value ($)</label>
+              <Input placeholder="500" type="number" value={form.reward_value} onChange={e => setForm({ ...form, reward_value: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold text-lg px-6" />
+            </div>
           </div>
-          <Button onClick={handleAdd} className="h-14 rounded-2xl font-black text-sm uppercase px-10">Create Contest</Button>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Rules & Description</label>
+            <Textarea placeholder="How can they win?" value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="rounded-[2rem] bg-secondary/50 border-none p-8 font-medium min-h-[120px] text-lg" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Status</label>
+              <select value={form.status} onChange={e => setForm({ ...form, status: e.target.value })} className="h-16 w-full rounded-[1.25rem] bg-secondary/50 border-none font-bold px-6 text-foreground text-sm uppercase">
+                <option value="active">Active</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Target Sales</label>
+              <Input type="number" value={form.target} onChange={e => setForm({ ...form, target: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold px-6" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Start Date</label>
+              <Input type="date" value={form.start_date} onChange={e => setForm({ ...form, start_date: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold px-6" />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">End Date</label>
+              <Input type="date" value={form.end_date} onChange={e => setForm({ ...form, end_date: e.target.value })} className="h-16 rounded-[1.25rem] bg-secondary/50 border-none font-bold px-6" />
+            </div>
+          </div>
+          <Button onClick={handleAdd} className="h-16 w-full rounded-[1.5rem] font-black text-lg uppercase tracking-tight shadow-xl shadow-primary/20">
+            {editingId ? "Update War Rules" : "Launch Contest War"}
+          </Button>
         </div>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {items.map(c => (
-          <div key={c.id} className="p-6 rounded-[2rem] bg-card border-2 border-border">
-            <h3 className="font-black text-foreground mb-1">{c.title}</h3>
-            <p className="text-xs text-muted-foreground mb-2">{c.description}</p>
-            <div className="flex items-center gap-3">
-              <Badge className="bg-primary/10 text-primary border-none text-[10px]">Target: {c.target}</Badge>
-              <Badge className="bg-success/10 text-success border-none text-[10px]">Reward: ${Number(c.reward_value).toFixed(2)}</Badge>
+          <div key={c.id} className="group p-10 rounded-[3rem] bg-card/30 backdrop-blur-sm border-2 border-border hover:border-primary/40 transition-all duration-500 hover:shadow-2xl relative overflow-hidden">
+            <div className="absolute -top-10 -right-10 h-32 w-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/20 transition-colors" />
+            <div className="flex justify-between items-start mb-8">
+              <div className="h-16 w-16 rounded-2xl bg-secondary flex items-center justify-center">
+                <Trophy className="h-8 w-8 text-primary" />
+              </div>
+              <Badge className={`px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-none ${c.status === 'active' ? 'bg-success/20 text-success' : 'bg-muted text-muted-foreground'}`}>
+                {c.status}
+              </Badge>
             </div>
-            <Button onClick={() => handleDelete(c.id)} variant="ghost" size="sm" className="mt-4"><Trash2 className="h-4 w-4" /></Button>
+            <h3 className="text-3xl font-black text-foreground mb-4 italic uppercase tracking-tighter">{c.title}</h3>
+            <p className="text-sm text-muted-foreground font-medium mb-8 leading-relaxed line-clamp-3">{c.description}</p>
+            <div className="p-6 rounded-[2rem] bg-primary/5 border border-primary/10 mb-8">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black uppercase text-primary tracking-widest">Main Reward</span>
+                <span className="text-lg font-black text-foreground italic">${Number(c.reward_value).toFixed(2)}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">Target</p>
+                <p className="text-xs font-bold text-foreground">{c.target} Sales</p>
+              </div>
+              <div className="flex gap-1">
+                <Button onClick={() => startEdit(c)} variant="ghost" size="icon" className="h-10 w-10 rounded-xl"><Edit className="h-4 w-4" /></Button>
+                <Button onClick={() => handleDelete(c.id)} variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-red-500 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></Button>
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -413,14 +753,20 @@ const AdminSettings = () => {
 // --- Main Dashboard ---
 const AdminDashboard = () => {
   const { user, isAdmin, isLoading, signOut, profile } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    if (!isLoading && (!user || !isAdmin)) {
-      navigate("/login");
+    if (!isLoading) {
+      if (!user) {
+        navigate("/login");
+      } else if (!isAdmin) {
+        toast({ title: "Access Denied", description: "Admin privileges required.", variant: "destructive" });
+        navigate("/dashboard/affiliate");
+      }
     }
-  }, [user, isAdmin, isLoading, navigate]);
+  }, [user, isAdmin, isLoading, navigate, toast]);
 
   if (isLoading) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   if (!user || !isAdmin) return null;
@@ -439,39 +785,22 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen flex bg-background">
-      <aside className="hidden lg:flex w-72 flex-col border-r border-border bg-card/50 p-6 sticky top-0 h-screen">
-        <Link to="/" className="flex items-center gap-2 mb-10 group">
-          <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center">
-            <Shield className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-black text-xl tracking-tighter text-foreground italic">AFFIL<span className="text-primary not-italic">YT.</span></span>
-        </Link>
-        <div className="mb-6 p-4 rounded-2xl bg-secondary/50">
-          <p className="text-xs font-black text-foreground">{profile?.full_name || "Admin"}</p>
-          <p className="text-[10px] text-muted-foreground">Super Admin</p>
-        </div>
-        <nav className="space-y-1 flex-1">
-          {sidebarItems.map(item => (
-            <Link key={item.path} to={item.path}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${location.pathname === item.path ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}>
-              <item.icon className="h-4 w-4" /> {item.label}
-            </Link>
-          ))}
-        </nav>
-        <Button onClick={() => { signOut(); navigate("/"); }} variant="outline" className="mt-4 rounded-xl font-black text-xs uppercase">Sign Out</Button>
-      </aside>
+      <DashboardSidebar type="admin" />
 
-      <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
-        <Routes>
-          <Route index element={<AdminHUD />} />
-          <Route path="products" element={<AdminProducts />} />
-          <Route path="testimonials" element={<AdminTestimonials />} />
-          <Route path="blogs" element={<AdminBlogs />} />
-          <Route path="resources" element={<AdminResources />} />
-          <Route path="contests" element={<AdminContests />} />
-          <Route path="settings" element={<AdminSettings />} />
-        </Routes>
+      <main className="flex-1 p-8 lg:p-12 overflow-y-auto bg-gradient-to-br from-background via-background/95 to-secondary/20">
+        <div className="max-w-7xl mx-auto space-y-12">
+          <Routes>
+            <Route index element={<AdminHUD />} />
+            <Route path="products" element={<AdminProducts />} />
+            <Route path="testimonials" element={<AdminTestimonials />} />
+            <Route path="blogs" element={<AdminBlogs />} />
+            <Route path="resources" element={<AdminResources />} />
+            <Route path="contests" element={<AdminContests />} />
+            <Route path="settings" element={<AdminSettings />} />
+          </Routes>
+        </div>
       </main>
+      <HelpAI />
     </div>
   );
 };

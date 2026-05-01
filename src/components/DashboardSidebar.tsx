@@ -4,7 +4,7 @@ import {
   CreditCard, BarChart3, ArrowLeft, Moon, Sun, HelpCircle, LogOut,
   Server, ShieldCheck, Zap, Trophy, Activity, Link as LinkIcon,
   Gift, Wallet, MessageSquare, FileText, ChevronLeft, ChevronRight,
-  User as UserIcon, Shield
+  User as UserIcon, Shield, ShoppingCart
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
@@ -25,6 +25,7 @@ const affiliateLinks = [
   { id: "overview", to: "/dashboard/affiliate", label: "Dashboard", icon: LayoutDashboard },
   { id: "marketplace", to: "/dashboard/affiliate/marketplace", label: "Products", icon: Store },
   { id: "links", to: "/dashboard/affiliate/links", label: "My Links", icon: LinkIcon },
+  { id: "reports", to: "/dashboard/affiliate/reports", label: "Performance", icon: BarChart3 },
   { id: "contests", to: "/dashboard/affiliate/contests", label: "Contests", icon: Trophy },
   { id: "leaderboard", to: "/dashboard/affiliate/leaderboard", label: "Leaderboard", icon: Users },
   { id: "membership", to: "/dashboard/affiliate/membership", label: "Membership", icon: Zap },
@@ -35,8 +36,18 @@ const affiliateLinks = [
   { id: "settings", to: "/dashboard/affiliate/settings", label: "My Settings", icon: Settings },
 ];
 
+const sellerLinks = [
+  { id: "overview", to: "/dashboard/seller", label: "Overview", icon: LayoutDashboard },
+  { id: "products", to: "/dashboard/seller/products", label: "My Products", icon: Package },
+  { id: "orders", to: "/dashboard/seller/orders", label: "Orders", icon: ShoppingCart },
+  { id: "affiliates", to: "/dashboard/seller/affiliates", label: "Aggregates", icon: Users },
+  { id: "payouts", to: "/dashboard/seller/payouts", label: "Withdrawals", icon: Wallet },
+  { id: "reports", to: "/dashboard/seller/reports", label: "Reports", icon: FileText },
+  { id: "settings", to: "/dashboard/seller/settings", label: "Settings", icon: Settings },
+];
+
 interface DashboardSidebarProps {
-  type: "affiliate" | "admin";
+  type: "affiliate" | "admin" | "seller";
 }
 
 const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
@@ -44,7 +55,7 @@ const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const links = type === "admin" ? adminLinks : affiliateLinks;
+  const links = type === "admin" ? adminLinks : type === "affiliate" ? affiliateLinks : sellerLinks;
 
   return (
     <aside className={`h-screen sticky top-0 flex flex-col bg-card border-r border-border transition-all duration-500 ease-in-out z-50 ${isCollapsed ? 'w-24' : 'w-80'}`}>
