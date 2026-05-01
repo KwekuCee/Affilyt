@@ -27,15 +27,14 @@ const Login = () => {
             return;
         }
 
-        // Check if user is admin
-        const { data: roleData } = await supabase
+        // Check roles
+        const { data: roles } = await supabase
             .from("user_roles")
             .select("role")
-            .eq("user_id", data.user.id)
-            .eq("role", "admin")
-            .maybeSingle();
+            .eq("user_id", data.user.id);
 
-        // Check if user has a package (paid affiliate)
+        const roleSet = new Set((roles || []).map((r: any) => r.role));
+
         const { data: profileData } = await supabase
             .from("profiles")
             .select("package_tier")
@@ -44,14 +43,17 @@ const Login = () => {
 
         setIsLoading(false);
 
-        if (roleData) {
-            toast({ title: "Welcome back, Admin!", description: "Redirecting to admin dashboard." });
+        if (roleSet.has("admin")) {
+            toast({ title: "Welcome back, Admin!" });
             navigate("/dashboard/admin");
+        } else if (roleSet.has("seller")) {
+            toast({ title: "Welcome back, Seller!" });
+            navigate("/dashboard/seller");
         } else if (profileData?.package_tier) {
-            toast({ title: "Welcome back!", description: "Redirecting to your dashboard." });
+            toast({ title: "Welcome back!" });
             navigate("/dashboard/affiliate");
         } else {
-            toast({ title: "No Active Package", description: "Please purchase a package to access your dashboard.", variant: "destructive" });
+            toast({ title: "No Active Plan", description: "Sign up as an affiliate or seller to access your dashboard.", variant: "destructive" });
             await supabase.auth.signOut();
             navigate("/become-affiliate");
         }

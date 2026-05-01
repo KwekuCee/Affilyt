@@ -10,6 +10,8 @@ import Storefront from "@/pages/Storefront";
 import AffiliateDashboard from "@/pages/AffiliateDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
 import BecomeAffiliate from "@/pages/BecomeAffiliate";
+import BecomeSeller from "@/pages/BecomeSeller";
+import SellerDashboard from "@/pages/SellerDashboard";
 import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import About from "@/pages/About";
@@ -32,9 +34,11 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/marketplace" element={<Storefront />} />
               <Route path="/become-affiliate" element={<BecomeAffiliate />} />
+              <Route path="/become-seller" element={<BecomeSeller />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
               <Route path="/dashboard/affiliate/*" element={<AffiliateDashboard />} />
+              <Route path="/dashboard/seller/*" element={<SellerDashboard />} />
               <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
