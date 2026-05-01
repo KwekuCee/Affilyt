@@ -112,38 +112,53 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     initAuth();
 
+    // Safety timeout: ensure loading always finishes
+    const safetyTimeout = setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
+
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
-        if (currentSession?.user) {
-          await fetchProfile(currentSession.user.id);
-          await checkAdmin(currentSession.user.id);
-        } else {
-          setProfile(null);
-          setIsAdmin(false);
+        try {
+          if (currentSession?.user) {
+            await fetchProfile(currentSession.user.id);
+            await checkAdmin(currentSession.user.id);
+          } else {
+            setProfile(null);
+            setIsAdmin(false);
+          }
+        } catch (err) {
+          console.error("Auth change error:", err);
+        } finally {
+          setIsLoading(false);
         }
-        setIsLoading(false);
       }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(safetyTimeout);
+    };
   }, []);
 
+  const value = React.useMemo(() => ({
+    user,
+    session,
+    isLoading,
+    isAdmin,
+    profile,
+    signOut,
+    refreshProfile,
+    dark,
+    toggleDark
+  }), [user, session, isLoading, isAdmin, profile, dark]);
+
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      isLoading,
-      isAdmin,
-      profile,
-      signOut,
-      refreshProfile,
-      dark,
-      toggleDark
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
