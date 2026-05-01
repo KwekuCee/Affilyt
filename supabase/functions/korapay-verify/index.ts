@@ -61,21 +61,34 @@ Deno.serve(async (req) => {
         status: 'completed',
       }
 
+      // Look up product (for commission rate + seller_id)
+      let product: { commission_rate: number; seller_id: string | null } | null = null
+      if (metadata.product_id) {
+        const { data: p } = await supabase
+          .from('products')
+          .select('commission_rate, seller_id')
+          .eq('id', metadata.product_id)
+          .single()
+        product = p as any
+      }
+
+      let commissionAmount = 0
       if (metadata.affiliate_id) {
         orderData.affiliate_id = metadata.affiliate_id
         orderData.affiliate_link_id = metadata.affiliate_link_id || null
-
-        // Calculate commission
-        const { data: product } = await supabase
-          .from('products')
-          .select('commission_rate')
-          .eq('id', metadata.product_id)
-          .single()
-
         if (product) {
-          const commissionAmount = (data.amount * product.commission_rate) / 100
+          commissionAmount = (Number(data.amount) * Number(product.commission_rate)) / 100
           orderData.commission_amount = commissionAmount
         }
+      }
+
+      // Seller split: platform takes 10%, seller gets the rest after commission
+      if (product?.seller_id) {
+        const platformFee = Number(data.amount) * 0.10
+        const sellerEarnings = Number(data.amount) - commissionAmount - platformFee
+        orderData.seller_id = product.seller_id
+        orderData.platform_fee = platformFee
+        orderData.seller_earnings = sellerEarnings > 0 ? sellerEarnings : 0
       }
 
       const { data: order, error: orderError } = await supabase
