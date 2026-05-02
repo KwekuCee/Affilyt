@@ -121,7 +121,7 @@ const AffiliateProducts = () => {
     const fetchProducts = async () => {
       const tierRank: Record<string, number> = { Basic: 0, Standard: 1, Pro: 2 };
       const userRank = tierRank[profile?.package_tier || "Basic"] ?? 0;
-      const { data } = await supabase.from("products").select("*").eq("status", "active");
+      const { data } = await supabase.from("products").select("*").eq("status", "active").eq("approval_status", "approved");
       const filtered = (data || []).filter((p: any) => (tierRank[p.min_tier || "Basic"] ?? 0) <= userRank);
       setProducts(filtered);
     };
