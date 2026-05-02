@@ -121,18 +121,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         setSession(currentSession);
-        setUser(currentSession?.user ?? null);
-
+        if (!currentSession?.user) {
+          setUser(null);
+          setProfile(null);
+          setIsAdmin(false);
+          setIsLoading(false);
+          return;
+        }
+        setIsLoading(true);
         try {
-          if (currentSession?.user) {
-            await fetchProfile(currentSession.user.id);
-            await checkAdmin(currentSession.user.id);
-          } else {
-            setProfile(null);
-            setIsAdmin(false);
-          }
+          await fetchProfile(currentSession.user.id);
+          await checkAdmin(currentSession.user.id);
+          setUser(currentSession.user);
         } catch (err) {
           console.error("Auth change error:", err);
+          setUser(currentSession.user);
         } finally {
           setIsLoading(false);
         }
