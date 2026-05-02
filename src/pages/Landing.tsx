@@ -25,7 +25,7 @@ const Landing = () => {
             setBlogPosts(data || []);
         };
         const fetchProducts = async () => {
-            const { data } = await supabase.from("products").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(3);
+            const { data } = await supabase.from("products").select("*").eq("status", "active").eq("approval_status", "approved").order("created_at", { ascending: false }).limit(3);
             setProducts(data || []);
         };
         fetchBlogs();
