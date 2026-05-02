@@ -156,33 +156,42 @@ export type Database = {
           description: string | null
           end_date: string | null
           id: string
+          participation_rules: string | null
+          prize_image_url: string | null
           reward_value: number | null
           start_date: string | null
           status: string | null
           target: number | null
           title: string
+          winners_count: number | null
         }
         Insert: {
           created_at?: string
           description?: string | null
           end_date?: string | null
           id?: string
+          participation_rules?: string | null
+          prize_image_url?: string | null
           reward_value?: number | null
           start_date?: string | null
           status?: string | null
           target?: number | null
           title: string
+          winners_count?: number | null
         }
         Update: {
           created_at?: string
           description?: string | null
           end_date?: string | null
           id?: string
+          participation_rules?: string | null
+          prize_image_url?: string | null
           reward_value?: number | null
           start_date?: string | null
           status?: string | null
           target?: number | null
           title?: string
+          winners_count?: number | null
         }
         Relationships: []
       }
@@ -492,6 +501,27 @@ export type Database = {
         }
         Relationships: []
       }
+      system_settings: {
+        Row: {
+          description: string | null
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          description?: string | null
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          description?: string | null
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       testimonials: {
         Row: {
           content: string
@@ -543,11 +573,76 @@ export type Database = {
         }
         Relationships: []
       }
+      withdrawals: {
+        Row: {
+          account_name: string | null
+          account_number: string
+          affiliate_id: string
+          amount: number
+          created_at: string
+          currency: string | null
+          error_message: string | null
+          ghs_amount: number | null
+          id: string
+          method: string
+          processed_at: string | null
+          provider: string | null
+          reference: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          account_name?: string | null
+          account_number: string
+          affiliate_id: string
+          amount: number
+          created_at?: string
+          currency?: string | null
+          error_message?: string | null
+          ghs_amount?: number | null
+          id?: string
+          method: string
+          processed_at?: string | null
+          provider?: string | null
+          reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string
+          affiliate_id?: string
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          error_message?: string | null
+          ghs_amount?: number | null
+          id?: string
+          method?: string
+          processed_at?: string | null
+          provider?: string | null
+          reference?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      leaderboard_stats: {
+        Row: {
+          avatar_url: string | null
+          full_name: string | null
+          package_tier: string | null
+          sales_count: number | null
+          total_earnings: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      get_affiliate_stats: { Args: { u_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
