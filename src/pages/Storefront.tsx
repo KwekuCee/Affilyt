@@ -30,6 +30,7 @@ const Storefront = () => {
         .from("products")
         .select("*")
         .eq("status", "active")
+        .eq("approval_status", "approved")
         .order("created_at", { ascending: false });
       setProducts(data || []);
       setIsLoading(false);
