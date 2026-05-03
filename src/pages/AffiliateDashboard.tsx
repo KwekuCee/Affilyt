@@ -145,8 +145,10 @@ const AffiliateLinks = () => {
 
 // --- Products ---
 const AffiliateProducts = () => {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
+  const { toast } = useToast();
   const [products, setProducts] = useState<any[]>([]);
+  const [linkMap, setLinkMap] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -159,17 +161,51 @@ const AffiliateProducts = () => {
     fetchProducts();
   }, [profile]);
 
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase.from("affiliate_links").select("*").eq("affiliate_id", user.id);
+      const next: Record<string, any> = {};
+      (data || []).forEach((link: any) => { next[link.product_id] = link; });
+      setLinkMap(next);
+    })();
+  }, [user]);
+
+  const createLink = async (product: any) => {
+    if (!user) return;
+    const existing = linkMap[product.id];
+    const code = existing?.short_code || `${(profile?.affiliate_link || user.id.slice(0, 8)).replace(/[^a-z0-9]/gi, "").slice(0, 12)}-${product.id.slice(0, 6)}`.toLowerCase();
+
+    if (!existing) {
+      const { data, error } = await supabase.from("affiliate_links").insert({ affiliate_id: user.id, product_id: product.id, short_code: code }).select().single();
+      if (error) return toast({ title: "Link error", description: error.message, variant: "destructive" });
+      setLinkMap({ ...linkMap, [product.id]: data });
+    }
+
+    const deepLink = `${window.location.origin}/marketplace?ref=${code}&product=${product.id}`;
+    await navigator.clipboard.writeText(deepLink);
+    toast({ title: "Tracking link copied", description: product.title });
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Available Products</h2>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Available Products</h2>
+          <p className="text-sm text-muted-foreground">Only products approved for your {profile?.package_tier || "Basic"} tier are shown.</p>
+        </div>
+        <Badge className="w-fit bg-primary/10 text-primary border-none">{profile?.package_tier || "Basic"} Marketplace</Badge>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map(p => (
-          <div key={p.id} className="p-6 rounded-[2rem] bg-card border-2 border-border">
+          <div key={p.id} className="p-6 rounded-[2rem] bg-card border-2 border-border flex flex-col">
             {p.image_url && <img src={p.image_url} alt={p.title} className="h-32 w-full object-cover rounded-xl mb-4" />}
-            <Badge className="bg-primary/10 text-primary border-none text-[10px] mb-2">{p.category}</Badge>
+            <div className="flex gap-2 mb-2"><Badge className="bg-primary/10 text-primary border-none text-[10px]">{p.category}</Badge><Badge variant="secondary" className="text-[10px]">{p.min_tier || "Basic"}+</Badge></div>
             <h3 className="font-black text-foreground mb-1">{p.title}</h3>
+            <p className="text-xs text-muted-foreground line-clamp-2 mb-4 flex-1">{p.description}</p>
             <p className="text-2xl font-black text-foreground">${Number(p.price).toFixed(2)}</p>
-            <p className="text-xs text-muted-foreground">{p.commission_rate}% commission</p>
+            <p className="text-xs text-muted-foreground mb-4">{p.commission_rate}% commission • est. ${(Number(p.price) * Number(p.commission_rate || 0) / 100).toFixed(2)} per sale</p>
+            <Button onClick={() => createLink(p)} className="h-11 rounded-xl font-black text-xs uppercase"><LinkIcon className="h-4 w-4 mr-2" />{linkMap[p.id] ? "Copy Link" : "Generate Link"}</Button>
           </div>
         ))}
         {products.length === 0 && <p className="text-muted-foreground col-span-3 text-center py-10">No products available for your tier yet.</p>}
