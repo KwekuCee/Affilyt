@@ -642,6 +642,10 @@ export type Database = {
       }
     }
     Functions: {
+      create_confirmed_demo_user: {
+        Args: { _email: string; _full_name: string; _password: string }
+        Returns: string
+      }
       get_affiliate_stats: { Args: { u_id: string }; Returns: Json }
       has_role: {
         Args: {
@@ -649,6 +653,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      reset_affilyt_demo_accounts: { Args: never; Returns: undefined }
+      seed_affilyt_demo_accounts: {
+        Args: never
+        Returns: {
+          email: string
+          password: string
+          role_name: string
+        }[]
       }
     }
     Enums: {
