@@ -93,20 +93,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   useEffect(() => {
+    let mounted = true;
+
+    const hydrateUser = async (authUser: User) => {
+      const [profileData] = await Promise.all([
+        fetchProfile(authUser.id),
+        checkAdmin(authUser.id),
+      ]);
+      return profileData;
+    };
+
     // Check initial session
     const initAuth = async () => {
       try {
         const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (!mounted) return;
+        setSession(currentSession);
         if (currentSession?.user) {
-          setSession(currentSession);
           setUser(currentSession.user);
-          await fetchProfile(currentSession.user.id);
-          await checkAdmin(currentSession.user.id);
+          await hydrateUser(currentSession.user);
         }
       } catch (err) {
         console.error("Auth initialization error:", err);
       } finally {
-        setIsLoading(false);
+        if (mounted) setIsLoading(false);
       }
     };
 
@@ -119,7 +129,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, currentSession) => {
+      (_event, currentSession) => {
+        if (!mounted) return;
         setSession(currentSession);
         if (!currentSession?.user) {
           setUser(null);
@@ -128,21 +139,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setIsLoading(false);
           return;
         }
+
+        const authUser = currentSession.user;
+        setUser(authUser);
         setIsLoading(true);
-        try {
-          await fetchProfile(currentSession.user.id);
-          await checkAdmin(currentSession.user.id);
-          setUser(currentSession.user);
-        } catch (err) {
-          console.error("Auth change error:", err);
-          setUser(currentSession.user);
-        } finally {
-          setIsLoading(false);
-        }
+
+        setTimeout(() => {
+          if (!mounted) return;
+          hydrateUser(authUser)
+            .catch((err) => console.error("Auth change error:", err))
+            .finally(() => {
+              if (mounted) setIsLoading(false);
+            });
+        }, 0);
       }
     );
 
     return () => {
+      mounted = false;
       subscription.unsubscribe();
       clearTimeout(safetyTimeout);
     };

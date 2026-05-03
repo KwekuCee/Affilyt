@@ -51,11 +51,16 @@ interface DashboardSidebarProps {
 }
 
 const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
-  const { dark, toggleDark } = useAuth();
+  const { dark, toggleDark, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const links = type === "admin" ? adminLinks : type === "affiliate" ? affiliateLinks : sellerLinks;
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <aside className={`h-screen sticky top-0 flex flex-col bg-card border-r border-border transition-all duration-500 ease-in-out z-50 ${isCollapsed ? 'w-24' : 'w-80'}`}>
@@ -89,9 +94,9 @@ const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
           {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           {!isCollapsed && <span className="font-bold text-sm">Appearance</span>}
         </button>
-        <button onClick={() => navigate('/')} className={`flex items-center gap-4 p-4 rounded-2xl transition-all w-full text-muted-foreground hover:bg-red-500/10 hover:text-red-500 ${isCollapsed ? 'justify-center p-0 h-12' : ''}`}>
+        <button onClick={handleSignOut} className={`flex items-center gap-4 p-4 rounded-2xl transition-all w-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive ${isCollapsed ? 'justify-center p-0 h-12' : ''}`}>
           <LogOut className="h-5 w-5" />
-          {!isCollapsed && <span className="font-bold text-sm">Exit Session</span>}
+          {!isCollapsed && <span className="font-bold text-sm">Sign out</span>}
         </button>
       </div>
     </aside>

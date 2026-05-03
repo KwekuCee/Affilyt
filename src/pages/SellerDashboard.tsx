@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import ImageUploader from "@/components/admin/ImageUploader";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
@@ -84,12 +85,12 @@ const SellerProducts = () => {
 
   const save = async () => {
     if (!user) return;
-    const payload = { ...form, seller_id: user.id, status: "active", approval_status: "approved" };
+    const payload = { ...form, seller_id: user.id, status: "active", approval_status: "pending" };
     const { error } = editing
       ? await supabase.from("products").update(payload).eq("id", editing.id)
       : await supabase.from("products").insert(payload);
     if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
-    toast({ title: editing ? "Product updated" : "Product created" });
+    toast({ title: editing ? "Product updated" : "Product submitted", description: "Admin approval is required before it appears in the marketplace." });
     setOpen(false); reset(); load();
   };
 
@@ -125,7 +126,7 @@ const SellerProducts = () => {
                 </select>
                 <Input placeholder="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
               </div>
-              <Input placeholder="Image URL" value={form.image_url} onChange={(e) => setForm({ ...form, image_url: e.target.value })} />
+              <ImageUploader value={form.image_url} onChange={(url) => setForm({ ...form, image_url: url })} folder={`products/${user?.id || "seller"}`} label="Product image" />
               <Button onClick={save} className="w-full">{editing ? "Update" : "Create"}</Button>
             </div>
           </DialogContent>
@@ -139,6 +140,7 @@ const SellerProducts = () => {
             <div className="flex gap-2">
               <Badge className="bg-primary/10 text-primary border-none text-[10px]">{p.category}</Badge>
               <Badge className="bg-secondary border-none text-[10px]">{p.min_tier}</Badge>
+              <Badge className={p.approval_status === "approved" ? "bg-success/10 text-success border-none text-[10px]" : p.approval_status === "rejected" ? "bg-destructive/10 text-destructive border-none text-[10px]" : "bg-warning/10 text-warning border-none text-[10px]"}>{p.approval_status}</Badge>
             </div>
             <h3 className="font-black text-foreground">{p.title}</h3>
             <div className="flex justify-between items-center">

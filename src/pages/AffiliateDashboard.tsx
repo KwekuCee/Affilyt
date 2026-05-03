@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation, Routes, Route } from "react-router-dom";
 import {
-  DollarSign, MousePointerClick, Target, Award, Wallet, Copy, Check,
-  LayoutDashboard, Store, CreditCard, Settings as SettingsIcon, Shield,
+  DollarSign, MousePointerClick, Target, Award, Wallet, Copy,
+  LayoutDashboard, Store, Settings as SettingsIcon,
   LinkIcon, Download, FileText, Trophy, Star, Globe, Eye, Zap, Gift, MessageSquare, Flame, TrendingUp, BarChart3,
-  User as UserIcon
+  User as UserIcon, BookOpen, Megaphone, LifeBuoy, ExternalLink, Crown
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
@@ -54,10 +54,23 @@ const DashboardOverview = () => {
 const AffiliateLinks = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
+  const [links, setLinks] = useState<any[]>([]);
   // Using user_id slice or custom slug if exists
   const refId = profile?.affiliate_link || user?.id?.slice(0, 8);
   const baseUrl = window.location.origin;
   const link = `${baseUrl}/marketplace?ref=${refId}`;
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("affiliate_links")
+        .select("*, products(title, price, commission_rate, image_url, category)")
+        .eq("affiliate_id", user.id)
+        .order("created_at", { ascending: false });
+      setLinks(data || []);
+    })();
+  }, [user]);
 
   const copy = (txt: string) => {
     navigator.clipboard.writeText(txt);
@@ -103,10 +116,28 @@ const AffiliateLinks = () => {
           </div>
           <div>
             <h4 className="font-black text-foreground uppercase italic">Product-Specific Links</h4>
-            <p className="text-xs text-muted-foreground font-medium max-w-[200px] mx-auto">Generate deep links and QR codes for specific products soon.</p>
+            <p className="text-xs text-muted-foreground font-medium max-w-[220px] mx-auto">Open Products, pick any approved product, then generate a deep tracking link.</p>
           </div>
-          <Button variant="outline" disabled className="rounded-xl font-bold text-[10px] uppercase tracking-widest opacity-50">Coming Soon</Button>
+          <Link to="/dashboard/affiliate/marketplace"><Button variant="outline" className="rounded-xl font-bold text-[10px] uppercase tracking-widest">Browse Products</Button></Link>
         </div>
+      </div>
+
+      <div className="rounded-[2rem] border-2 border-border bg-card overflow-hidden">
+        <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-muted/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+          <span className="col-span-5">Product</span><span className="col-span-2">Clicks</span><span className="col-span-3">Code</span><span className="col-span-2 text-right">Action</span>
+        </div>
+        {links.map((row) => {
+          const deepLink = `${baseUrl}/marketplace?ref=${row.short_code}&product=${row.product_id}`;
+          return (
+            <div key={row.id} className="grid grid-cols-12 gap-4 items-center px-6 py-4 border-t border-border text-sm">
+              <div className="col-span-5 min-w-0"><p className="font-black truncate">{row.products?.title || "Product"}</p><p className="text-xs text-muted-foreground">${Number(row.products?.price || 0).toFixed(2)} • {row.products?.commission_rate || 0}%</p></div>
+              <p className="col-span-2 font-black">{row.clicks || 0}</p>
+              <code className="col-span-3 text-xs text-primary truncate">{row.short_code}</code>
+              <div className="col-span-2 flex justify-end"><Button size="sm" variant="outline" onClick={() => copy(deepLink)} className="rounded-lg"><Copy className="h-3 w-3 mr-1" />Copy</Button></div>
+            </div>
+          );
+        })}
+        {links.length === 0 && <p className="py-10 text-center text-sm text-muted-foreground">No product links yet.</p>}
       </div>
     </div>
   );
@@ -114,8 +145,10 @@ const AffiliateLinks = () => {
 
 // --- Products ---
 const AffiliateProducts = () => {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
+  const { toast } = useToast();
   const [products, setProducts] = useState<any[]>([]);
+  const [linkMap, setLinkMap] = useState<Record<string, any>>({});
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -128,17 +161,51 @@ const AffiliateProducts = () => {
     fetchProducts();
   }, [profile]);
 
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase.from("affiliate_links").select("*").eq("affiliate_id", user.id);
+      const next: Record<string, any> = {};
+      (data || []).forEach((link: any) => { next[link.product_id] = link; });
+      setLinkMap(next);
+    })();
+  }, [user]);
+
+  const createLink = async (product: any) => {
+    if (!user) return;
+    const existing = linkMap[product.id];
+    const code = existing?.short_code || `${(profile?.affiliate_link || user.id.slice(0, 8)).replace(/[^a-z0-9]/gi, "").slice(0, 12)}-${product.id.slice(0, 6)}`.toLowerCase();
+
+    if (!existing) {
+      const { data, error } = await supabase.from("affiliate_links").insert({ affiliate_id: user.id, product_id: product.id, short_code: code }).select().single();
+      if (error) return toast({ title: "Link error", description: error.message, variant: "destructive" });
+      setLinkMap({ ...linkMap, [product.id]: data });
+    }
+
+    const deepLink = `${window.location.origin}/marketplace?ref=${code}&product=${product.id}`;
+    await navigator.clipboard.writeText(deepLink);
+    toast({ title: "Tracking link copied", description: product.title });
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Available Products</h2>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Available Products</h2>
+          <p className="text-sm text-muted-foreground">Only products approved for your {profile?.package_tier || "Basic"} tier are shown.</p>
+        </div>
+        <Badge className="w-fit bg-primary/10 text-primary border-none">{profile?.package_tier || "Basic"} Marketplace</Badge>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map(p => (
-          <div key={p.id} className="p-6 rounded-[2rem] bg-card border-2 border-border">
+          <div key={p.id} className="p-6 rounded-[2rem] bg-card border-2 border-border flex flex-col">
             {p.image_url && <img src={p.image_url} alt={p.title} className="h-32 w-full object-cover rounded-xl mb-4" />}
-            <Badge className="bg-primary/10 text-primary border-none text-[10px] mb-2">{p.category}</Badge>
+            <div className="flex gap-2 mb-2"><Badge className="bg-primary/10 text-primary border-none text-[10px]">{p.category}</Badge><Badge variant="secondary" className="text-[10px]">{p.min_tier || "Basic"}+</Badge></div>
             <h3 className="font-black text-foreground mb-1">{p.title}</h3>
+            <p className="text-xs text-muted-foreground line-clamp-2 mb-4 flex-1">{p.description}</p>
             <p className="text-2xl font-black text-foreground">${Number(p.price).toFixed(2)}</p>
-            <p className="text-xs text-muted-foreground">{p.commission_rate}% commission</p>
+            <p className="text-xs text-muted-foreground mb-4">{p.commission_rate}% commission • est. ${(Number(p.price) * Number(p.commission_rate || 0) / 100).toFixed(2)} per sale</p>
+            <Button onClick={() => createLink(p)} className="h-11 rounded-xl font-black text-xs uppercase"><LinkIcon className="h-4 w-4 mr-2" />{linkMap[p.id] ? "Copy Link" : "Generate Link"}</Button>
           </div>
         ))}
         {products.length === 0 && <p className="text-muted-foreground col-span-3 text-center py-10">No products available for your tier yet.</p>}
