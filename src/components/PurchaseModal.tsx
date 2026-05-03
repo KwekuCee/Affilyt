@@ -10,9 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 interface PurchaseModalProps {
   product: any | null;
   onClose: () => void;
+  affiliateReferral?: { affiliateId?: string; affiliateLinkId?: string; code?: string };
 }
 
-const PurchaseModal = ({ product, onClose }: PurchaseModalProps) => {
+const PurchaseModal = ({ product, onClose, affiliateReferral }: PurchaseModalProps) => {
   const [searchParams] = useSearchParams();
   const [showPayment, setShowPayment] = useState(false);
   const refId = searchParams.get("ref");
@@ -98,7 +99,8 @@ const PurchaseModal = ({ product, onClose }: PurchaseModalProps) => {
                   amount={Number(product.price) * 1.015}
                   itemLabel={product.title}
                   productId={product.id}
-                  affiliateId={refId || undefined}
+                  affiliateId={affiliateReferral?.affiliateId || refId || undefined}
+                  affiliateLinkId={affiliateReferral?.affiliateLinkId}
                   buyerEmail=""
                   onSuccess={handleSuccess}
                   onCancel={() => setShowPayment(false)}
