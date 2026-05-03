@@ -28,18 +28,30 @@ const Login = () => {
         }
 
         // Check roles
-        const { data: roles } = await supabase
+        const { data: roles, error: rolesError } = await supabase
             .from("user_roles")
             .select("role")
             .eq("user_id", data.user.id);
 
+        if (rolesError) {
+            setIsLoading(false);
+            toast({ title: "Access Check Failed", description: rolesError.message, variant: "destructive" });
+            return;
+        }
+
         const roleSet = new Set((roles || []).map((r: any) => r.role));
 
-        const { data: profileData } = await supabase
+        const { data: profileData, error: profileError } = await supabase
             .from("profiles")
             .select("package_tier")
             .eq("user_id", data.user.id)
-            .single();
+            .maybeSingle();
+
+        if (profileError) {
+            setIsLoading(false);
+            toast({ title: "Profile Check Failed", description: profileError.message, variant: "destructive" });
+            return;
+        }
 
         setIsLoading(false);
 
@@ -49,7 +61,7 @@ const Login = () => {
         } else if (roleSet.has("seller")) {
             toast({ title: "Welcome back, Seller!" });
             navigate("/dashboard/seller");
-        } else if (profileData?.package_tier) {
+        } else if (roleSet.has("affiliate") || profileData?.package_tier) {
             toast({ title: "Welcome back!" });
             navigate("/dashboard/affiliate");
         } else {
