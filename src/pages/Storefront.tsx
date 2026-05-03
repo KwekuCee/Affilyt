@@ -20,6 +20,8 @@ const Storefront = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const refId = searchParams.get("ref");
+  const productId = searchParams.get("product");
+  const [referral, setReferral] = useState<{ affiliateId?: string; affiliateLinkId?: string; code?: string }>({});
 
   const { profile } = useAuth();
   const userTier = profile?.package_tier || "Basic";
@@ -37,6 +39,34 @@ const Storefront = () => {
     };
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    if (!refId) { setReferral({}); return; }
+    (async () => {
+      const { data: link } = await supabase
+        .from("affiliate_links")
+        .select("id, affiliate_id")
+        .eq("short_code", refId)
+        .maybeSingle();
+      if (link) {
+        setReferral({ affiliateId: link.affiliate_id, affiliateLinkId: link.id, code: refId });
+        return;
+      }
+
+      const { data: profileMatch } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .or(`affiliate_link.eq.${refId},affiliate_link.ilike.%${refId}%`)
+        .maybeSingle();
+      setReferral(profileMatch ? { affiliateId: profileMatch.user_id, code: refId } : { code: refId });
+    })();
+  }, [refId]);
+
+  useEffect(() => {
+    if (!productId || products.length === 0) return;
+    const match = products.find((product) => product.id === productId);
+    if (match) setSelectedProduct(match);
+  }, [productId, products]);
 
   const categories = useMemo(() => {
     const cats = [...new Set(products.map((p: any) => p.category))];
@@ -137,7 +167,7 @@ const Storefront = () => {
       </div>
 
       <Footer />
-      <PurchaseModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
+      <PurchaseModal product={selectedProduct} onClose={() => setSelectedProduct(null)} affiliateReferral={referral} />
     </div>
   );
 };
