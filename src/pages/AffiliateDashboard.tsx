@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation, Routes, Route } from "react-router-dom";
 import {
-  DollarSign, MousePointerClick, Target, Award, Wallet, Copy, Check,
-  LayoutDashboard, Store, CreditCard, Settings as SettingsIcon, Shield,
+  DollarSign, MousePointerClick, Target, Award, Wallet, Copy,
+  LayoutDashboard, Store, Settings as SettingsIcon,
   LinkIcon, Download, FileText, Trophy, Star, Globe, Eye, Zap, Gift, MessageSquare, Flame, TrendingUp, BarChart3,
-  User as UserIcon
+  User as UserIcon, BookOpen, Megaphone, LifeBuoy, ExternalLink, Crown
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
@@ -54,10 +54,23 @@ const DashboardOverview = () => {
 const AffiliateLinks = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
+  const [links, setLinks] = useState<any[]>([]);
   // Using user_id slice or custom slug if exists
   const refId = profile?.affiliate_link || user?.id?.slice(0, 8);
   const baseUrl = window.location.origin;
   const link = `${baseUrl}/marketplace?ref=${refId}`;
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("affiliate_links")
+        .select("*, products(title, price, commission_rate, image_url, category)")
+        .eq("affiliate_id", user.id)
+        .order("created_at", { ascending: false });
+      setLinks(data || []);
+    })();
+  }, [user]);
 
   const copy = (txt: string) => {
     navigator.clipboard.writeText(txt);
@@ -103,10 +116,28 @@ const AffiliateLinks = () => {
           </div>
           <div>
             <h4 className="font-black text-foreground uppercase italic">Product-Specific Links</h4>
-            <p className="text-xs text-muted-foreground font-medium max-w-[200px] mx-auto">Generate deep links and QR codes for specific products soon.</p>
+            <p className="text-xs text-muted-foreground font-medium max-w-[220px] mx-auto">Open Products, pick any approved product, then generate a deep tracking link.</p>
           </div>
-          <Button variant="outline" disabled className="rounded-xl font-bold text-[10px] uppercase tracking-widest opacity-50">Coming Soon</Button>
+          <Link to="/dashboard/affiliate/marketplace"><Button variant="outline" className="rounded-xl font-bold text-[10px] uppercase tracking-widest">Browse Products</Button></Link>
         </div>
+      </div>
+
+      <div className="rounded-[2rem] border-2 border-border bg-card overflow-hidden">
+        <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-muted/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+          <span className="col-span-5">Product</span><span className="col-span-2">Clicks</span><span className="col-span-3">Code</span><span className="col-span-2 text-right">Action</span>
+        </div>
+        {links.map((row) => {
+          const deepLink = `${baseUrl}/marketplace?ref=${row.short_code}&product=${row.product_id}`;
+          return (
+            <div key={row.id} className="grid grid-cols-12 gap-4 items-center px-6 py-4 border-t border-border text-sm">
+              <div className="col-span-5 min-w-0"><p className="font-black truncate">{row.products?.title || "Product"}</p><p className="text-xs text-muted-foreground">${Number(row.products?.price || 0).toFixed(2)} • {row.products?.commission_rate || 0}%</p></div>
+              <p className="col-span-2 font-black">{row.clicks || 0}</p>
+              <code className="col-span-3 text-xs text-primary truncate">{row.short_code}</code>
+              <div className="col-span-2 flex justify-end"><Button size="sm" variant="outline" onClick={() => copy(deepLink)} className="rounded-lg"><Copy className="h-3 w-3 mr-1" />Copy</Button></div>
+            </div>
+          );
+        })}
+        {links.length === 0 && <p className="py-10 text-center text-sm text-muted-foreground">No product links yet.</p>}
       </div>
     </div>
   );
