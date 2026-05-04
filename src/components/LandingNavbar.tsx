@@ -1,112 +1,94 @@
 import { Link, useLocation } from "react-router-dom";
-import { Shield, Menu, X, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
+const links = [
+  { label: "Home", href: "/", internal: false },
+  { label: "Features", href: "/#features", internal: true },
+  { label: "Marketplace", href: "/marketplace", internal: false },
+  { label: "Pricing", href: "/#pricing", internal: true },
+  { label: "About", href: "/about", internal: false },
+  { label: "Contact", href: "/contact", internal: false },
+];
+
 const LandingNavbar = () => {
-    const [isOpen, setIsOpen] = useState(false);
-    const [scrolled, setScrolled] = useState(false);
-    const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const loc = useLocation();
 
-    useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-    const navLinks = [
-        { label: "Home", href: "/", isInternal: false },
-        { label: "Services", href: "/#features", isInternal: true },
-        { label: "Prices", href: "/#pricing", isInternal: true },
-        { label: "Testimonials", href: "/#testimonials", isInternal: true },
-        { label: "Blog", href: "/#blog", isInternal: true },
-        { label: "About", href: "/about", isInternal: false },
-        { label: "Contact", href: "/contact", isInternal: false },
-    ];
+  const handle = (href: string, internal: boolean) => {
+    setOpen(false);
+    if (internal && loc.pathname === "/") {
+      const id = href.replace("/#", "");
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
-    const handleNavClick = (href: string, isInternal: boolean) => {
-        setIsOpen(false);
-        if (isInternal && location.pathname === "/") {
-            const id = href.replace("/#", "");
-            const element = document.getElementById(id);
-            if (element) element.scrollIntoView({ behavior: "smooth" });
-        }
-    };
+  return (
+    <nav className={`fixed top-0 inset-x-0 z-50 transition-all ${scrolled ? "bg-background/80 backdrop-blur-xl border-b border-border" : "bg-transparent"}`}>
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">
+            <TrendingUp className="h-4 w-4 text-primary-foreground" />
+          </div>
+          <span className="font-display font-bold text-lg tracking-tight">Affilyt</span>
+        </Link>
 
-    return (
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-lg border-b border-border py-4 shadow-sm" : "bg-transparent py-6"}`}>
-            <div className="container mx-auto px-4 md:px-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex-1 flex justify-start">
-                        <Link to="/" className="flex items-center gap-2 group">
-                            <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-                                <Shield className="h-5 w-5 text-primary-foreground" />
-                            </div>
-                            <span className="font-black text-xl tracking-tighter text-foreground italic whitespace-nowrap">
-                                AFFIL<span className="text-primary not-italic">YT.</span>
-                            </span>
-                        </Link>
-                    </div>
+        <div className="hidden lg:flex items-center gap-1">
+          {links.map((l) =>
+            l.internal ? (
+              <a key={l.label} href={l.href} onClick={() => handle(l.href, true)} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                {l.label}
+              </a>
+            ) : (
+              <Link key={l.label} to={l.href} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                {l.label}
+              </Link>
+            )
+          )}
+        </div>
 
-                    <div className="hidden lg:flex flex-1 justify-center">
-                        <div className="flex items-center gap-8 bg-card/40 backdrop-blur-md px-10 py-3 rounded-full border border-border shadow-sm">
-                            {navLinks.map((link) => (
-                                link.isInternal ? (
-                                    <a key={link.label} href={link.href} onClick={() => handleNavClick(link.href, true)} className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors cursor-pointer whitespace-nowrap">{link.label}</a>
-                                ) : (
-                                    <Link key={link.label} to={link.href} className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors whitespace-nowrap">{link.label}</Link>
-                                )
-                            ))}
-                        </div>
-                    </div>
+        <div className="hidden lg:flex items-center gap-2">
+          <Link to="/login"><Button variant="ghost" size="sm">Sign in</Button></Link>
+          <Link to="/become-seller"><Button variant="outline" size="sm">Sell</Button></Link>
+          <Link to="/become-affiliate">
+            <Button size="sm" className="gap-1.5 shadow-glow">
+              Join now <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        </div>
 
-                    <div className="hidden lg:flex flex-1 justify-end items-center gap-2">
-                        <Link to="/login">
-                            <Button variant="ghost" size="sm" className="font-black text-[10px] uppercase tracking-widest hover:bg-primary/10 px-3 rounded-xl">Login</Button>
-                        </Link>
-                        <Link to="/become-seller">
-                            <Button variant="outline" size="sm" className="rounded-full px-4 font-black text-[10px] uppercase tracking-widest">Become a Seller</Button>
-                        </Link>
-                        <Link to="/become-affiliate">
-                            <Button size="sm" className="rounded-full px-5 font-black text-[10px] uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-primary/20">
-                                Join Now <ArrowRight className="h-3 w-3" />
-                            </Button>
-                        </Link>
-                    </div>
+        <button className="lg:hidden p-2" onClick={() => setOpen(!open)}>
+          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
+      </div>
 
-                    <button className="lg:hidden p-2 text-foreground" onClick={() => setIsOpen(!isOpen)}>
-                        {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                    </button>
-                </div>
-            </div>
-
-            {isOpen && (
-                <div className="lg:hidden absolute top-full left-0 right-0 bg-background border-b border-border animate-in slide-in-from-top duration-300 shadow-2xl">
-                    <div className="flex flex-col p-6 gap-6 text-center">
-                        {navLinks.map((link) => (
-                            link.isInternal ? (
-                                <a key={link.label} href={link.href} onClick={() => handleNavClick(link.href, true)} className="text-sm font-black uppercase tracking-widest text-foreground hover:text-primary transition-colors">{link.label}</a>
-                            ) : (
-                                <Link key={link.label} to={link.href} onClick={() => setIsOpen(false)} className="text-sm font-black uppercase tracking-widest text-foreground hover:text-primary transition-colors">{link.label}</Link>
-                            )
-                        ))}
-                        <hr className="border-border" />
-                        <div className="flex flex-col gap-4">
-                            <Link to="/login" onClick={() => setIsOpen(false)}>
-                                <Button variant="outline" className="w-full rounded-2xl py-6 font-black uppercase text-xs">Login</Button>
-                            </Link>
-                            <Link to="/become-seller" onClick={() => setIsOpen(false)}>
-                                <Button variant="outline" className="w-full rounded-2xl py-6 font-black uppercase text-xs">Become a Seller</Button>
-                            </Link>
-                            <Link to="/become-affiliate" onClick={() => setIsOpen(false)}>
-                                <Button className="w-full rounded-2xl py-6 font-black uppercase text-xs">Join Affilyt</Button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
+      {open && (
+        <div className="lg:hidden border-t border-border bg-background/95 backdrop-blur-xl">
+          <div className="container mx-auto px-4 py-4 flex flex-col gap-1">
+            {links.map((l) =>
+              l.internal ? (
+                <a key={l.label} href={l.href} onClick={() => handle(l.href, true)} className="px-3 py-2.5 text-sm font-medium hover:bg-muted rounded-md">{l.label}</a>
+              ) : (
+                <Link key={l.label} to={l.href} onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-medium hover:bg-muted rounded-md">{l.label}</Link>
+              )
             )}
-        </nav>
-    );
+            <div className="grid grid-cols-2 gap-2 pt-3 mt-2 border-t border-border">
+              <Link to="/login" onClick={() => setOpen(false)}><Button variant="outline" className="w-full">Sign in</Button></Link>
+              <Link to="/become-affiliate" onClick={() => setOpen(false)}><Button className="w-full">Join</Button></Link>
+            </div>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
 };
 
 export default LandingNavbar;
