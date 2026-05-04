@@ -33,7 +33,7 @@ const Contact = () => {
       return;
     }
     setSending(true);
-    const { error } = await supabase.from("contact_messages").insert(parsed.data);
+    const { error } = await supabase.from("contact_messages").insert([parsed.data]);
     setSending(false);
     if (error) return toast({ title: "Could not send", description: error.message, variant: "destructive" });
     toast({ title: "Message sent", description: "We'll respond within 24 hours." });

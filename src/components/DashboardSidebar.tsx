@@ -22,18 +22,14 @@ const adminLinks = [
 ];
 
 const affiliateLinks = [
-  { id: "overview", to: "/dashboard/affiliate", label: "Dashboard", icon: LayoutDashboard },
+  { id: "overview", to: "/dashboard/affiliate", label: "Overview", icon: LayoutDashboard },
   { id: "marketplace", to: "/dashboard/affiliate/marketplace", label: "Products", icon: Store },
   { id: "links", to: "/dashboard/affiliate/links", label: "My Links", icon: LinkIcon },
   { id: "reports", to: "/dashboard/affiliate/reports", label: "Performance", icon: BarChart3 },
   { id: "contests", to: "/dashboard/affiliate/contests", label: "Contests", icon: Trophy },
   { id: "leaderboard", to: "/dashboard/affiliate/leaderboard", label: "Leaderboard", icon: Users },
-  { id: "membership", to: "/dashboard/affiliate/membership", label: "Membership", icon: Zap },
-  { id: "prizes", to: "/dashboard/affiliate/prizes", label: "Prizes / Rewards", icon: Gift },
-  { id: "payments", to: "/dashboard/affiliate/payments", label: "Money Out", icon: Wallet },
-  { id: "community", to: "/dashboard/affiliate/community", label: "Get Help", icon: MessageSquare },
-  { id: "blogs", to: "/dashboard/affiliate/blogs", label: "News", icon: FileText },
-  { id: "settings", to: "/dashboard/affiliate/settings", label: "My Settings", icon: Settings },
+  { id: "payments", to: "/dashboard/affiliate/payments", label: "Payouts", icon: Wallet },
+  { id: "settings", to: "/dashboard/affiliate/settings", label: "Settings", icon: Settings },
 ];
 
 const sellerLinks = [
@@ -63,40 +59,43 @@ const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
   };
 
   return (
-    <aside className={`h-screen sticky top-0 flex flex-col bg-card border-r border-border transition-all duration-500 ease-in-out z-50 ${isCollapsed ? 'w-24' : 'w-80'}`}>
-      <div className={`p-8 border-b border-border flex items-center justify-between ${isCollapsed ? 'px-6' : ''}`}>
-        {!isCollapsed && <Link to="/" className="text-2xl font-black italic tracking-tighter uppercase text-primary">AffiliateHub.</Link>}
-        <button onClick={() => setIsCollapsed(!isCollapsed)} className="h-10 w-10 rounded-xl bg-secondary hover:bg-primary/10 flex items-center justify-center transition-colors">
-          {isCollapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+    <aside className={`h-screen sticky top-0 flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-all duration-300 z-40 ${isCollapsed ? 'w-16' : 'w-60'}`}>
+      <div className="h-14 flex items-center justify-between px-4 border-b border-sidebar-border">
+        {!isCollapsed && (
+          <Link to="/" className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-md gradient-primary flex items-center justify-center">
+              <Shield className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <span className="font-display font-bold text-sm text-white">Affilyt</span>
+          </Link>
+        )}
+        <button onClick={() => setIsCollapsed(!isCollapsed)} className="h-7 w-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center">
+          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
       </div>
 
-      <nav className="flex-1 overflow-y-auto overflow-x-hidden p-6 space-y-2 scrollbar-hide">
+      <nav className="flex-1 overflow-y-auto p-2 space-y-0.5 scrollbar-hide">
         {links.map((link) => {
           const active = location.pathname === link.to;
           return (
-            <RouterNavLink
-              key={link.to}
-              to={link.to}
-              className={`flex items-center gap-4 px-5 py-4 rounded-2xl transition-all group relative ${active ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-[1.02]' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}
-            >
-              <link.icon className={`h-5 w-5 min-w-[20px] transition-transform ${active ? 'scale-110' : 'group-hover:scale-110'}`} />
-              {!isCollapsed && <span className="font-bold text-sm tracking-tight whitespace-nowrap">{link.label}</span>}
-              {active && !isCollapsed && <div className="absolute right-4 h-2 w-2 rounded-full bg-white animate-pulse" />}
-              {isCollapsed && <div className="absolute left-[88px] bg-foreground text-background px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest opacity-0 group-hover:opacity-100 pointer-events-none transition-all scale-95 group-hover:scale-100 shadow-2xl z-50 whitespace-nowrap">{link.label}</div>}
+            <RouterNavLink key={link.to} to={link.to}
+              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors group relative ${active ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-white'}`}>
+              <link.icon className="h-4 w-4 shrink-0" />
+              {!isCollapsed && <span>{link.label}</span>}
+              {isCollapsed && <div className="absolute left-full ml-2 px-2 py-1 rounded-md bg-popover text-popover-foreground text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none shadow-md border border-border z-50">{link.label}</div>}
             </RouterNavLink>
           );
         })}
       </nav>
 
-      <div className={`p-6 border-t border-border space-y-4 ${isCollapsed ? 'px-4' : ''}`}>
-        <button onClick={toggleDark} className={`flex items-center gap-4 p-4 rounded-2xl transition-all w-full text-muted-foreground hover:bg-secondary hover:text-foreground ${isCollapsed ? 'justify-center p-0 h-12' : ''}`}>
-          {dark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-          {!isCollapsed && <span className="font-bold text-sm">Appearance</span>}
+      <div className="p-2 border-t border-sidebar-border space-y-0.5">
+        <button onClick={toggleDark} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium hover:bg-sidebar-accent/50 hover:text-white transition-colors">
+          {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          {!isCollapsed && <span>Theme</span>}
         </button>
-        <button onClick={handleSignOut} className={`flex items-center gap-4 p-4 rounded-2xl transition-all w-full text-muted-foreground hover:bg-destructive/10 hover:text-destructive ${isCollapsed ? 'justify-center p-0 h-12' : ''}`}>
-          <LogOut className="h-5 w-5" />
-          {!isCollapsed && <span className="font-bold text-sm">Sign out</span>}
+        <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium hover:bg-destructive/20 hover:text-destructive transition-colors">
+          <LogOut className="h-4 w-4" />
+          {!isCollapsed && <span>Sign out</span>}
         </button>
       </div>
     </aside>
