@@ -11,6 +11,15 @@ import Withdrawals from "@/components/admin/pages/Withdrawals";
 import Testimonials from "@/components/admin/pages/Testimonials";
 import Blogs from "@/components/admin/pages/Blogs";
 import Settings from "@/components/admin/pages/Settings";
+import Activity from "@/components/admin/pages/Activity";
+import Analytics from "@/components/admin/pages/Analytics";
+import Tiers from "@/components/admin/pages/Tiers";
+import Moderation from "@/components/admin/pages/Moderation";
+import Broadcast from "@/components/admin/pages/Broadcast";
+import Refunds from "@/components/admin/pages/Refunds";
+import AuditLog from "@/components/admin/pages/AuditLog";
+import Coupons from "@/components/admin/pages/Coupons";
+import Health from "@/components/admin/pages/Health";
 
 const AdminDashboard = () => {
   const { user, isAdmin, isLoading } = useAuth();
@@ -40,12 +49,21 @@ const AdminDashboard = () => {
     <Routes>
       <Route element={<AdminShell />}>
         <Route index element={<Overview />} />
+        <Route path="activity" element={<Activity />} />
+        <Route path="analytics" element={<Analytics />} />
         <Route path="users" element={<Users />} />
+        <Route path="tiers" element={<Tiers />} />
         <Route path="sellers" element={<Sellers />} />
         <Route path="products" element={<Products />} />
+        <Route path="moderation" element={<Moderation />} />
+        <Route path="refunds" element={<Refunds />} />
         <Route path="withdrawals" element={<Withdrawals />} />
+        <Route path="coupons" element={<Coupons />} />
+        <Route path="broadcast" element={<Broadcast />} />
         <Route path="testimonials" element={<Testimonials />} />
         <Route path="blogs" element={<Blogs />} />
+        <Route path="audit" element={<AuditLog />} />
+        <Route path="health" element={<Health />} />
         <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>

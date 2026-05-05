@@ -1,7 +1,8 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, Package, Store, Wallet, Star, FileText,
-  Settings, LogOut, Shield, ChevronLeft, ChevronRight, Bell, Search, Moon, Sun
+  Settings, LogOut, Shield, ChevronLeft, ChevronRight, Bell, Search, Moon, Sun,
+  Activity, BarChart3, Crown, ShieldCheck, RotateCcw, Megaphone, Tag, Heart
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -9,12 +10,21 @@ import { Input } from "@/components/ui/input";
 
 const navItems = [
   { to: "/dashboard/admin", label: "Overview", icon: LayoutDashboard, end: true },
+  { to: "/dashboard/admin/activity", label: "Activity", icon: Activity },
+  { to: "/dashboard/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/dashboard/admin/users", label: "Users", icon: Users },
+  { to: "/dashboard/admin/tiers", label: "Tiers", icon: Crown },
   { to: "/dashboard/admin/sellers", label: "Sellers", icon: Store },
   { to: "/dashboard/admin/products", label: "Products", icon: Package },
+  { to: "/dashboard/admin/moderation", label: "Moderation", icon: ShieldCheck },
+  { to: "/dashboard/admin/refunds", label: "Refunds", icon: RotateCcw },
   { to: "/dashboard/admin/withdrawals", label: "Withdrawals", icon: Wallet },
+  { to: "/dashboard/admin/coupons", label: "Coupons", icon: Tag },
+  { to: "/dashboard/admin/broadcast", label: "Broadcast", icon: Megaphone },
   { to: "/dashboard/admin/testimonials", label: "Testimonials", icon: Star },
   { to: "/dashboard/admin/blogs", label: "Blog", icon: FileText },
+  { to: "/dashboard/admin/audit", label: "Audit log", icon: ShieldCheck },
+  { to: "/dashboard/admin/health", label: "Health", icon: Heart },
   { to: "/dashboard/admin/settings", label: "Settings", icon: Settings },
 ];
 
