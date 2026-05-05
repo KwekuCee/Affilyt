@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_events: {
+        Row: {
+          actor_id: string | null
+          actor_label: string | null
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          type: string
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_label?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          type: string
+        }
+        Update: {
+          actor_id?: string | null
+          actor_label?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          type?: string
+        }
+        Relationships: []
+      }
       affiliate_applications: {
         Row: {
           approved_at: string | null
@@ -76,6 +106,39 @@ export type Database = {
           },
         ]
       }
+      audit_log: {
+        Row: {
+          action: string
+          admin_email: string | null
+          admin_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action: string
+          admin_email?: string | null
+          admin_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action?: string
+          admin_email?: string | null
+          admin_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author: string
@@ -112,6 +175,48 @@ export type Database = {
           is_published?: boolean | null
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      broadcasts: {
+        Row: {
+          audience: string
+          audience_filter: Json | null
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          recipient_count: number | null
+          scheduled_for: string | null
+          sent_at: string | null
+          status: string
+          subject: string
+        }
+        Insert: {
+          audience?: string
+          audience_filter?: Json | null
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          recipient_count?: number | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string
+          subject: string
+        }
+        Update: {
+          audience?: string
+          audience_filter?: Json | null
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          recipient_count?: number | null
+          scheduled_for?: string | null
+          sent_at?: string | null
+          status?: string
+          subject?: string
         }
         Relationships: []
       }
@@ -222,6 +327,51 @@ export type Database = {
           target?: number | null
           title?: string
           winners_count?: number | null
+        }
+        Relationships: []
+      }
+      coupons: {
+        Row: {
+          applies_to: string
+          code: string
+          created_at: string
+          description: string | null
+          discount_type: string
+          discount_value: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          starts_at: string | null
+          used_count: number
+        }
+        Insert: {
+          applies_to?: string
+          code: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          starts_at?: string | null
+          used_count?: number
+        }
+        Update: {
+          applies_to?: string
+          code?: string
+          created_at?: string
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          starts_at?: string | null
+          used_count?: number
         }
         Relationships: []
       }
@@ -474,6 +624,42 @@ export type Database = {
         }
         Relationships: []
       }
+      refunds: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          order_id: string
+          processed_at: string | null
+          processed_by: string | null
+          reason: string | null
+          reverse_commission: boolean
+          status: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          order_id: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reason?: string | null
+          reverse_commission?: boolean
+          status?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          order_id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reason?: string | null
+          reverse_commission?: boolean
+          status?: string
+        }
+        Relationships: []
+      }
       resources: {
         Row: {
           category: string | null
@@ -615,6 +801,36 @@ export type Database = {
           name?: string
           rating?: number | null
           role?: string
+        }
+        Relationships: []
+      }
+      tier_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          from_tier: string | null
+          id: string
+          reason: string | null
+          to_tier: string
+          user_id: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          from_tier?: string | null
+          id?: string
+          reason?: string | null
+          to_tier: string
+          user_id: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          from_tier?: string | null
+          id?: string
+          reason?: string | null
+          to_tier?: string
+          user_id?: string
         }
         Relationships: []
       }
