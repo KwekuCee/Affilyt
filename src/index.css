@@ -132,9 +132,16 @@
 
 @layer base {
   * { @apply border-border; }
+  html, body, button, input, select, textarea {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
   body {
     @apply bg-background text-foreground antialiased;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+  h1, h2, h3, h4, h5, h6, .font-display {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    letter-spacing: -0.02em;
   }
   .font-mono, code, pre, .tabular {
     font-family: 'JetBrains Mono', monospace;
