@@ -4,7 +4,8 @@ import {
   CreditCard, BarChart3, ArrowLeft, Moon, Sun, HelpCircle, LogOut,
   Server, ShieldCheck, Zap, Trophy, Activity, Link as LinkIcon,
   Gift, Wallet, MessageSquare, FileText, ChevronLeft, ChevronRight,
-  User as UserIcon, Shield, ShoppingCart
+  User as UserIcon, Shield, ShoppingCart, QrCode, CalendarDays,
+  Filter, Star, Bell, FolderOpen, Target, Globe, UserPlus
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
@@ -25,10 +26,21 @@ const affiliateLinks = [
   { id: "overview", to: "/dashboard/affiliate", label: "Overview", icon: LayoutDashboard },
   { id: "marketplace", to: "/dashboard/affiliate/marketplace", label: "Products", icon: Store },
   { id: "links", to: "/dashboard/affiliate/links", label: "My Links", icon: LinkIcon },
+  { id: "smart-links", to: "/dashboard/affiliate/smart-links", label: "Smart Links", icon: Zap },
+  { id: "qr-codes", to: "/dashboard/affiliate/qr-codes", label: "QR Codes", icon: QrCode },
+  { id: "top-products", to: "/dashboard/affiliate/top-products", label: "Top Products", icon: Star },
   { id: "reports", to: "/dashboard/affiliate/reports", label: "Performance", icon: BarChart3 },
+  { id: "funnel", to: "/dashboard/affiliate/funnel", label: "Funnel", icon: Filter },
+  { id: "calendar", to: "/dashboard/affiliate/calendar", label: "Calendar", icon: CalendarDays },
+  { id: "channels", to: "/dashboard/affiliate/channels", label: "Channels", icon: Globe },
+  { id: "goals", to: "/dashboard/affiliate/goals", label: "Goals", icon: Target },
+  { id: "notifications", to: "/dashboard/affiliate/notifications", label: "Alerts", icon: Bell },
+  { id: "resources", to: "/dashboard/affiliate/resources", label: "Resources", icon: FolderOpen },
+  { id: "referrals", to: "/dashboard/affiliate/referrals", label: "Referrals", icon: UserPlus },
   { id: "contests", to: "/dashboard/affiliate/contests", label: "Contests", icon: Trophy },
   { id: "leaderboard", to: "/dashboard/affiliate/leaderboard", label: "Leaderboard", icon: Users },
   { id: "payments", to: "/dashboard/affiliate/payments", label: "Payouts", icon: Wallet },
+  { id: "tax-docs", to: "/dashboard/affiliate/tax-docs", label: "Tax Docs", icon: FileText },
   { id: "settings", to: "/dashboard/affiliate/settings", label: "Settings", icon: Settings },
 ];
 

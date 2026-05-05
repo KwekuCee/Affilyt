@@ -16,6 +16,17 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import HelpAI from "@/components/HelpAI";
+import SmartLinkCustomizer from "@/components/affiliate/SmartLinkCustomizer";
+import QRCodeGenerator from "@/components/affiliate/QRCodeGenerator";
+import EarningsCalendar from "@/components/affiliate/EarningsCalendar";
+import ConversionFunnel from "@/components/affiliate/ConversionFunnel";
+import TopProductsCarousel from "@/components/affiliate/TopProductsCarousel";
+import NotificationsCenter from "@/components/affiliate/NotificationsCenter";
+import MarketingResources from "@/components/affiliate/MarketingResources";
+import GoalTracker from "@/components/affiliate/GoalTracker";
+import ChannelAttribution from "@/components/affiliate/ChannelAttribution";
+import ReferralProgram from "@/components/affiliate/ReferralProgram";
+import TaxDocumentGenerator from "@/components/affiliate/TaxDocumentGenerator";
 
 // --- Overview ---
 const DashboardOverview = () => {
@@ -648,6 +659,17 @@ const AffiliateDashboard = () => {
             <Route index element={<DashboardOverview />} />
             <Route path="marketplace" element={<AffiliateProducts />} />
             <Route path="links" element={<AffiliateLinks />} />
+            <Route path="smart-links" element={<SmartLinkCustomizer />} />
+            <Route path="qr-codes" element={<QRCodeGenerator />} />
+            <Route path="calendar" element={<EarningsCalendar />} />
+            <Route path="funnel" element={<ConversionFunnel />} />
+            <Route path="top-products" element={<TopProductsCarousel />} />
+            <Route path="notifications" element={<NotificationsCenter />} />
+            <Route path="resources" element={<MarketingResources />} />
+            <Route path="goals" element={<GoalTracker />} />
+            <Route path="channels" element={<ChannelAttribution />} />
+            <Route path="referrals" element={<ReferralProgram />} />
+            <Route path="tax-docs" element={<TaxDocumentGenerator />} />
             <Route path="reports" element={<AffiliateReports />} />
             <Route path="contests" element={<AffiliatePrizes />} />
             <Route path="leaderboard" element={<AffiliateLeaderboard />} />
