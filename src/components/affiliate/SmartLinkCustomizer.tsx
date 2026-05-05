@@ -8,147 +8,195 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 
+const existingLinks = [
+    { id: "l1", product: "Digital Marketing Mastery", shortCode: "abc123", url: "/marketplace?ref=abc123" },
+    { id: "l2", product: "Premium Fitness Tracker", shortCode: "fit456", url: "/marketplace?ref=fit456" },
+    { id: "l3", product: "E-Book Bundle: 50 Titles", shortCode: "book789", url: "/marketplace?ref=book789" },
+    { id: "l4", product: "Wireless Headphones Pro", shortCode: "head101", url: "/marketplace?ref=head101" },
+];
+
 const SmartLinkCustomizer = () => {
     const { user, profile } = useAuth();
     const { toast } = useToast();
-    const refId = profile?.affiliate_link || user?.id?.slice(0, 8) || "abc123";
-    const baseUrl = window.location.origin;
-
-    const [slug, setSlug] = useState(refId);
-    const [utm, setUtm] = useState({ source: "", medium: "", campaign: "", content: "" });
-    const [expiry, setExpiry] = useState("");
+    const [selectedLink, setSelectedLink] = useState(existingLinks[0]);
+    const [customSlug, setCustomSlug] = useState("");
+    const [utmSource, setUtmSource] = useState("");
+    const [utmMedium, setUtmMedium] = useState("");
+    const [utmCampaign, setUtmCampaign] = useState("");
+    const [utmContent, setUtmContent] = useState("");
+    const [expiresIn, setExpiresIn] = useState<string>("");
     const [copied, setCopied] = useState(false);
 
-    const buildUrl = () => {
-        let url = `${baseUrl}/marketplace?ref=${slug}`;
-        const params: string[] = [];
-        if (utm.source) params.push(`utm_source=${encodeURIComponent(utm.source)}`);
-        if (utm.medium) params.push(`utm_medium=${encodeURIComponent(utm.medium)}`);
-        if (utm.campaign) params.push(`utm_campaign=${encodeURIComponent(utm.campaign)}`);
-        if (utm.content) params.push(`utm_content=${encodeURIComponent(utm.content)}`);
-        if (params.length) url += `&${params.join("&")}`;
-        return url;
+    // Build the smart link
+    const buildLink = () => {
+        const base = window.location.origin;
+        const slug = customSlug || selectedLink.shortCode;
+        const params = new URLSearchParams();
+        const refId = profile?.affiliate_link || user?.id?.slice(0, 8) || "demo";
+        params.set("ref", refId);
+        if (utmSource) params.set("utm_source", utmSource);
+        if (utmMedium) params.set("utm_medium", utmMedium);
+        if (utmCampaign) params.set("utm_campaign", utmCampaign);
+        if (utmContent) params.set("utm_content", utmContent);
+        return `${base}/go/${slug}?${params.toString()}`;
     };
 
-    const copy = () => {
-        navigator.clipboard.writeText(buildUrl());
+    const smartLink = buildLink();
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(smartLink);
         setCopied(true);
-        toast({ title: "Link copied!", description: "Your custom smart link is ready to share." });
+        toast({ title: "Link Copied!", description: "Smart link copied to clipboard." });
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const expiryDate = expiresIn
+        ? new Date(Date.now() + parseInt(expiresIn) * 86400000).toLocaleDateString()
+        : null;
+
     return (
-        <div className="space-y-10 animate-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-4 duration-700">
+            {/* Header */}
             <div>
-                <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter">Smart Links</h2>
-                <p className="text-muted-foreground font-medium">Customize slugs, add UTM tracking, and set expiration dates.</p>
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Smart Links</h2>
+                <p className="text-sm text-muted-foreground mt-1">Customize slugs, UTM parameters, and link expiration.</p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Custom Slug */}
-                <div className="p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/20 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8">
-                        <Link2 className="h-20 w-20 text-primary/10 -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
-                    </div>
-                    <div className="relative z-10 space-y-6">
-                        <Badge className="bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full italic">CUSTOM SLUG</Badge>
-                        <h3 className="text-2xl font-black text-foreground uppercase italic tracking-tighter">Your Unique Handle</h3>
-                        <p className="text-sm text-muted-foreground font-medium">Create a memorable, branded slug for your affiliate link.</p>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Slug / Handle</label>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-muted-foreground whitespace-nowrap">{baseUrl}/marketplace?ref=</span>
-                                <Input
-                                    value={slug}
-                                    onChange={e => setSlug(e.target.value.replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 24))}
-                                    className="h-14 rounded-2xl bg-secondary border-none font-black"
-                                    placeholder="your-slug"
-                                />
-                            </div>
-                            <p className="text-[9px] text-muted-foreground font-bold italic">Letters, numbers, dashes, underscores only. Max 24 chars.</p>
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                {/* Config Panel */}
+                <div className="lg:col-span-3 space-y-5">
+                    {/* Select Base Link */}
+                    <div className="p-5 sm:p-6 rounded-2xl glass space-y-4">
+                        <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">Select Link</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                            {existingLinks.map(link => (
+                                <button
+                                    key={link.id}
+                                    onClick={() => setSelectedLink(link)}
+                                    className={`text-left p-3 rounded-xl border transition-all ${selectedLink.id === link.id
+                                        ? "bg-primary/10 border-primary/30 shadow-sm"
+                                        : "bg-secondary/30 border-transparent hover:border-border"
+                                        }`}
+                                >
+                                    <p className="font-semibold text-sm text-foreground truncate">{link.product}</p>
+                                    <p className="text-xs text-muted-foreground font-mono mt-0.5">/{link.shortCode}</p>
+                                </button>
+                            ))}
                         </div>
                     </div>
-                </div>
 
-                {/* Link Expiration */}
-                <div className="p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/20 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8">
-                        <Clock className="h-20 w-20 text-primary/10 rotate-12 group-hover:rotate-0 transition-transform duration-500" />
-                    </div>
-                    <div className="relative z-10 space-y-6">
-                        <Badge className="bg-amber-500/20 text-amber-500 text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full italic">EXPIRY</Badge>
-                        <h3 className="text-2xl font-black text-foreground uppercase italic tracking-tighter">Link Expiration</h3>
-                        <p className="text-sm text-muted-foreground font-medium">Set an optional expiration date for time-limited campaigns.</p>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Expires On</label>
+                    {/* Custom Slug */}
+                    <div className="p-5 sm:p-6 rounded-2xl glass space-y-3">
+                        <div className="flex items-center gap-2">
+                            <Link2 className="h-4 w-4 text-primary" />
+                            <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">Custom Slug</h3>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm text-muted-foreground whitespace-nowrap hidden sm:inline">{window.location.origin}/go/</span>
                             <Input
-                                type="date"
-                                value={expiry}
-                                onChange={e => setExpiry(e.target.value)}
-                                className="h-14 rounded-2xl bg-secondary border-none font-bold"
+                                value={customSlug}
+                                onChange={e => setCustomSlug(e.target.value.replace(/[^a-zA-Z0-9-_]/g, ""))}
+                                className="h-10 rounded-lg bg-secondary border-none font-medium text-sm"
+                                placeholder={selectedLink.shortCode}
                             />
                         </div>
-                        {expiry && (
-                            <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
-                                <p className="text-xs font-bold text-amber-500">
-                                    <Calendar className="h-3 w-3 inline mr-1" />
-                                    Link expires on {new Date(expiry).toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-                                </p>
-                            </div>
+                    </div>
+
+                    {/* UTM Parameters */}
+                    <div className="p-5 sm:p-6 rounded-2xl glass space-y-4">
+                        <div className="flex items-center gap-2">
+                            <Tag className="h-4 w-4 text-primary" />
+                            <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">UTM Parameters</h3>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {[
+                                { label: "Source", value: utmSource, set: setUtmSource, placeholder: "instagram" },
+                                { label: "Medium", value: utmMedium, set: setUtmMedium, placeholder: "social" },
+                                { label: "Campaign", value: utmCampaign, set: setUtmCampaign, placeholder: "summer_sale" },
+                                { label: "Content", value: utmContent, set: setUtmContent, placeholder: "bio_link" },
+                            ].map(f => (
+                                <div key={f.label} className="space-y-1.5">
+                                    <label className="text-[11px] font-medium uppercase text-muted-foreground tracking-wider">{f.label}</label>
+                                    <Input value={f.value} onChange={e => f.set(e.target.value)} className="h-10 rounded-lg bg-secondary border-none text-sm" placeholder={f.placeholder} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Expiration */}
+                    <div className="p-5 sm:p-6 rounded-2xl glass space-y-3">
+                        <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4 text-primary" />
+                            <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">Expiration</h3>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                            {[
+                                { label: "No expiry", value: "" },
+                                { label: "7 days", value: "7" },
+                                { label: "30 days", value: "30" },
+                                { label: "90 days", value: "90" },
+                            ].map(opt => (
+                                <button
+                                    key={opt.value}
+                                    onClick={() => setExpiresIn(opt.value)}
+                                    className={`px-4 py-2 rounded-lg text-xs font-semibold transition-all ${expiresIn === opt.value
+                                        ? "bg-primary text-primary-foreground shadow-sm"
+                                        : "bg-secondary text-foreground hover:bg-secondary/80"
+                                        }`}
+                                >
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
+                        {expiryDate && (
+                            <p className="text-xs text-muted-foreground">Expires on <span className="font-semibold text-foreground">{expiryDate}</span></p>
                         )}
                     </div>
                 </div>
-            </div>
 
-            {/* UTM Parameters */}
-            <div className="p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-border shadow-2xl">
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center">
-                        <Tag className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                        <h3 className="text-xl font-black text-foreground uppercase italic tracking-tighter">UTM Parameters</h3>
-                        <p className="text-xs text-muted-foreground font-medium">Track which campaigns and platforms drive the most conversions.</p>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {([
-                        { key: "source", label: "UTM Source", placeholder: "e.g. instagram, tiktok, whatsapp", icon: Globe },
-                        { key: "medium", label: "UTM Medium", placeholder: "e.g. social, email, sms", icon: Sparkles },
-                        { key: "campaign", label: "UTM Campaign", placeholder: "e.g. summer-sale, launch-day", icon: Tag },
-                        { key: "content", label: "UTM Content", placeholder: "e.g. bio-link, story-ad", icon: Tag },
-                    ] as const).map(field => (
-                        <div key={field.key} className="space-y-2">
-                            <label className="text-[10px] font-black uppercase text-muted-foreground tracking-widest flex items-center gap-2">
-                                <field.icon className="h-3 w-3" /> {field.label}
-                            </label>
-                            <Input
-                                value={utm[field.key as keyof typeof utm]}
-                                onChange={e => setUtm({ ...utm, [field.key]: e.target.value })}
-                                className="h-14 rounded-2xl bg-secondary border-none font-bold"
-                                placeholder={field.placeholder}
-                            />
+                {/* Preview Panel */}
+                <div className="lg:col-span-2 space-y-5">
+                    <div className="p-5 sm:p-6 rounded-2xl bg-primary/5 border border-primary/20 space-y-4 sticky top-4">
+                        <div className="flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 text-primary" />
+                            <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">Link Preview</h3>
                         </div>
-                    ))}
-                </div>
-            </div>
 
-            {/* Live Preview */}
-            <div className="p-10 rounded-[3rem] bg-primary/5 border-2 border-primary/20 shadow-2xl space-y-6">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-xl font-black text-foreground uppercase italic tracking-tighter">Live Preview</h3>
-                    <Badge className="bg-success/20 text-success text-[10px] font-black uppercase px-4 py-1 rounded-full italic border-none">READY</Badge>
-                </div>
+                        <div className="p-3 rounded-xl bg-secondary/50 border border-border break-all">
+                            <p className="text-xs font-mono text-foreground leading-relaxed">{smartLink}</p>
+                        </div>
 
-                <div className="p-6 rounded-2xl bg-secondary/50 border border-border overflow-x-auto">
-                    <code className="text-xs font-bold text-primary break-all">{buildUrl()}</code>
-                </div>
+                        <Button onClick={handleCopy} className="w-full h-10 rounded-xl font-semibold text-sm">
+                            {copied ? <><Check className="h-4 w-4 mr-2" /> Copied!</> : <><Copy className="h-4 w-4 mr-2" /> Copy Link</>}
+                        </Button>
 
-                <div className="flex gap-4">
-                    <Button onClick={copy} className="flex-1 h-14 rounded-2xl font-black text-sm uppercase tracking-tight shadow-lg shadow-primary/20">
-                        {copied ? <><Check className="h-4 w-4 mr-2" /> Copied!</> : <><Copy className="h-4 w-4 mr-2" /> Copy Smart Link</>}
-                    </Button>
+                        {/* Tags */}
+                        <div className="flex flex-wrap gap-1.5 pt-2">
+                            <Badge variant="secondary" className="text-[10px] font-medium">{selectedLink.product}</Badge>
+                            {utmSource && <Badge variant="outline" className="text-[10px]">src: {utmSource}</Badge>}
+                            {utmMedium && <Badge variant="outline" className="text-[10px]">med: {utmMedium}</Badge>}
+                            {utmCampaign && <Badge variant="outline" className="text-[10px]">camp: {utmCampaign}</Badge>}
+                            {expiresIn && <Badge variant="outline" className="text-[10px]">expires: {expiresIn}d</Badge>}
+                        </div>
+
+                        {/* Params Breakdown */}
+                        <div className="space-y-2 pt-2 border-t border-border">
+                            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Breakdown</p>
+                            {[
+                                { label: "Base", value: `${window.location.origin}/go/${customSlug || selectedLink.shortCode}` },
+                                { label: "Ref ID", value: profile?.affiliate_link || user?.id?.slice(0, 8) || "demo" },
+                                ...(utmSource ? [{ label: "utm_source", value: utmSource }] : []),
+                                ...(utmMedium ? [{ label: "utm_medium", value: utmMedium }] : []),
+                                ...(utmCampaign ? [{ label: "utm_campaign", value: utmCampaign }] : []),
+                                ...(utmContent ? [{ label: "utm_content", value: utmContent }] : []),
+                            ].map(p => (
+                                <div key={p.label} className="flex justify-between text-xs">
+                                    <span className="text-muted-foreground">{p.label}</span>
+                                    <span className="font-mono text-foreground truncate ml-2 max-w-[180px]">{p.value}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

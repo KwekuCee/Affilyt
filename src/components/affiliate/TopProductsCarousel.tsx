@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import useEmblaCarousel from "embla-carousel-react";
 
 // Mock top performing products
 const topProducts = [
@@ -22,27 +21,23 @@ const TopProductsCarousel = () => {
     const { user, profile } = useAuth();
     const { toast } = useToast();
     const [copiedId, setCopiedId] = useState<string | null>(null);
-    const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, align: "start", slidesToScroll: 1 });
-    const [canScrollPrev, setCanScrollPrev] = useState(false);
-    const [canScrollNext, setCanScrollNext] = useState(true);
+    const [currentIndex, setCurrentIndex] = useState(0);
+    const [itemsPerView, setItemsPerView] = useState(3);
 
+    // Responsive items per view
     useEffect(() => {
-        if (!emblaApi) return;
-        const onSelect = () => {
-            setCanScrollPrev(emblaApi.canScrollPrev());
-            setCanScrollNext(emblaApi.canScrollNext());
+        const updateView = () => {
+            const w = window.innerWidth;
+            if (w < 640) setItemsPerView(1);
+            else if (w < 1024) setItemsPerView(2);
+            else setItemsPerView(3);
         };
-        emblaApi.on("select", onSelect);
-        onSelect();
-        return () => { emblaApi.off("select", onSelect); };
-    }, [emblaApi]);
+        updateView();
+        window.addEventListener("resize", updateView);
+        return () => window.removeEventListener("resize", updateView);
+    }, []);
 
-    // Auto-play
-    useEffect(() => {
-        if (!emblaApi) return;
-        const interval = setInterval(() => emblaApi.scrollNext(), 5000);
-        return () => clearInterval(interval);
-    }, [emblaApi]);
+    const maxIndex = Math.max(0, topProducts.length - itemsPerView);
 
     const generateLink = (product: typeof topProducts[0]) => {
         const refId = profile?.affiliate_link || user?.id?.slice(0, 8) || "demo";
@@ -54,89 +49,90 @@ const TopProductsCarousel = () => {
     };
 
     return (
-        <div className="space-y-10 animate-in slide-in-from-bottom-4 duration-700">
+        <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-4 duration-700">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter">Top Performers</h2>
-                    <p className="text-muted-foreground font-medium">Your highest-earning products with one-click link generation.</p>
+                    <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Top Products</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Highest-earning products with one-click link generation.</p>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                     <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-12 w-12 rounded-2xl"
-                        onClick={() => emblaApi?.scrollPrev()}
-                        disabled={!canScrollPrev}
+                        variant="outline" size="icon"
+                        className="h-9 w-9 rounded-xl"
+                        onClick={() => setCurrentIndex(Math.max(0, currentIndex - 1))}
+                        disabled={currentIndex === 0}
                     >
-                        <ChevronLeft className="h-5 w-5" />
+                        <ChevronLeft className="h-4 w-4" />
                     </Button>
                     <Button
-                        variant="outline"
-                        size="icon"
-                        className="h-12 w-12 rounded-2xl"
-                        onClick={() => emblaApi?.scrollNext()}
-                        disabled={!canScrollNext}
+                        variant="outline" size="icon"
+                        className="h-9 w-9 rounded-xl"
+                        onClick={() => setCurrentIndex(Math.min(maxIndex, currentIndex + 1))}
+                        disabled={currentIndex >= maxIndex}
                     >
-                        <ChevronRight className="h-5 w-5" />
+                        <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div>
             </div>
 
             {/* Carousel */}
-            <div className="overflow-hidden" ref={emblaRef}>
-                <div className="flex gap-6">
+            <div className="overflow-hidden">
+                <div
+                    className="flex gap-4 transition-transform duration-500 ease-out"
+                    style={{ transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)` }}
+                >
                     {topProducts.map((product, i) => (
                         <div
                             key={product.id}
-                            className="flex-none w-[320px] group"
+                            className="shrink-0"
+                            style={{ width: `calc(${100 / itemsPerView}% - ${(itemsPerView - 1) * 16 / itemsPerView}px)` }}
                         >
-                            <div className="p-6 rounded-[2.5rem] bg-card/40 backdrop-blur-3xl border-2 border-border shadow-xl hover:border-primary/30 hover:shadow-2xl transition-all duration-500 h-full flex flex-col relative overflow-hidden">
+                            <div className="p-4 sm:p-5 rounded-2xl glass hover:border-primary/30 hover:shadow-lg transition-all duration-300 h-full flex flex-col relative overflow-hidden group">
                                 {/* Rank Badge */}
                                 {i < 3 && (
-                                    <div className={`absolute top-4 right-4 z-10 h-10 w-10 rounded-xl flex items-center justify-center font-black text-sm italic ${i === 0 ? "bg-amber-400 text-amber-900" : i === 1 ? "bg-slate-300 text-slate-800" : "bg-amber-600 text-amber-100"
+                                    <div className={`absolute top-3 right-3 z-10 h-7 w-7 rounded-lg flex items-center justify-center font-bold text-xs ${i === 0 ? "bg-amber-400 text-amber-900" : i === 1 ? "bg-slate-300 text-slate-800" : "bg-amber-600 text-amber-100"
                                         }`}>
                                         #{i + 1}
                                     </div>
                                 )}
 
-                                {/* Product Image */}
-                                <div className="relative h-40 rounded-2xl overflow-hidden mb-4">
-                                    <img src={product.image} alt={product.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                                {/* Image */}
+                                <div className="relative h-32 sm:h-36 rounded-xl overflow-hidden mb-3">
+                                    <img src={product.image} alt={product.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                                 </div>
 
-                                <h3 className="font-black text-lg text-foreground mb-2 leading-tight">{product.title}</h3>
+                                <h3 className="font-semibold text-sm text-foreground mb-2 leading-snug">{product.title}</h3>
 
-                                <div className="flex gap-2 mb-4">
-                                    <Badge className="bg-primary/10 text-primary border-none text-[9px] font-black">{product.commission}% rate</Badge>
-                                    <Badge className="bg-secondary text-muted-foreground border-none text-[9px] font-black">${product.price}</Badge>
+                                <div className="flex gap-1.5 mb-3">
+                                    <Badge variant="secondary" className="text-[10px]">{product.commission}% rate</Badge>
+                                    <Badge variant="outline" className="text-[10px]">${product.price}</Badge>
                                 </div>
 
                                 {/* Stats */}
-                                <div className="grid grid-cols-3 gap-2 mb-6 flex-1">
-                                    <div className="p-3 rounded-xl bg-secondary/50 text-center">
-                                        <p className="text-lg font-black text-foreground">${product.earnings.toLocaleString()}</p>
-                                        <p className="text-[8px] font-black text-muted-foreground uppercase">Earned</p>
+                                <div className="grid grid-cols-3 gap-2 mb-4 flex-1">
+                                    <div className="p-2 rounded-lg bg-secondary/50 text-center">
+                                        <p className="text-sm font-bold text-foreground">${product.earnings.toLocaleString()}</p>
+                                        <p className="text-[9px] font-medium text-muted-foreground uppercase">Earned</p>
                                     </div>
-                                    <div className="p-3 rounded-xl bg-secondary/50 text-center">
-                                        <p className="text-lg font-black text-foreground">{product.sales}</p>
-                                        <p className="text-[8px] font-black text-muted-foreground uppercase">Sales</p>
+                                    <div className="p-2 rounded-lg bg-secondary/50 text-center">
+                                        <p className="text-sm font-bold text-foreground">{product.sales}</p>
+                                        <p className="text-[9px] font-medium text-muted-foreground uppercase">Sales</p>
                                     </div>
-                                    <div className="p-3 rounded-xl bg-secondary/50 text-center">
-                                        <p className="text-lg font-black text-foreground">{product.conversionRate}%</p>
-                                        <p className="text-[8px] font-black text-muted-foreground uppercase">CVR</p>
+                                    <div className="p-2 rounded-lg bg-secondary/50 text-center">
+                                        <p className="text-sm font-bold text-foreground">{product.conversionRate}%</p>
+                                        <p className="text-[9px] font-medium text-muted-foreground uppercase">CVR</p>
                                     </div>
                                 </div>
 
-                                {/* Generate Link CTA */}
                                 <Button
                                     onClick={() => generateLink(product)}
-                                    className="w-full h-12 rounded-2xl font-black text-xs uppercase tracking-tight shadow-lg shadow-primary/20"
+                                    className="w-full h-9 rounded-xl font-semibold text-xs"
+                                    size="sm"
                                 >
                                     {copiedId === product.id ? (
-                                        <><Check className="h-4 w-4 mr-2" /> Copied!</>
+                                        <><Check className="h-3.5 w-3.5 mr-1.5" /> Copied!</>
                                     ) : (
-                                        <><LinkIcon className="h-4 w-4 mr-2" /> Generate Link</>
+                                        <><LinkIcon className="h-3.5 w-3.5 mr-1.5" /> Generate Link</>
                                     )}
                                 </Button>
                             </div>
@@ -145,21 +141,21 @@ const TopProductsCarousel = () => {
                 </div>
             </div>
 
-            {/* Summary Stats Bar */}
-            <div className="p-8 rounded-[2.5rem] bg-primary/5 border-2 border-primary/10 flex flex-wrap items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-2xl bg-primary/20 flex items-center justify-center">
-                        <Zap className="h-6 w-6 text-primary" />
+            {/* Summary Bar */}
+            <div className="p-4 sm:p-6 rounded-2xl bg-primary/5 border border-primary/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                        <Zap className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Total from Top Products</p>
-                        <p className="text-2xl font-black text-foreground">${topProducts.reduce((s, p) => s + p.earnings, 0).toLocaleString()}</p>
+                        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Total from Top Products</p>
+                        <p className="text-lg font-bold text-foreground">${topProducts.reduce((s, p) => s + p.earnings, 0).toLocaleString()}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-4">
-                    <Star className="h-5 w-5 text-amber-400" />
-                    <p className="text-sm font-black text-foreground">
-                        Top pick: <span className="text-primary italic">{topProducts[0].title}</span> — {topProducts[0].conversionRate}% CVR
+                <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-amber-400" />
+                    <p className="text-xs font-medium text-foreground">
+                        Top: <span className="text-primary">{topProducts[0].title}</span> — {topProducts[0].conversionRate}% CVR
                     </p>
                 </div>
             </div>

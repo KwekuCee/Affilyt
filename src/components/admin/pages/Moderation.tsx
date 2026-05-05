@@ -53,7 +53,7 @@ const Moderation = () => {
           <Textarea placeholder="Rejection reason (required if rejecting)" value={reason} onChange={(e) => setReason(e.target.value)} rows={2} />
         </div>
       )}
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <div className="rounded-lg border border-border glass-subtle overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
             <tr>

@@ -80,7 +80,7 @@ const Analytics = () => {
           <div className="flex gap-2">
             <div className="flex rounded-md border border-border overflow-hidden">
               {RANGES.map((r) => (
-                <button key={r.id} onClick={() => setRange(r.id)} className={`px-3 py-1.5 text-xs font-medium ${range === r.id ? "bg-primary text-primary-foreground" : "bg-card hover:bg-muted"}`}>{r.label}</button>
+                <button key={r.id} onClick={() => setRange(r.id)} className={`px-3 py-1.5 text-xs font-medium ${range === r.id ? "bg-primary text-primary-foreground" : "glass-subtle hover:bg-muted"}`}>{r.label}</button>
               ))}
             </div>
             <Button size="sm" variant="outline" onClick={exportCSV}><Download className="h-4 w-4 mr-1" /> CSV</Button>
@@ -89,7 +89,7 @@ const Analytics = () => {
       />
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
         {cards.map((c) => (
-          <div key={c.label} className="rounded-lg border border-border bg-card p-4">
+          <div key={c.label} className="rounded-lg border border-border glass-subtle p-4">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs text-muted-foreground uppercase tracking-wide">{c.label}</p>
               <c.icon className="h-4 w-4 text-muted-foreground" />
@@ -98,7 +98,7 @@ const Analytics = () => {
           </div>
         ))}
       </div>
-      <div className="rounded-lg border border-border bg-card p-5">
+      <div className="rounded-lg border border-border glass-subtle p-5">
         <h3 className="text-sm font-semibold mb-4">Revenue trend</h3>
         <div className="h-72">
           <ResponsiveContainer>

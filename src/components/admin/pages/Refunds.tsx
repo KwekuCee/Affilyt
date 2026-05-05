@@ -46,7 +46,7 @@ const Refunds = () => {
         <Button size="sm" onClick={() => setShowForm(!showForm)}><Plus className="h-4 w-4 mr-1" />New refund</Button>
       } />
       {showForm && (
-        <div className="rounded-lg border border-border bg-card p-5 mb-6 space-y-3">
+        <div className="rounded-lg border border-border glass-subtle p-5 mb-6 space-y-3">
           <div className="grid md:grid-cols-2 gap-3">
             <div><label className="text-xs font-medium">Order ID</label><Input value={form.order_id} onChange={(e) => setForm({ ...form, order_id: e.target.value })} placeholder="UUID" /></div>
             <div><label className="text-xs font-medium">Amount (USD)</label><Input type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} /></div>
@@ -56,7 +56,7 @@ const Refunds = () => {
           <Button onClick={create} className="w-full">Log refund</Button>
         </div>
       )}
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <div className="rounded-lg border border-border glass-subtle overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
             <tr><th className="text-left px-4 py-3">Order</th><th className="text-left px-4 py-3">Amount</th><th className="text-left px-4 py-3">Reason</th><th className="text-left px-4 py-3">Status</th><th className="text-right px-4 py-3">Actions</th></tr>

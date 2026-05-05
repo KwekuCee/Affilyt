@@ -65,7 +65,7 @@ const Landing = () => {
               { v: "4", l: "Markets" },
               { v: "100%", l: "Vetted products" },
             ].map((s) => (
-              <div key={s.l} className="text-center p-6 rounded-lg border border-border bg-card/50 backdrop-blur">
+              <div key={s.l} className="text-center p-6 rounded-lg glass-subtle">
                 <div className="font-display text-3xl md:text-4xl font-bold text-gradient tabular">{s.v}</div>
                 <div className="text-xs uppercase tracking-wider text-muted-foreground mt-2">{s.l}</div>
               </div>
@@ -84,7 +84,7 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {features.map((f, i) => (
               <motion.div key={f.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                className="p-6 rounded-lg border border-border bg-card hover:border-primary/40 hover:shadow-elevated transition-all group">
+                className="p-6 rounded-lg glass hover:border-primary/40 hover:shadow-elevated transition-all group">
                 <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <f.icon className="h-5 w-5 text-primary" />
                 </div>
@@ -109,7 +109,7 @@ const Landing = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {products.map((p) => (
-                <Link key={p.id} to={`/marketplace?product=${p.id}`} className="group rounded-lg border border-border bg-card overflow-hidden hover:shadow-elevated hover:border-primary/40 transition-all">
+                <Link key={p.id} to={`/marketplace?product=${p.id}`} className="group rounded-lg glass overflow-hidden hover:shadow-elevated hover:border-primary/40 transition-all">
                   <div className="aspect-[16/10] bg-muted overflow-hidden">
                     {p.image_url ? <img src={p.image_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Sparkles /></div>}
                   </div>
@@ -141,7 +141,7 @@ const Landing = () => {
             {packages.map((pkg) => {
               const popular = pkg.name === "Standard";
               return (
-                <div key={pkg.name} className={`relative p-7 rounded-xl border-2 bg-card flex flex-col ${popular ? "border-primary shadow-glow" : "border-border"}`}>
+                <div key={pkg.name} className={`relative p-7 rounded-xl border-2 glass flex flex-col ${popular ? "border-primary shadow-glow" : "border-transparent"}`}>
                   {popular && <Badge className="absolute -top-2.5 left-7 px-2.5 py-0.5">Most popular</Badge>}
                   <h3 className="font-display text-xl font-semibold mb-1">{pkg.name}</h3>
                   <div className="flex items-baseline gap-1 mb-1">

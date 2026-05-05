@@ -66,7 +66,7 @@ const Coupons = () => {
         <Button size="sm" onClick={() => setShowForm(!showForm)}><Plus className="h-4 w-4 mr-1" />{showForm ? "Cancel" : "New coupon"}</Button>
       } />
       {showForm && (
-        <div className="rounded-lg border border-border bg-card p-5 mb-6 space-y-3">
+        <div className="rounded-lg border border-border glass-subtle p-5 mb-6 space-y-3">
           <div className="grid md:grid-cols-3 gap-3">
             <div>
               <label className="text-xs font-medium">Code</label>
@@ -90,7 +90,7 @@ const Coupons = () => {
           <Button onClick={save} className="w-full">Create coupon</Button>
         </div>
       )}
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <div className="rounded-lg border border-border glass-subtle overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
             <tr><th className="text-left px-4 py-3">Code</th><th className="text-left px-4 py-3">Discount</th><th className="text-left px-4 py-3">Applies</th><th className="text-left px-4 py-3">Used</th><th className="text-left px-4 py-3">Status</th><th className="text-right px-4 py-3">Actions</th></tr>

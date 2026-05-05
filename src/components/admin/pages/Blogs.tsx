@@ -66,7 +66,7 @@ const Blogs = () => {
       />
 
       {show && (
-        <div className="rounded-lg border border-border bg-card p-5 mb-6 space-y-4">
+        <div className="rounded-lg border border-border glass-subtle p-5 mb-6 space-y-4">
           <ImageUploader value={form.image_url} onChange={(url) => setForm({ ...form, image_url: url })} folder="blogs" label="Cover image" />
           <div className="grid md:grid-cols-2 gap-3">
             <div>
@@ -107,7 +107,7 @@ const Blogs = () => {
           </div>
         )}
         {items.map((b) => (
-          <div key={b.id} className="rounded-lg border border-border bg-card overflow-hidden">
+          <div key={b.id} className="rounded-lg border border-border glass-subtle overflow-hidden">
             <div className="aspect-video bg-muted">
               {b.image_url && <img src={b.image_url} alt="" className="w-full h-full object-cover" />}
             </div>

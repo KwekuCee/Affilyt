@@ -66,7 +66,7 @@ const Testimonials = () => {
       />
 
       {show && (
-        <div className="rounded-lg border border-border bg-card p-5 mb-6 space-y-4">
+        <div className="rounded-lg border border-border glass-subtle p-5 mb-6 space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <ImageUploader value={form.image_url} onChange={(url) => setForm({ ...form, image_url: url })} folder="testimonials" label="Avatar" />
             <div className="space-y-3">
@@ -105,7 +105,7 @@ const Testimonials = () => {
           </div>
         )}
         {items.map((t) => (
-          <div key={t.id} className="rounded-lg border border-border bg-card p-5">
+          <div key={t.id} className="rounded-lg border border-border glass-subtle p-5">
             <div className="flex justify-between items-start mb-3">
               <div className="flex gap-0.5">
                 {Array.from({ length: t.rating }).map((_, i) => (

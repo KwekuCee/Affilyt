@@ -114,7 +114,7 @@ const BecomeAffiliate = () => {
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
                                 {displayPackages.map((pkg, i) => (
                                     <motion.div key={pkg.name} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-                                        className={`relative flex flex-col p-8 md:p-12 rounded-[3.5rem] bg-card border-2 transition-all duration-500 scale-95 hover:scale-100 ${pkg.color} ${pkg.isPopular ? 'border-primary' : 'border-border'}`}>
+                                        className={`relative flex flex-col p-8 md:p-12 rounded-[3.5rem] glass transition-all duration-500 scale-95 hover:scale-100 ${pkg.color} ${pkg.isPopular ? 'border-primary' : 'border-transparent'}`}>
                                         <div className="mb-8">
                                             <div className="h-14 w-14 rounded-2xl bg-primary/5 flex items-center justify-center mb-6">
                                                 <pkg.icon className="h-7 w-7 text-primary" />
@@ -173,7 +173,7 @@ const BecomeAffiliate = () => {
                                     </div>
                                 </div>
 
-                                <div className="lg:col-span-8 p-10 rounded-[3.5rem] bg-card border-2 border-border shadow-xl">
+                                <div className="lg:col-span-8 p-10 rounded-[3.5rem] glass shadow-xl">
                                     <form onSubmit={handleFormSubmit} className="space-y-8">
                                         <div className="space-y-6">
                                             <h4 className="text-xs font-black uppercase tracking-[0.4em] text-primary">Account Details</h4>

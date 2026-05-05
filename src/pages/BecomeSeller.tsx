@@ -87,7 +87,7 @@ const BecomeSeller = () => {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto">
-                <div className="p-10 md:p-14 rounded-[3.5rem] bg-card border-2 border-primary shadow-xl shadow-primary/10">
+                <div className="p-10 md:p-14 rounded-[3.5rem] glass-primary shadow-xl shadow-primary/10">
                   <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
                     <Store className="h-7 w-7 text-primary" />
                   </div>
@@ -118,7 +118,7 @@ const BecomeSeller = () => {
                     { icon: Users, title: "Affiliates Sell For You", desc: "Hundreds of affiliates promote your products through their referral links. You don't lift a finger." },
                     { icon: BarChart3, title: "Get Paid Automatically", desc: "Every sale: affiliate gets their commission, platform takes 10%, you keep the rest. Withdraw anytime." },
                   ].map((b) => (
-                    <div key={b.title} className="p-8 rounded-[2.5rem] bg-card border-2 border-border">
+                    <div key={b.title} className="p-8 rounded-[2.5rem] glass">
                       <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                         <b.icon className="h-6 w-6 text-primary" />
                       </div>
@@ -155,7 +155,7 @@ const BecomeSeller = () => {
                   </div>
                 </div>
 
-                <div className="lg:col-span-8 p-10 rounded-[3.5rem] bg-card border-2 border-border shadow-xl">
+                <div className="lg:col-span-8 p-10 rounded-[3.5rem] glass shadow-xl">
                   <form onSubmit={handleFormSubmit} className="space-y-8">
                     <div className="space-y-6">
                       <h4 className="text-xs font-black uppercase tracking-[0.4em] text-primary">Account Details</h4>

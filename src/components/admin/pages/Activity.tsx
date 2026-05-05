@@ -34,7 +34,7 @@ const ActivityFeed = () => {
   return (
     <div>
       <PageHeader title="Activity Feed" description="Real-time platform activity. Updates live." />
-      <div className="rounded-lg border border-border bg-card divide-y divide-border">
+      <div className="rounded-lg border border-border glass-subtle divide-y divide-border">
         {events.length === 0 && <div className="p-12 text-center text-muted-foreground text-sm">No activity yet.</div>}
         {events.map((e) => {
           const Icon = iconFor(e.type);

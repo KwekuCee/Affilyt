@@ -4,8 +4,9 @@ import {
   DollarSign, MousePointerClick, Target, Award, Wallet, Copy,
   LayoutDashboard, Store, Settings as SettingsIcon,
   LinkIcon, Download, FileText, Trophy, Star, Globe, Eye, Zap, Gift, MessageSquare, Flame, TrendingUp, BarChart3,
-  User as UserIcon, BookOpen, Megaphone, LifeBuoy, ExternalLink, Crown
+  User as UserIcon, BookOpen, Megaphone, LifeBuoy, ExternalLink, Crown, ArrowRight, Clock, TrendingDown
 } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
 import StatsCard from "@/components/StatsCard";
@@ -32,30 +33,180 @@ import TaxDocumentGenerator from "@/components/affiliate/TaxDocumentGenerator";
 const DashboardOverview = () => {
   const { profile, user } = useAuth();
   const { packages } = useData();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({ earnings: 0, clicks: 0, orders: 0 });
+  const [chartData, setChartData] = useState<any[]>([]);
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [topLinks, setTopLinks] = useState<any[]>([]);
+  const [goalStats, setGoalStats] = useState({ current: 0, target: 1000 });
 
   const userPkg = packages.find(p => p.name === profile?.package_tier) || packages[0];
 
   useEffect(() => {
     if (!user) return;
     const fetchStats = async () => {
-      const { data: commissions } = await supabase.from("commissions").select("amount").eq("affiliate_id", user.id);
+      // Basic Stats
+      const { data: commissions } = await supabase.from("commissions").select("*").eq("affiliate_id", user.id).order("created_at", { ascending: false });
       const totalEarnings = (commissions || []).reduce((sum: number, c: any) => sum + Number(c.amount), 0);
-      const { data: links } = await supabase.from("affiliate_links").select("clicks").eq("affiliate_id", user.id);
+
+      const { data: links } = await supabase.from("affiliate_links").select("*, products(title)").eq("affiliate_id", user.id).order("clicks", { ascending: false });
+      setTopLinks((links || []).slice(0, 3));
+
       const totalClicks = (links || []).reduce((sum: number, l: any) => sum + (l.clicks || 0), 0);
       const { count } = await supabase.from("orders").select("id", { count: "exact" }).eq("affiliate_id", user.id);
+
       setStats({ earnings: totalEarnings, clicks: totalClicks, orders: count || 0 });
+
+      // Chart Data (Last 7 days)
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - (6 - i));
+        return {
+          date: d.toLocaleDateString('en-US', { weekday: 'short' }),
+          rawDate: d.setHours(0, 0, 0, 0),
+          amount: 0
+        };
+      });
+
+      (commissions || []).forEach((c: any) => {
+        const cDate = new Date(c.created_at).setHours(0, 0, 0, 0);
+        const day = last7Days.find(d => d.rawDate === cDate);
+        if (day) day.amount += Number(c.amount);
+      });
+      setChartData(last7Days);
+
+      // Recent Activity
+      setRecentActivity((commissions || []).slice(0, 4));
+
+      // Goal Stats (mock monthly target)
+      setGoalStats({ current: totalEarnings, target: 5000 });
     };
     fetchStats();
   }, [user]);
 
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tighter">Command Center</h2>
+          <p className="text-muted-foreground font-medium">Welcome back, {profile?.full_name || "Hunter"}.</p>
+        </div>
+      </div>
+
+      {/* Top Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatsCard title="Total Earnings" value={`$${stats.earnings.toLocaleString()}`} icon={Wallet} trend="From commissions" />
         <StatsCard title="Total Clicks" value={stats.clicks.toLocaleString()} icon={MousePointerClick} trend="Via your links" />
         <StatsCard title="Total Sales" value={stats.orders.toString()} icon={Target} trend="Completed orders" />
         <StatsCard title="Your Plan" value={profile?.package_tier || "Basic"} icon={Award} trend={`${userPkg?.commission}% Commission`} />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Area: Chart */}
+        <div className="lg:col-span-2 space-y-8">
+          <div className="p-8 rounded-[2rem] glass">
+            <h3 className="text-lg font-black uppercase italic mb-6">Earnings Trend (7 Days)</h3>
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
+                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10 }} />
+                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10 }} width={40} tickFormatter={(v) => `$${v}`} />
+                  <RechartsTooltip contentStyle={{ borderRadius: '1rem', border: 'none', background: 'hsl(var(--background))', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)' }} />
+                  <Area type="monotone" dataKey="amount" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorEarnings)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Top Links */}
+            <div className="p-8 rounded-[2rem] glass space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-black uppercase text-muted-foreground tracking-widest">Top Links</h3>
+                <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard/affiliate/links")} className="text-[10px] uppercase">View All</Button>
+              </div>
+              <div className="space-y-4">
+                {topLinks.map((link: any) => (
+                  <div key={link.id} className="flex items-center justify-between p-3 rounded-2xl glass-subtle hover:bg-secondary/20 transition-colors">
+                    <div className="min-w-0 pr-4">
+                      <p className="font-bold text-sm truncate">{link.products?.title || "Marketplace Link"}</p>
+                      <p className="text-[10px] text-primary truncate">{link.short_code}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-black">{link.clicks}</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">Clicks</p>
+                    </div>
+                  </div>
+                ))}
+                {topLinks.length === 0 && <p className="text-xs text-muted-foreground italic text-center py-4">No active links yet.</p>}
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="p-8 rounded-[2rem] glass space-y-6">
+              <h3 className="text-sm font-black uppercase text-muted-foreground tracking-widest">Recent Activity</h3>
+              <div className="space-y-4">
+                {recentActivity.map((c: any) => (
+                  <div key={c.id} className="flex items-center gap-4">
+                    <div className="h-10 w-10 shrink-0 rounded-full bg-success/10 flex items-center justify-center">
+                      <DollarSign className="h-4 w-4 text-success" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm truncate">Commission Earned</p>
+                      <p className="text-[10px] text-muted-foreground flex items-center"><Clock className="h-3 w-3 mr-1" /> {new Date(c.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <p className="font-black text-success">+${Number(c.amount).toFixed(2)}</p>
+                  </div>
+                ))}
+                {recentActivity.length === 0 && <p className="text-xs text-muted-foreground italic text-center py-4">No recent activity.</p>}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Aside */}
+        <div className="space-y-8 lg:col-span-1">
+          {/* Quick Actions */}
+          <div className="p-8 rounded-[2rem] glass-primary overflow-hidden relative group">
+            <div className="absolute top-0 right-0 p-6 opacity-10">
+              <Zap className="h-32 w-32 -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
+            </div>
+            <div className="relative z-10 space-y-6">
+              <h3 className="text-xl font-black uppercase italic tracking-tight">Quick Actions</h3>
+              <div className="grid grid-cols-1 gap-3">
+                <Button onClick={() => navigate("/dashboard/affiliate/marketplace")} className="h-12 justify-start px-4 w-full bg-background/20 hover:bg-background/40 border-none text-foreground backdrop-blur font-bold"><Store className="mr-3 h-4 w-4" /> Browse Marketplace</Button>
+                <Button onClick={() => navigate("/dashboard/affiliate/links")} className="h-12 justify-start px-4 w-full bg-background/20 hover:bg-background/40 border-none text-foreground backdrop-blur font-bold"><LinkIcon className="mr-3 h-4 w-4" /> Your Links</Button>
+                <Button onClick={() => navigate("/dashboard/affiliate/payments")} className="h-12 justify-start px-4 w-full bg-background/20 hover:bg-background/40 border-none text-foreground backdrop-blur font-bold"><Wallet className="mr-3 h-4 w-4" /> Request Payout</Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Goal Progress */}
+          <div className="p-8 rounded-[2rem] glass space-y-6">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black uppercase text-muted-foreground tracking-widest">Monthly Target</h3>
+              <Target className="h-4 w-4 text-primary" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-end">
+                <p className="text-3xl font-black italic">${goalStats.current.toLocaleString()}</p>
+                <p className="text-sm font-bold text-muted-foreground mb-1">/ ${goalStats.target.toLocaleString()}</p>
+              </div>
+              <div className="h-3 w-full bg-secondary rounded-full overflow-hidden">
+                <div className="h-full bg-primary transition-all duration-1000" style={{ width: `${Math.min(100, (goalStats.current / goalStats.target) * 100)}%` }} />
+              </div>
+              <p className="text-[10px] text-muted-foreground uppercase text-right tracking-widest">{Math.round((goalStats.current / goalStats.target) * 100)}% Achieved</p>
+            </div>
+            <Button onClick={() => navigate("/dashboard/affiliate/goals")} variant="outline" className="w-full h-11 text-[10px] uppercase tracking-widest rounded-xl">View Goal Details <ArrowRight className="ml-2 h-3 w-3" /></Button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -96,7 +247,7 @@ const AffiliateLinks = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/20 shadow-2xl relative overflow-hidden group">
+        <div className="p-10 rounded-[3rem] glass-primary shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-8">
             <LinkIcon className="h-20 w-20 text-primary/10 -rotate-12 group-hover:rotate-0 transition-transform duration-500" />
           </div>
@@ -105,7 +256,7 @@ const AffiliateLinks = () => {
             <h3 className="text-3xl font-black text-foreground uppercase italic leading-none tracking-tighter">Marketplace Hub</h3>
             <p className="text-sm text-muted-foreground font-medium leading-relaxed">Directs customers to the main store while tracking your ID.</p>
 
-            <div className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/50 border border-border">
+            <div className="flex items-center gap-4 p-4 rounded-2xl glass-subtle">
               <code className="text-xs font-bold text-primary truncate flex-1">{link}</code>
               <Button onClick={() => copy(link)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-primary/20 hover:text-primary transition-colors">
                 <Copy className="h-4 w-4" />
@@ -121,7 +272,7 @@ const AffiliateLinks = () => {
           </div>
         </div>
 
-        <div className="p-10 rounded-[3rem] bg-secondary/20 border-2 border-dashed border-border flex flex-col items-center justify-center text-center space-y-4">
+        <div className="p-10 rounded-[3rem] glass-subtle border-dashed flex flex-col items-center justify-center text-center space-y-4">
           <div className="h-16 w-16 rounded-full bg-secondary flex items-center justify-center">
             <Zap className="h-8 w-8 text-muted-foreground" />
           </div>
@@ -133,7 +284,7 @@ const AffiliateLinks = () => {
         </div>
       </div>
 
-      <div className="rounded-[2rem] border-2 border-border bg-card overflow-hidden">
+      <div className="rounded-[2rem] glass overflow-hidden">
         <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-muted/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
           <span className="col-span-5">Product</span><span className="col-span-2">Clicks</span><span className="col-span-3">Code</span><span className="col-span-2 text-right">Action</span>
         </div>
@@ -209,7 +360,7 @@ const AffiliateProducts = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map(p => (
-          <div key={p.id} className="p-6 rounded-[2rem] bg-card border-2 border-border flex flex-col">
+          <div key={p.id} className="p-6 rounded-[2rem] glass flex flex-col">
             {p.image_url && <img src={p.image_url} alt={p.title} className="h-32 w-full object-cover rounded-xl mb-4" />}
             <div className="flex gap-2 mb-2"><Badge className="bg-primary/10 text-primary border-none text-[10px]">{p.category}</Badge><Badge variant="secondary" className="text-[10px]">{p.min_tier || "Basic"}+</Badge></div>
             <h3 className="font-black text-foreground mb-1">{p.title}</h3>
@@ -243,13 +394,13 @@ const AffiliateCommissions = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Commissions</h2>
       {commissions.length === 0 ? (
-        <div className="p-10 rounded-[2rem] bg-card border-2 border-border text-center">
+        <div className="p-10 rounded-[2rem] glass text-center">
           <p className="text-muted-foreground">No commissions yet. Share your affiliate link to start earning!</p>
         </div>
       ) : (
         <div className="space-y-4">
           {commissions.map(c => (
-            <div key={c.id} className="p-6 rounded-[2rem] bg-card border-2 border-border flex items-center justify-between">
+            <div key={c.id} className="p-6 rounded-[2rem] glass flex items-center justify-between">
               <div>
                 <p className="font-black text-foreground">${Number(c.amount).toFixed(2)}</p>
                 <p className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</p>
@@ -294,7 +445,7 @@ const AffiliateSettings = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Settings</h2>
-      <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
+      <div className="p-8 rounded-[2rem] glass space-y-6">
         <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary">Profile Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
@@ -371,7 +522,7 @@ const AffiliateLeaderboard = () => {
         </div>
       </div>
 
-      <div className="p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/10 shadow-2xl relative overflow-hidden">
+      <div className="p-10 rounded-[3rem] glass-primary shadow-2xl relative overflow-hidden">
         <div className="absolute top-0 right-0 p-8">
           <Trophy className="h-24 w-24 text-primary/10 rotate-12" />
         </div>
@@ -428,7 +579,7 @@ const AffiliatePrizes = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {contests.map(c => (
-          <div key={c.id} className="group p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/20 shadow-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
+          <div key={c.id} className="group p-10 rounded-[3rem] glass-primary shadow-2xl relative overflow-hidden transition-all hover:scale-[1.02]">
             <div className="absolute -top-10 -right-10 h-40 w-40 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-colors" />
             <div className="relative z-10">
               <Badge className="bg-primary text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full mb-6 italic">ACTIVE WAR</Badge>
@@ -531,7 +682,7 @@ const AffiliatePayments = () => {
       </div>
 
       {showForm && (
-        <div className="p-10 rounded-[3rem] bg-card border-2 border-primary/20 shadow-2xl animate-in zoom-in-95 duration-500 space-y-8">
+        <div className="p-10 rounded-[3rem] glass shadow-2xl animate-in zoom-in-95 duration-500 space-y-8">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase text-primary tracking-widest pl-2">Withdrawal Amount ($)</label>
             <div className="relative">
@@ -545,7 +696,7 @@ const AffiliatePayments = () => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="p-10 rounded-[3.5rem] bg-card/40 backdrop-blur-xl border-2 border-border space-y-6">
+        <div className="p-10 rounded-[3.5rem] glass space-y-6">
           <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary">Summary Stats</h3>
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-1">
@@ -559,7 +710,7 @@ const AffiliatePayments = () => {
           </div>
         </div>
 
-        <div className="p-10 rounded-[3.5rem] bg-card/40 backdrop-blur-xl border-2 border-border space-y-6">
+        <div className="p-10 rounded-[3.5rem] glass space-y-6">
           <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary">Recent Transfers</h3>
           <div className="space-y-4 max-h-[300px] overflow-y-auto scrollbar-hide">
             {withdrawals.map(w => (
@@ -604,7 +755,7 @@ const AffiliateReports = () => {
         <BarChart3 className="h-10 w-10 text-primary" />
       </div>
 
-      <div className="p-10 rounded-[3.5rem] bg-card border-2 border-border overflow-hidden">
+      <div className="p-10 rounded-[3.5rem] glass overflow-hidden">
         <div className="grid grid-cols-1 gap-4">
           {report.map(r => (
             <div key={r.id} className="flex items-center justify-between p-6 rounded-2xl bg-secondary/30 border border-transparent hover:border-border transition-all">
@@ -650,11 +801,16 @@ const AffiliateDashboard = () => {
   if (!user || !profile?.package_tier) return null;
 
   return (
-    <div className="min-h-screen flex bg-background theme-affiliate">
+    <div className="min-h-screen flex bg-background theme-affiliate relative overflow-hidden text-foreground">
+      {/* Glassmorphic Animated Background Blobs */}
+      <div className="bg-blob bg-blob-1" />
+      <div className="bg-blob bg-blob-2" />
+      <div className="bg-blob bg-blob-3" />
+
       <DashboardSidebar type="affiliate" />
 
-      <main className="flex-1 p-8 lg:p-12 overflow-y-auto bg-gradient-to-br from-background via-background/95 to-secondary/20">
-        <div className="max-w-7xl mx-auto space-y-12">
+      <main className="flex-1 pt-16 lg:pt-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10 overflow-y-auto min-h-screen relative z-10 scrollbar-hide">
+        <div className="max-w-7xl mx-auto space-y-8 lg:space-y-10">
           <Routes>
             <Route index element={<DashboardOverview />} />
             <Route path="marketplace" element={<AffiliateProducts />} />

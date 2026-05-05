@@ -48,7 +48,7 @@ const Health = () => {
           const StatusIcon = c.status === "ok" ? CheckCircle2 : c.status === "warn" ? AlertCircle : XCircle;
           const color = c.status === "ok" ? "text-emerald-500" : c.status === "warn" ? "text-amber-500" : "text-destructive";
           return (
-            <div key={c.name} className="rounded-lg border border-border bg-card p-5">
+            <div key={c.name} className="rounded-lg border border-border glass-subtle p-5">
               <div className="flex items-center justify-between mb-3">
                 <div className="h-9 w-9 rounded-md bg-primary/10 text-primary flex items-center justify-center"><Icon className="h-4 w-4" /></div>
                 <StatusIcon className={`h-5 w-5 ${color}`} />

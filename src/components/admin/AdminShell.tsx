@@ -39,9 +39,14 @@ const AdminShell = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-muted/30">
+    <div className="min-h-screen flex bg-background theme-admin relative overflow-hidden text-foreground">
+      {/* Glassmorphic Animated Background Blobs */}
+      <div className="bg-blob bg-blob-1" />
+      <div className="bg-blob bg-blob-2" />
+      <div className="bg-blob bg-blob-3" />
+
       {/* Sidebar */}
-      <aside className={`sticky top-0 h-screen flex flex-col bg-card border-r border-border transition-all duration-300 ${collapsed ? "w-16" : "w-60"}`}>
+      <aside className={`sticky top-0 h-screen flex flex-col glass-sidebar transition-all duration-300 z-40 ${collapsed ? "w-16" : "w-60"}`}>
         <div className="h-14 flex items-center justify-between px-4 border-b border-border">
           {!collapsed && (
             <div className="flex items-center gap-2">
@@ -66,10 +71,9 @@ const AdminShell = () => {
               to={item.to}
               end={item.end}
               className={({ isActive }) =>
-                `group flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-primary/10 text-primary"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                `group flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive
+                  ? "bg-primary/10 text-primary"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`
               }
             >
@@ -99,7 +103,7 @@ const AdminShell = () => {
 
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="h-14 sticky top-0 z-10 bg-background/80 backdrop-blur border-b border-border flex items-center px-6 gap-4">
+        <header className="h-14 sticky top-0 z-10 glass-sidebar backdrop-blur border-b border-border flex items-center px-6 gap-4">
           <div className="flex-1 max-w-md relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search…" className="pl-9 h-9 bg-muted/40 border-none" />
@@ -118,7 +122,7 @@ const AdminShell = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto relative z-10 scrollbar-hide">
           <Outlet />
         </main>
       </div>

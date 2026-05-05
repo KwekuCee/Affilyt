@@ -45,7 +45,7 @@ const Tiers = () => {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input placeholder="Search affiliates…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-9" />
       </div>
-      <div className="rounded-lg border border-border bg-card overflow-hidden mb-6">
+      <div className="rounded-lg border border-border glass-subtle overflow-hidden mb-6">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
             <tr><th className="text-left px-4 py-3">Affiliate</th><th className="text-left px-4 py-3">Current tier</th><th className="text-right px-4 py-3">Set tier</th></tr>
@@ -65,7 +65,7 @@ const Tiers = () => {
         </table>
       </div>
       <h3 className="text-sm font-semibold mb-3">Recent tier changes</h3>
-      <div className="rounded-lg border border-border bg-card divide-y divide-border">
+      <div className="rounded-lg border border-border glass-subtle divide-y divide-border">
         {history.length === 0 && <div className="p-6 text-center text-muted-foreground text-sm">No changes yet.</div>}
         {history.map((h) => (
           <div key={h.id} className="flex items-center justify-between p-4 text-sm">

@@ -69,7 +69,7 @@ const Login = () => {
           <p className="text-sm text-muted-foreground mt-2">Sign in to continue to your dashboard.</p>
         </div>
 
-        <div className="bg-card border border-border rounded-xl p-8 shadow-elevated">
+        <div className="glass rounded-xl p-8 shadow-elevated">
           <form onSubmit={handle} className="space-y-5">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

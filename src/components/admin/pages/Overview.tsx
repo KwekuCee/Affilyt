@@ -15,7 +15,7 @@ interface Stats {
 }
 
 const StatCard = ({ icon: Icon, label, value, hint, accent }: any) => (
-  <div className="rounded-lg border border-border bg-card p-5">
+  <div className="rounded-lg border border-border glass-subtle p-5">
     <div className="flex items-center justify-between mb-3">
       <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</span>
       <div className={`h-8 w-8 rounded-md flex items-center justify-center ${accent || "bg-primary/10 text-primary"}`}>
@@ -79,7 +79,7 @@ const Overview = () => {
         <StatCard icon={AlertCircle} label="Pending Approvals" value={stats.pendingProducts} accent="bg-amber-500/10 text-amber-600" />
       </div>
 
-      <div className="rounded-lg border border-border bg-card">
+      <div className="rounded-lg border border-border glass-subtle">
         <div className="px-5 py-4 border-b border-border">
           <h2 className="font-semibold text-sm">Recent Orders</h2>
         </div>

@@ -24,7 +24,7 @@ const About = () => (
       <div className="container mx-auto px-4 max-w-6xl">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <motion.div initial={{ opacity: 0, x: -16 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="aspect-square rounded-2xl gradient-hero p-1 shadow-elevated">
-            <div className="h-full w-full rounded-2xl bg-card flex items-center justify-center relative overflow-hidden">
+            <div className="h-full w-full rounded-2xl glass flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 gradient-mesh" />
               <TrendingUp className="h-32 w-32 text-primary relative" />
             </div>

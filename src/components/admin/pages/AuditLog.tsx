@@ -22,7 +22,7 @@ const AuditLog = () => {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input placeholder="Search action, target, admin…" value={q} onChange={(e) => setQ(e.target.value)} className="pl-9 h-9" />
       </div>
-      <div className="rounded-lg border border-border bg-card divide-y divide-border">
+      <div className="rounded-lg border border-border glass-subtle divide-y divide-border">
         {filtered.length === 0 && <div className="p-12 text-center text-muted-foreground text-sm">No audit entries.</div>}
         {filtered.map((e) => (
           <div key={e.id} className="flex items-start gap-3 p-4 hover:bg-muted/30">

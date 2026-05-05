@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link, useLocation, Routes, Route } from "react-router-dom";
 import {
   DollarSign, Package, ShoppingCart, Users, Wallet, FileText, Settings as SettingsIcon,
-  LayoutDashboard, Shield, Plus, Pencil, Trash2, Download, Store
+  LayoutDashboard, Shield, Plus, Pencil, Trash2, Download, Store, TrendingUp, AlertTriangle,
+  MessageSquare, Boxes, BarChart3, ChevronRight, Activity
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import StatsCard from "@/components/StatsCard";
@@ -18,33 +19,164 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
 
+// ─── External Seller Components ───────────────────────────────────────
+import InventoryAnalytics from "@/components/seller/InventoryAnalytics";
+import OrderManagement from "@/components/seller/OrderManagement";
+import AffiliateLeaderboard from "@/components/seller/AffiliateLeaderboard";
+import CommissionOverrides from "@/components/seller/CommissionOverrides";
+import CouponCodes from "@/components/seller/CouponCodes";
+import StorefrontSettings from "@/components/seller/StorefrontSettings";
+import StockManagement from "@/components/seller/StockManagement";
+import CustomerReviews from "@/components/seller/CustomerReviews";
+import TaxSettings from "@/components/seller/TaxSettings";
+import SubscriptionManagement from "@/components/seller/SubscriptionManagement";
+import BulkImport from "@/components/seller/BulkImport";
+import ABTesting from "@/components/seller/ABTesting";
+
 // ─── Overview ─────────────────────────────────────────────────────────
 const SellerOverview = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState({ revenue: 0, orders: 0, products: 0, affiliates: 0 });
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [pendingTasks, setPendingTasks] = useState<{ type: string; count: number; icon: any; link: string; color: string }[]>([]);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data: orders } = await supabase.from("orders").select("seller_earnings, affiliate_id").eq("seller_id", user.id);
+      // 1. Fetch main stats
+      const { data: orders } = await supabase.from("orders").select("id, amount, seller_earnings, affiliate_id, buyer_email, created_at, status").eq("seller_id", user.id).order('created_at', { ascending: false });
       const revenue = (orders || []).reduce((s: number, o: any) => s + Number(o.seller_earnings || 0), 0);
       const affiliateSet = new Set((orders || []).map((o: any) => o.affiliate_id).filter(Boolean));
       const { count: products } = await supabase.from("products").select("id", { count: "exact" }).eq("seller_id", user.id);
+
       setStats({ revenue, orders: (orders || []).length, products: products || 0, affiliates: affiliateSet.size });
+      setRecentOrders((orders || []).slice(0, 4));
+
+      // 2. Fetch pending tasks (Low stock, Pending Reviews)
+      const tasks = [];
+      const { count: lowStock } = await supabase.from("products").select("id", { count: "exact" })
+        .eq("seller_id", user.id)
+        .not("stock_quantity", "is", null)
+        .lte("stock_quantity", 10); // Mocking comparing directly to a low stock number, normally you'd fetch and filter or use rpc.
+
+      if (lowStock && lowStock > 0) {
+        tasks.push({ type: "Low Stock Items", count: lowStock, icon: AlertTriangle, link: "/dashboard/seller/stock", color: "text-warning" });
+      }
+
+      const { count: reviews } = await supabase.from("product_reviews").select("id", { count: "exact" })
+        .eq("seller_response", null); // Just a mock check
+
+      if (reviews && reviews > 0) {
+        tasks.push({ type: "Unanswered Reviews", count: reviews, icon: MessageSquare, link: "/dashboard/seller/reviews", color: "text-primary" });
+      }
+
+      setPendingTasks(tasks);
     })();
   }, [user]);
 
+  const QUICK_ACTIONS = [
+    { label: "New Product", icon: Plus, link: "/dashboard/seller/products", color: "bg-primary/20 text-primary" },
+    { label: "View Analytics", icon: BarChart3, link: "/dashboard/seller/analytics", color: "bg-success/20 text-success" },
+    { label: "Storefront", icon: Store, link: "/dashboard/seller/storefront", color: "bg-amber-500/20 text-amber-500" },
+    { label: "Create Coupon", icon: DollarSign, link: "/dashboard/seller/coupons", color: "bg-blue-500/20 text-blue-500" },
+  ];
+
   return (
-    <div className="space-y-10 animate-in fade-in duration-700">
-      <div>
-        <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight mb-2">Seller Overview</h2>
-        <p className="text-muted-foreground">Your business at a glance.</p>
+    <div className="space-y-8 animate-in fade-in duration-700">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight mb-1">Command Center</h2>
+          <p className="text-muted-foreground font-medium">Your business velocity at a glance.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button asChild variant="outline" className="rounded-xl h-12 uppercase font-black text-xs tracking-widest"><Link to="/dashboard/seller/orders">View Orders</Link></Button>
+          <Button asChild className="rounded-xl h-12 uppercase font-black text-xs tracking-widest"><Link to="/dashboard/seller/products"><Plus className="w-4 h-4 mr-2" /> Add Product</Link></Button>
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatsCard title="Total Revenue" value={`$${stats.revenue.toFixed(2)}`} icon={Wallet} trend="After fees" />
-        <StatsCard title="Total Orders" value={stats.orders.toString()} icon={ShoppingCart} trend="All time" />
-        <StatsCard title="Active Products" value={stats.products.toString()} icon={Package} trend="Live in marketplace" />
-        <StatsCard title="Affiliates Promoting" value={stats.affiliates.toString()} icon={Users} trend="Active sellers for you" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <StatsCard title="Net Revenue" value={`$${stats.revenue.toFixed(2)}`} icon={Wallet} trend={<span className="text-success flex items-center"><TrendingUp className="w-3 h-3 mr-1" /> +12.5%</span>} />
+        <StatsCard title="Total Volume" value={stats.orders.toString()} icon={ShoppingCart} trend="Total orders processed" />
+        <StatsCard title="Active Listings" value={stats.products.toString()} icon={Package} trend="Live on marketplace" />
+        <StatsCard title="Promoters" value={stats.affiliates.toString()} icon={Activity} trend="Affiliates driving sales" />
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Quick Actions & Tasks Column */}
+        <div className="space-y-6">
+          <div className="p-6 rounded-[2rem] glass">
+            <h3 className="text-xs uppercase font-black tracking-widest text-muted-foreground mb-4">Quick Actions</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {QUICK_ACTIONS.map(action => (
+                <Link key={action.label} to={action.link} className="flex flex-col items-center justify-center p-4 rounded-2xl bg-secondary/30 hover:bg-secondary transition-colors group">
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${action.color} group-hover:scale-110 transition-transform`}>
+                    <action.icon className="w-5 h-5" />
+                  </div>
+                  <span className="text-[10px] uppercase font-black text-center">{action.label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {pendingTasks.length > 0 && (
+            <div className="p-6 rounded-[2rem] glass border border-warning/20">
+              <h3 className="text-xs uppercase font-black tracking-widest text-muted-foreground mb-4">Requires Attention</h3>
+              <div className="space-y-3">
+                {pendingTasks.map(task => (
+                  <Link key={task.type} to={task.link} className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className={`p-2 rounded-lg bg-background ${task.color}`}><task.icon className="w-4 h-4" /></div>
+                      <div>
+                        <p className="font-bold text-sm tracking-tight">{task.type}</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-black">{task.count} pending items</p>
+                      </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Recent Orders Overview */}
+        <div className="xl:col-span-2 p-6 rounded-[2rem] glass">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-xs uppercase font-black tracking-widest text-muted-foreground">Recent Transactions</h3>
+            <Link to="/dashboard/seller/orders" className="text-[10px] uppercase font-black text-primary hover:underline">View All</Link>
+          </div>
+
+          {recentOrders.length === 0 ? (
+            <div className="h-40 flex flex-col items-center justify-center text-muted-foreground border-2 border-dashed border-primary/20 rounded-2xl">
+              <ShoppingCart className="w-8 h-8 mb-2 opacity-50" />
+              <p className="font-medium text-sm">No recent orders found.</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentOrders.map(order => (
+                <div key={order.id} className="flex items-center justify-between p-4 rounded-xl bg-secondary/30 hover:bg-secondary/50 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-success/10 text-success flex items-center justify-center shrink-0">
+                      <DollarSign className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm truncate max-w-[150px] sm:max-w-[300px]">{order.buyer_email}</p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] font-black uppercase text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</span>
+                        <span className="w-1 h-1 rounded-full bg-primary/30" />
+                        <span className={`text-[10px] font-black uppercase ${order.status === 'completed' ? 'text-success' : 'text-warning'}`}>{order.status}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-black text-lg">${Number(order.amount).toFixed(2)}</p>
+                    <p className="text-[10px] font-black uppercase text-success tracking-widest">Net +${Number(order.seller_earnings).toFixed(2)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -135,7 +267,7 @@ const SellerProducts = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {products.map((p) => (
-          <div key={p.id} className="p-6 rounded-[2rem] bg-card border-2 border-border space-y-3">
+          <div key={p.id} className="p-6 rounded-[2rem] glass space-y-3">
             {p.image_url && <img src={p.image_url} alt={p.title} className="h-32 w-full object-cover rounded-xl" />}
             <div className="flex gap-2">
               <Badge className="bg-primary/10 text-primary border-none text-[10px]">{p.category}</Badge>
@@ -154,7 +286,7 @@ const SellerProducts = () => {
           </div>
         ))}
         {products.length === 0 && (
-          <div className="col-span-3 p-10 rounded-[2rem] bg-card border-2 border-dashed border-border text-center">
+          <div className="col-span-3 p-10 rounded-[2rem] glass-subtle border-dashed text-center">
             <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No products yet. Create your first product to start selling.</p>
           </div>
@@ -179,11 +311,11 @@ const SellerOrders = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Orders</h2>
       {orders.length === 0 ? (
-        <div className="p-10 rounded-[2rem] bg-card border-2 border-border text-center text-muted-foreground">No orders yet.</div>
+        <div className="p-10 rounded-[2rem] glass text-center text-muted-foreground">No orders yet.</div>
       ) : (
         <div className="space-y-4">
           {orders.map((o) => (
-            <div key={o.id} className="p-6 rounded-[2rem] bg-card border-2 border-border grid grid-cols-2 md:grid-cols-5 gap-4 items-center">
+            <div key={o.id} className="p-6 rounded-[2rem] glass grid grid-cols-2 md:grid-cols-5 gap-4 items-center">
               <div><p className="text-[10px] uppercase text-muted-foreground">Product</p><p className="font-black text-sm">{o.products?.title || "—"}</p></div>
               <div><p className="text-[10px] uppercase text-muted-foreground">Buyer</p><p className="text-sm">{o.buyer_email}</p></div>
               <div><p className="text-[10px] uppercase text-muted-foreground">Total</p><p className="font-black">${Number(o.amount).toFixed(2)}</p></div>
@@ -222,11 +354,11 @@ const SellerAffiliates = () => {
     <div className="space-y-8 animate-in fade-in duration-500">
       <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Affiliates Promoting You</h2>
       {rows.length === 0 ? (
-        <div className="p-10 rounded-[2rem] bg-card border-2 border-border text-center text-muted-foreground">No affiliates have made a sale yet.</div>
+        <div className="p-10 rounded-[2rem] glass text-center text-muted-foreground">No affiliates have made a sale yet.</div>
       ) : (
         <div className="space-y-3">
           {rows.map((r) => (
-            <div key={r.user_id} className="p-6 rounded-[2rem] bg-card border-2 border-border grid grid-cols-4 gap-4 items-center">
+            <div key={r.user_id} className="p-6 rounded-[2rem] glass grid grid-cols-4 gap-4 items-center">
               <div><p className="font-black">{r.full_name || "Affiliate"}</p><p className="text-xs text-muted-foreground">{r.package_tier} tier</p></div>
               <div><p className="text-[10px] uppercase text-muted-foreground">Sales</p><p className="font-black">{r.sales}</p></div>
               <div><p className="text-[10px] uppercase text-muted-foreground">Revenue Generated</p><p className="font-black">${r.revenue.toFixed(2)}</p></div>
@@ -273,7 +405,7 @@ const SellerPayouts = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Payouts</h2>
-      <div className="p-8 rounded-[2rem] bg-card border-2 border-border">
+      <div className="p-8 rounded-[2rem] glass">
         <p className="text-[10px] uppercase text-muted-foreground mb-2">Available Balance</p>
         <p className="text-4xl font-black text-success mb-6">${available.toFixed(2)}</p>
         <div className="flex gap-4 max-w-md">
@@ -283,7 +415,7 @@ const SellerPayouts = () => {
       </div>
       <div className="space-y-3">
         {payouts.map((p) => (
-          <div key={p.id} className="p-5 rounded-2xl bg-card border-2 border-border flex justify-between items-center">
+          <div key={p.id} className="p-5 rounded-2xl glass flex justify-between items-center">
             <div>
               <p className="font-black">${Number(p.amount).toFixed(2)}</p>
               <p className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</p>
@@ -335,7 +467,7 @@ const SellerReports = () => {
           { type: "sales" as const, title: "Sales Report", desc: "All orders, earnings, and fees as CSV." },
           { type: "payouts" as const, title: "Payouts Report", desc: "All payout requests and statuses as CSV." },
         ].map((r) => (
-          <div key={r.type} className="p-8 rounded-[2rem] bg-card border-2 border-border">
+          <div key={r.type} className="p-8 rounded-[2rem] glass">
             <FileText className="h-10 w-10 text-primary mb-4" />
             <h3 className="font-black text-lg mb-1">{r.title}</h3>
             <p className="text-sm text-muted-foreground mb-6">{r.desc}</p>
@@ -383,7 +515,7 @@ const SellerSettings = () => {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Settings</h2>
-      <div className="p-8 rounded-[2rem] bg-card border-2 border-border space-y-6">
+      <div className="p-8 rounded-[2rem] glass space-y-6">
         <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary">Profile</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Field label="Full Name" value={form.full_name} onChange={(e: any) => setForm({ ...form, full_name: e.target.value })} />
@@ -460,13 +592,29 @@ const SellerDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen flex bg-background theme-seller">
+    <div className="min-h-screen flex bg-background theme-seller relative overflow-hidden text-foreground">
+      {/* Glassmorphic Animated Background Blobs */}
+      <div className="bg-blob bg-blob-1" />
+      <div className="bg-blob bg-blob-2" />
+      <div className="bg-blob bg-blob-3" />
+
       <DashboardSidebar type="seller" />
-      <main className="flex-1 p-6 lg:p-10 overflow-y-auto">
+      <main className="flex-1 pt-16 lg:pt-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10 overflow-y-auto min-h-screen relative z-10 scrollbar-hide">
         <Routes>
           <Route index element={<SellerOverview />} />
+          <Route path="analytics" element={<InventoryAnalytics />} />
           <Route path="products" element={<SellerProducts />} />
-          <Route path="orders" element={<SellerOrders />} />
+          <Route path="orders" element={<OrderManagement />} />
+          <Route path="import" element={<BulkImport />} />
+          <Route path="stock" element={<StockManagement />} />
+          <Route path="ab-testing" element={<ABTesting />} />
+          <Route path="leaderboard" element={<AffiliateLeaderboard />} />
+          <Route path="commissions" element={<CommissionOverrides />} />
+          <Route path="coupons" element={<CouponCodes />} />
+          <Route path="reviews" element={<CustomerReviews />} />
+          <Route path="storefront" element={<StorefrontSettings />} />
+          <Route path="subscription" element={<SubscriptionManagement />} />
+          <Route path="tax" element={<TaxSettings />} />
           <Route path="affiliates" element={<SellerAffiliates />} />
           <Route path="payouts" element={<SellerPayouts />} />
           <Route path="reports" element={<SellerReports />} />

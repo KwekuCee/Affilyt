@@ -5,10 +5,11 @@ import {
   Server, ShieldCheck, Zap, Trophy, Activity, Link as LinkIcon,
   Gift, Wallet, MessageSquare, FileText, ChevronLeft, ChevronRight,
   User as UserIcon, Shield, ShoppingCart, QrCode, CalendarDays,
-  Filter, Star, Bell, FolderOpen, Target, Globe, UserPlus
+  Filter, Star, Bell, FolderOpen, Target, Globe, UserPlus, Menu, X,
+  Percent, Ticket, Boxes, FlaskConical, UploadCloud, Calculator
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const adminLinks = [
   { id: "overview", to: "/dashboard/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -46,10 +47,20 @@ const affiliateLinks = [
 
 const sellerLinks = [
   { id: "overview", to: "/dashboard/seller", label: "Overview", icon: LayoutDashboard },
-  { id: "products", to: "/dashboard/seller/products", label: "My Products", icon: Package },
+  { id: "analytics", to: "/dashboard/seller/analytics", label: "Analytics", icon: BarChart3 },
   { id: "orders", to: "/dashboard/seller/orders", label: "Orders", icon: ShoppingCart },
-  { id: "affiliates", to: "/dashboard/seller/affiliates", label: "Aggregates", icon: Users },
-  { id: "payouts", to: "/dashboard/seller/payouts", label: "Withdrawals", icon: Wallet },
+  { id: "products", to: "/dashboard/seller/products", label: "Products", icon: Package },
+  { id: "import", to: "/dashboard/seller/import", label: "Bulk Import", icon: UploadCloud },
+  { id: "stock", to: "/dashboard/seller/stock", label: "Inventory", icon: Boxes },
+  { id: "ab-testing", to: "/dashboard/seller/ab-testing", label: "A/B Testing", icon: FlaskConical },
+  { id: "leaderboard", to: "/dashboard/seller/leaderboard", label: "Leaderboard", icon: Trophy },
+  { id: "commissions", to: "/dashboard/seller/commissions", label: "Commissions", icon: Percent },
+  { id: "coupons", to: "/dashboard/seller/coupons", label: "Coupons", icon: Ticket },
+  { id: "reviews", to: "/dashboard/seller/reviews", label: "Reviews", icon: Star },
+  { id: "storefront", to: "/dashboard/seller/storefront", label: "Storefront", icon: Store },
+  { id: "subscription", to: "/dashboard/seller/subscription", label: "Subscription", icon: CreditCard },
+  { id: "tax", to: "/dashboard/seller/tax", label: "Taxes", icon: Calculator },
+  { id: "payouts", to: "/dashboard/seller/payouts", label: "Payouts", icon: Wallet },
   { id: "reports", to: "/dashboard/seller/reports", label: "Reports", icon: FileText },
   { id: "settings", to: "/dashboard/seller/settings", label: "Settings", icon: Settings },
 ];
@@ -63,26 +74,41 @@ const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const links = type === "admin" ? adminLinks : type === "affiliate" ? affiliateLinks : sellerLinks;
+
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  // Close mobile sidebar on resize to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) setMobileOpen(false);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleSignOut = async () => {
     await signOut();
     navigate("/login");
   };
 
-  return (
-    <aside className={`h-screen sticky top-0 flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border transition-all duration-300 z-40 ${isCollapsed ? 'w-16' : 'w-60'}`}>
-      <div className="h-14 flex items-center justify-between px-4 border-b border-sidebar-border">
+  const sidebarContent = (
+    <>
+      <div className="h-14 flex items-center justify-between px-4 border-b border-sidebar-border shrink-0">
         {!isCollapsed && (
           <Link to="/" className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-md gradient-primary flex items-center justify-center">
               <Shield className="h-4 w-4 text-primary-foreground" />
             </div>
-            <span className="font-display font-bold text-sm text-white">Affilyt</span>
+            <span className="font-display font-bold text-sm">Affilyt</span>
           </Link>
         )}
-        <button onClick={() => setIsCollapsed(!isCollapsed)} className="h-7 w-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center">
-          {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+        <button onClick={() => { if (window.innerWidth < 1024) setMobileOpen(false); else setIsCollapsed(!isCollapsed); }} className="h-7 w-7 rounded-md hover:bg-sidebar-accent flex items-center justify-center">
+          {window.innerWidth < 1024 ? <X className="h-4 w-4" /> : isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
       </div>
 
@@ -91,7 +117,7 @@ const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
           const active = location.pathname === link.to;
           return (
             <RouterNavLink key={link.to} to={link.to}
-              className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors group relative ${active ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-white'}`}>
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors group relative ${active ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground'}`}>
               <link.icon className="h-4 w-4 shrink-0" />
               {!isCollapsed && <span>{link.label}</span>}
               {isCollapsed && <div className="absolute left-full ml-2 px-2 py-1 rounded-md bg-popover text-popover-foreground text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none shadow-md border border-border z-50">{link.label}</div>}
@@ -100,17 +126,52 @@ const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
         })}
       </nav>
 
-      <div className="p-2 border-t border-sidebar-border space-y-0.5">
-        <button onClick={toggleDark} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium hover:bg-sidebar-accent/50 hover:text-white transition-colors">
+      <div className="p-2 border-t border-sidebar-border space-y-0.5 shrink-0">
+        <button onClick={toggleDark} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium hover:bg-sidebar-accent/50 transition-colors">
           {dark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           {!isCollapsed && <span>Theme</span>}
         </button>
-        <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium hover:bg-destructive/20 hover:text-destructive transition-colors">
+        <button onClick={handleSignOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium hover:bg-destructive/20 hover:text-destructive transition-colors">
           <LogOut className="h-4 w-4" />
           {!isCollapsed && <span>Sign out</span>}
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile top bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-14 glass-sidebar border-b border-sidebar-border flex items-center justify-between px-4 z-50">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-md gradient-primary flex items-center justify-center">
+            <Shield className="h-4 w-4 text-primary-foreground" />
+          </div>
+          <span className="font-display font-bold text-sm">Affilyt</span>
+        </Link>
+        <button onClick={() => setMobileOpen(!mobileOpen)} className="h-9 w-9 rounded-lg hover:bg-sidebar-accent flex items-center justify-center">
+          <Menu className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black/50 z-50 animate-in fade-in duration-200"
+          onClick={() => setMobileOpen(false)}
+        />
+      )}
+
+      {/* Mobile slide-out drawer */}
+      <aside className={`lg:hidden fixed top-0 left-0 h-full w-64 glass-sidebar text-sidebar-foreground z-50 flex flex-col transition-transform duration-300 ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {sidebarContent}
+      </aside>
+
+      {/* Desktop sidebar */}
+      <aside className={`hidden lg:flex h-screen sticky top-0 flex-col glass-sidebar text-sidebar-foreground transition-all duration-300 z-40 ${isCollapsed ? 'w-16' : 'w-60'}`}>
+        {sidebarContent}
+      </aside>
+    </>
   );
 };
 

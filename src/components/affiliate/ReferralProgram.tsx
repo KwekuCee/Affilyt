@@ -1,27 +1,24 @@
 import { useState } from "react";
-import {
-    Users, Copy, Check, Gift, Share2, ExternalLink,
-    UserPlus, Trophy, MessageSquare
-} from "lucide-react";
+import { UserPlus, Copy, Check, Gift, Users, TrendingUp, DollarSign, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 
-const bonusTiers = [
-    { min: 1, max: 4, bonus: 5, label: "Starter" },
-    { min: 5, max: 9, bonus: 10, label: "Connector" },
-    { min: 10, max: 24, bonus: 15, label: "Networker" },
-    { min: 25, max: Infinity, bonus: 25, label: "Ambassador" },
+const tiers = [
+    { min: 0, max: 4, label: "Bronze", bonus: 5, color: "text-amber-700", bg: "bg-amber-700/10" },
+    { min: 5, max: 14, label: "Silver", bonus: 10, color: "text-slate-400", bg: "bg-slate-400/10" },
+    { min: 15, max: 29, label: "Gold", bonus: 15, color: "text-amber-400", bg: "bg-amber-400/10" },
+    { min: 30, max: Infinity, label: "Diamond", bonus: 25, color: "text-cyan-400", bg: "bg-cyan-400/10" },
 ];
 
 const mockReferrals = [
-    { id: "ref1", name: "Kofi A.", status: "active", joinedDate: "2026-04-28", bonusEarned: 10, totalSales: 12 },
-    { id: "ref2", name: "Ama K.", status: "active", joinedDate: "2026-04-15", bonusEarned: 10, totalSales: 8 },
-    { id: "ref3", name: "Yaw M.", status: "active", joinedDate: "2026-03-20", bonusEarned: 5, totalSales: 22 },
-    { id: "ref4", name: "Abena S.", status: "pending", joinedDate: "2026-05-01", bonusEarned: 0, totalSales: 0 },
-    { id: "ref5", name: "Kwame D.", status: "active", joinedDate: "2026-02-14", bonusEarned: 5, totalSales: 15 },
-    { id: "ref6", name: "Efua T.", status: "inactive", joinedDate: "2026-01-10", bonusEarned: 5, totalSales: 2 },
+    { id: "r1", name: "Kwame A.", email: "k***e@gmail.com", status: "active" as const, bonus: 10, joinedAt: new Date(Date.now() - 2 * 86400000), earnings: 145 },
+    { id: "r2", name: "Ama S.", email: "a***s@gmail.com", status: "active" as const, bonus: 10, joinedAt: new Date(Date.now() - 5 * 86400000), earnings: 89 },
+    { id: "r3", name: "Kofi M.", email: "k***m@outlook.com", status: "active" as const, bonus: 10, joinedAt: new Date(Date.now() - 12 * 86400000), earnings: 230 },
+    { id: "r4", name: "Efua B.", email: "e***b@yahoo.com", status: "pending" as const, bonus: 0, joinedAt: new Date(Date.now() - 1 * 86400000), earnings: 0 },
+    { id: "r5", name: "Yaw K.", email: "y***k@gmail.com", status: "active" as const, bonus: 10, joinedAt: new Date(Date.now() - 20 * 86400000), earnings: 67 },
 ];
 
 const ReferralProgram = () => {
@@ -29,198 +26,111 @@ const ReferralProgram = () => {
     const { toast } = useToast();
     const [copied, setCopied] = useState(false);
 
-    const refCode = profile?.affiliate_link || user?.id?.slice(0, 8) || "demo";
-    const referralLink = `${window.location.origin}/become-affiliate?invite=${refCode}`;
+    const referralCode = profile?.referral_code || user?.id?.slice(0, 8) || "DEMO123";
+    const inviteLink = `${window.location.origin}/signup?ref=${referralCode}`;
 
-    const totalReferrals = mockReferrals.length;
-    const activeReferrals = mockReferrals.filter(r => r.status === "active").length;
-    const totalBonus = mockReferrals.reduce((s, r) => s + r.bonusEarned, 0);
+    const activeRefs = mockReferrals.filter(r => r.status === "active").length;
+    const currentTier = tiers.find(t => activeRefs >= t.min && activeRefs <= t.max) || tiers[0];
+    const nextTier = tiers.find(t => t.min > activeRefs);
+    const totalBonus = mockReferrals.filter(r => r.status === "active").reduce((s, r) => s + r.bonus, 0);
+    const networkEarnings = mockReferrals.reduce((s, r) => s + r.earnings, 0);
 
-    // Current tier
-    const currentTier = bonusTiers.find(t => totalReferrals >= t.min && totalReferrals <= t.max) || bonusTiers[0];
-    const nextTier = bonusTiers.find(t => t.min > totalReferrals);
-    const progressToNext = nextTier ? ((totalReferrals - currentTier.min + 1) / (nextTier.min - currentTier.min)) * 100 : 100;
-
-    const copyLink = () => {
-        navigator.clipboard.writeText(referralLink);
+    const handleCopy = () => {
+        navigator.clipboard.writeText(inviteLink);
         setCopied(true);
-        toast({ title: "Referral link copied!", description: "Share it and earn bonuses!" });
+        toast({ title: "Link Copied!", description: "Referral link ready to share." });
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const shareOn = (platform: string) => {
-        const text = encodeURIComponent(`Join me on Affilyt and start earning! 🚀 Sign up here: ${referralLink}`);
-        const urls: Record<string, string> = {
-            whatsapp: `https://wa.me/?text=${text}`,
-            twitter: `https://twitter.com/intent/tweet?text=${text}`,
-            telegram: `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${text}`,
-        };
-        window.open(urls[platform], "_blank");
-    };
-
-    const statusConfig: Record<string, { color: string; bg: string }> = {
-        active: { color: "text-primary", bg: "bg-primary/10" },
-        pending: { color: "text-amber-500", bg: "bg-amber-500/10" },
-        inactive: { color: "text-muted-foreground", bg: "bg-secondary" },
-    };
-
     return (
-        <div className="space-y-10 animate-in slide-in-from-bottom-4 duration-700">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter">Recruit Squad</h2>
-                    <p className="text-muted-foreground font-medium">Invite friends. Earn bonus cash for every affiliate you bring.</p>
-                </div>
-                <Users className="h-10 w-10 text-primary" />
+        <div className="space-y-6 sm:space-y-8 animate-in slide-in-from-bottom-4 duration-700">
+            <div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Referral Program</h2>
+                <p className="text-sm text-muted-foreground mt-1">Invite affiliates and earn bonuses on their activity.</p>
             </div>
 
-            {/* Referral Link + Share */}
-            <div className="p-10 rounded-[3rem] bg-card/40 backdrop-blur-3xl border-2 border-primary/20 shadow-2xl relative overflow-hidden">
-                <div className="absolute -top-10 -right-10 h-40 w-40 bg-primary/10 rounded-full blur-3xl" />
-
-                <div className="relative z-10 space-y-6">
-                    <div className="flex items-center gap-4">
-                        <div className="h-14 w-14 rounded-2xl bg-primary/20 flex items-center justify-center">
-                            <UserPlus className="h-7 w-7 text-primary" />
-                        </div>
-                        <div>
-                            <h3 className="text-xl font-black text-foreground uppercase italic tracking-tighter">Your Invite Link</h3>
-                            <p className="text-xs text-muted-foreground font-medium">Share this link to earn ${currentTier.bonus} per signup</p>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/50 border border-border">
-                        <code className="text-xs font-bold text-primary truncate flex-1">{referralLink}</code>
-                        <Button onClick={copyLink} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-primary/20">
-                            {copied ? <Check className="h-4 w-4 text-success" /> : <Copy className="h-4 w-4" />}
-                        </Button>
-                    </div>
-
-                    <div className="flex gap-3 flex-wrap">
-                        <Button onClick={copyLink} className="h-12 rounded-2xl font-black text-xs uppercase px-8 shadow-lg shadow-primary/20">
-                            {copied ? <><Check className="h-4 w-4 mr-2" /> Copied!</> : <><Copy className="h-4 w-4 mr-2" /> Copy Link</>}
-                        </Button>
-                        <Button onClick={() => shareOn("whatsapp")} variant="outline" className="h-12 rounded-2xl font-black text-xs uppercase px-6">
-                            <MessageSquare className="h-4 w-4 mr-2" /> WhatsApp
-                        </Button>
-                        <Button onClick={() => shareOn("twitter")} variant="outline" className="h-12 rounded-2xl font-black text-xs uppercase px-6">
-                            <Share2 className="h-4 w-4 mr-2" /> Twitter
-                        </Button>
-                        <Button onClick={() => shareOn("telegram")} variant="outline" className="h-12 rounded-2xl font-black text-xs uppercase px-6">
-                            <ExternalLink className="h-4 w-4 mr-2" /> Telegram
-                        </Button>
-                    </div>
+            {/* Invite Link */}
+            <div className="p-5 sm:p-6 rounded-2xl bg-primary/5 border border-primary/20 space-y-4">
+                <div className="flex items-center gap-2">
+                    <UserPlus className="h-5 w-5 text-primary" />
+                    <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">Your Invite Link</h3>
                 </div>
+                <div className="flex flex-col sm:flex-row gap-3">
+                    <Input value={inviteLink} readOnly className="h-10 rounded-xl glass border-none font-mono text-xs flex-1 text-foreground" />
+                    <Button onClick={handleCopy} className="h-10 rounded-xl font-semibold text-sm px-6">
+                        {copied ? <><Check className="h-4 w-4 mr-2" /> Copied!</> : <><Copy className="h-4 w-4 mr-2" /> Copy Link</>}
+                    </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">Code: <span className="font-mono font-semibold text-foreground">{referralCode}</span></p>
             </div>
 
-            {/* Stats + Tier */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Stats */}
-                <div className="p-8 rounded-[2.5rem] bg-card/40 backdrop-blur-xl border-2 border-border space-y-6">
-                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary">Your Stats</h3>
-                    <div className="space-y-4">
-                        <div className="p-4 rounded-2xl bg-secondary/30">
-                            <p className="text-[10px] font-black text-muted-foreground uppercase">Total Referrals</p>
-                            <p className="text-3xl font-black text-foreground">{totalReferrals}</p>
+            {/* Stats */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+                {[
+                    { label: "Referrals", value: activeRefs.toString(), icon: Users, extra: `${mockReferrals.length - activeRefs} pending` },
+                    { label: "Current Tier", value: currentTier.label, icon: Gift, extra: `$${currentTier.bonus}/referral` },
+                    { label: "Total Bonus", value: `$${totalBonus}`, icon: DollarSign, extra: "Earned to date" },
+                    { label: "Network Revenue", value: `$${networkEarnings.toLocaleString()}`, icon: TrendingUp, extra: "From your referrals" },
+                ].map((s, i) => (
+                    <div key={i} className="p-4 sm:p-5 rounded-2xl glass">
+                        <div className="flex items-center gap-2 mb-2">
+                            <s.icon className="h-4 w-4 text-primary" />
+                            <p className="text-[10px] font-medium uppercase text-muted-foreground tracking-wider">{s.label}</p>
                         </div>
-                        <div className="p-4 rounded-2xl bg-secondary/30">
-                            <p className="text-[10px] font-black text-muted-foreground uppercase">Active Friends</p>
-                            <p className="text-3xl font-black text-primary">{activeReferrals}</p>
-                        </div>
-                        <div className="p-4 rounded-2xl bg-secondary/30">
-                            <p className="text-[10px] font-black text-muted-foreground uppercase">Total Bonus Earned</p>
-                            <p className="text-3xl font-black text-foreground">${totalBonus}</p>
-                        </div>
+                        <p className="text-xl sm:text-2xl font-bold text-foreground">{s.value}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{s.extra}</p>
                     </div>
-                </div>
-
-                {/* Bonus Tiers */}
-                <div className="lg:col-span-2 p-8 rounded-[2.5rem] bg-card/40 backdrop-blur-xl border-2 border-border space-y-6">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary">Bonus Tiers</h3>
-                        <Badge className="bg-primary/20 text-primary border-none text-[10px] font-black uppercase px-3 py-1 rounded-full">
-                            {currentTier.label}
-                        </Badge>
-                    </div>
-
-                    <div className="space-y-3">
-                        {bonusTiers.map((tier, i) => {
-                            const isActive = tier.label === currentTier.label;
-                            const isCompleted = totalReferrals >= tier.min && tier.max < Infinity ? totalReferrals > tier.max : false;
-                            return (
-                                <div key={tier.label} className={`flex items-center justify-between p-5 rounded-2xl border-2 transition-all ${isActive ? "bg-primary/10 border-primary/30 shadow-lg" : isCompleted ? "bg-secondary/30 border-border opacity-60" : "bg-secondary/20 border-transparent"
-                                    }`}>
-                                    <div className="flex items-center gap-4">
-                                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${isActive ? "bg-primary" : "bg-secondary"}`}>
-                                            {isCompleted ? (
-                                                <Check className={`h-5 w-5 ${isActive ? "text-primary-foreground" : "text-muted-foreground"}`} />
-                                            ) : (
-                                                <Trophy className={`h-5 w-5 ${isActive ? "text-primary-foreground" : "text-muted-foreground"}`} />
-                                            )}
-                                        </div>
-                                        <div>
-                                            <p className="font-black text-foreground">{tier.label}</p>
-                                            <p className="text-[10px] text-muted-foreground font-bold">
-                                                {tier.max === Infinity ? `${tier.min}+ referrals` : `${tier.min}–${tier.max} referrals`}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-xl font-black text-foreground italic">${tier.bonus}</p>
-                                        <p className="text-[9px] font-bold text-muted-foreground uppercase">Per invite</p>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                    </div>
-
-                    {/* Progress to next tier */}
-                    {nextTier && (
-                        <div className="space-y-2 pt-2">
-                            <div className="flex justify-between">
-                                <p className="text-[10px] font-black text-muted-foreground uppercase">Progress to {nextTier.label}</p>
-                                <p className="text-[10px] font-black text-primary">{totalReferrals}/{nextTier.min} referrals</p>
-                            </div>
-                            <div className="h-3 w-full bg-secondary/50 rounded-full overflow-hidden">
-                                <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: `${Math.min(progressToNext, 100)}%` }} />
-                            </div>
-                        </div>
-                    )}
-                </div>
+                ))}
             </div>
 
-            {/* Referral History */}
-            <div className="p-8 rounded-[2.5rem] bg-card/40 backdrop-blur-xl border-2 border-border">
-                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-primary mb-6">Referral History</h3>
-                <div className="space-y-3">
-                    {mockReferrals.map(ref => {
-                        const config = statusConfig[ref.status];
+            {/* Tier Progress */}
+            <div className="p-5 sm:p-6 rounded-2xl glass space-y-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">Bonus Tiers</h3>
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                    {tiers.map(t => {
+                        const isActive = t.label === currentTier.label;
                         return (
-                            <div key={ref.id} className="flex items-center justify-between p-5 rounded-2xl bg-secondary/20 border border-transparent hover:border-border transition-all">
-                                <div className="flex items-center gap-4">
-                                    <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center">
-                                        <Users className="h-5 w-5 text-muted-foreground" />
-                                    </div>
-                                    <div>
-                                        <p className="font-black text-foreground">{ref.name}</p>
-                                        <p className="text-[10px] text-muted-foreground font-bold">Joined {new Date(ref.joinedDate).toLocaleDateString()}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-6">
-                                    <div className="text-right hidden md:block">
-                                        <p className="text-sm font-black text-foreground">{ref.totalSales} sales</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-sm font-black text-primary">${ref.bonusEarned}</p>
-                                        <p className="text-[9px] text-muted-foreground font-bold uppercase">Bonus</p>
-                                    </div>
-                                    <Badge className={`${config.bg} ${config.color} border-none text-[9px] font-black uppercase px-3 rounded-full`}>
-                                        {ref.status}
-                                    </Badge>
-                                </div>
+                            <div key={t.label} className={`p-4 rounded-xl border text-center ${isActive ? `${t.bg} border-primary/20` : "bg-secondary/30 border-transparent"}`}>
+                                <p className={`font-bold text-sm ${isActive ? t.color : "text-muted-foreground"}`}>{t.label}</p>
+                                <p className="text-lg font-bold text-foreground">${t.bonus}</p>
+                                <p className="text-[9px] text-muted-foreground uppercase">per referral</p>
+                                <p className="text-[9px] text-muted-foreground mt-1">{t.max === Infinity ? `${t.min}+` : `${t.min}–${t.max}`} referrals</p>
+                                {isActive && <Badge className="mt-1.5 text-[8px] bg-primary text-primary-foreground">CURRENT</Badge>}
                             </div>
                         );
                     })}
+                </div>
+                {nextTier && (
+                    <p className="text-xs text-muted-foreground">Invite <span className="font-semibold text-primary">{nextTier.min - activeRefs}</span> more to reach <span className="font-semibold text-foreground">{nextTier.label}</span> (${nextTier.bonus}/referral)</p>
+                )}
+            </div>
+
+            {/* Referral List */}
+            <div className="p-5 sm:p-6 rounded-2xl glass space-y-4">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-primary">Your Referrals</h3>
+                <div className="space-y-2">
+                    {mockReferrals.map(ref => (
+                        <div key={ref.id} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-secondary/30 border border-transparent hover:border-border transition-all">
+                            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center font-semibold text-sm text-primary shrink-0">{ref.name.charAt(0)}</div>
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                    <p className="font-semibold text-sm text-foreground truncate">{ref.name}</p>
+                                    <Badge variant={ref.status === "active" ? "default" : "secondary"} className="text-[9px]">{ref.status}</Badge>
+                                </div>
+                                <p className="text-[10px] text-muted-foreground">{ref.email} • {ref.joinedAt.toLocaleDateString()}</p>
+                            </div>
+                            <div className="text-right shrink-0 hidden sm:block">
+                                {ref.status === "active" ? (
+                                    <>
+                                        <p className="text-sm font-bold text-foreground">${ref.earnings}</p>
+                                        <p className="text-[9px] text-muted-foreground">earned</p>
+                                    </>
+                                ) : (
+                                    <div className="flex items-center gap-1 text-xs text-muted-foreground"><Clock className="h-3 w-3" /> Pending</div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>

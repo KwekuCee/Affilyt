@@ -98,7 +98,7 @@ const Products = () => {
       />
 
       {showForm && (
-        <div className="rounded-lg border border-border bg-card p-5 mb-6 space-y-4">
+        <div className="rounded-lg border border-border glass-subtle p-5 mb-6 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <ImageUploader value={form.image_url} onChange={(url) => setForm({ ...form, image_url: url })} folder="products" label="Cover image" />
             <div className="space-y-3">
@@ -154,7 +154,7 @@ const Products = () => {
         ))}
       </div>
 
-      <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <div className="rounded-lg border border-border glass-subtle overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>

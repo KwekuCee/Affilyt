@@ -6,7 +6,7 @@ const Settings = () => {
   return (
     <div>
       <PageHeader title="Settings" description="Account information." />
-      <div className="rounded-lg border border-border bg-card p-6 max-w-2xl">
+      <div className="rounded-lg border border-border glass-subtle p-6 max-w-2xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <div className="text-xs font-medium text-muted-foreground mb-1">Name</div>

@@ -63,7 +63,7 @@ const Contact = () => {
           <div className="grid lg:grid-cols-12 gap-8">
             <div className="lg:col-span-5 space-y-3">
               {methods.map((m) => (
-                <a key={m.title} href={m.href} className="flex items-center gap-4 p-5 rounded-lg border border-border bg-card hover:border-primary/40 hover:shadow-elevated transition-all group">
+                <a key={m.title} href={m.href} className="flex items-center gap-4 p-5 rounded-lg glass hover:border-primary/40 hover:shadow-elevated transition-all group">
                   <div className="h-11 w-11 rounded-md bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
                     <m.icon className="h-5 w-5" />
                   </div>
@@ -90,7 +90,7 @@ const Contact = () => {
             </div>
 
             <div className="lg:col-span-7">
-              <form onSubmit={submit} className="bg-card border border-border rounded-xl p-8 shadow-elevated space-y-5">
+              <form onSubmit={submit} className="glass rounded-xl p-8 shadow-elevated space-y-5">
                 <div>
                   <h3 className="font-display text-2xl font-bold mb-1">Send a message</h3>
                   <p className="text-sm text-muted-foreground">Fill in the form and we'll be in touch.</p>
