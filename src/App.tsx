@@ -17,6 +17,8 @@ import Login from "@/pages/Login";
 import About from "@/pages/About";
 import NotFound from "@/pages/NotFound";
 import GlobalBackground from "@/components/GlobalBackground";
+import AffiliatePricing from "@/pages/AffiliatePricing";
+import LearnerCheckout from "@/pages/LearnerCheckout";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +39,8 @@ const App = () => (
               <Route path="/become-seller" element={<BecomeSeller />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
+              <Route path="/affiliate-pricing" element={<AffiliatePricing />} />
+              <Route path="/learner-checkout" element={<LearnerCheckout />} />
               <Route path="/dashboard/affiliate/*" element={<AffiliateDashboard />} />
               <Route path="/dashboard/seller/*" element={<SellerDashboard />} />
               <Route path="/dashboard/admin/*" element={<AdminDashboard />} />

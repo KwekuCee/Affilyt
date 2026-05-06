@@ -397,9 +397,19 @@ const SellerPayouts = () => {
       return;
     }
     if (amount <= 0 || amount > available) return toast({ title: "Invalid amount", variant: "destructive" });
-    const { error } = await supabase.from("seller_payouts").insert({ seller_id: user.id, amount, status: "pending" });
-    if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
-    toast({ title: "Payout requested" }); setAmount(0); load();
+
+    const { error } = await supabase.functions.invoke("korapay-payout", {
+      body: { amount, role: 'seller' }
+    });
+
+    if (error) {
+      toast({ title: "Payout Failed", description: error.message || "An error occurred with payout.", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Payout Processed!", description: "Funds have been sent to your wallet." });
+    setAmount(0);
+    load();
   };
 
   return (

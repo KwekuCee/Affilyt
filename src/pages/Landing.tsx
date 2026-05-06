@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2, TrendingUp, ShieldCheck, Zap, Globe, BarChart3, Sparkles } from "lucide-react";
+import { ArrowRight, CheckCircle2, TrendingUp, ShieldCheck, Zap, Globe, BarChart3, Sparkles, BookOpen } from "lucide-react";
 import { Link } from "react-router-dom";
 import LandingNavbar from "@/components/LandingNavbar";
 import Footer from "@/components/Footer";
@@ -9,7 +9,11 @@ import { Badge } from "@/components/ui/badge";
 import { useData } from "@/context/DataContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect } from "react";
-
+import { NetworkBackground } from "@/components/landing/NetworkBackground";
+import { LiveTicker } from "@/components/landing/LiveTicker";
+import { EarningsCalculator } from "@/components/landing/EarningsCalculator";
+import { EliteWallPeek } from "@/components/landing/EliteWallPeek";
+import { PayoutShowcase } from "@/components/landing/PayoutShowcase";
 const Landing = () => {
   const { packages } = useData();
   const [products, setProducts] = useState<any[]>([]);
@@ -33,7 +37,8 @@ const Landing = () => {
 
       {/* Hero */}
       <section className="relative pt-32 pb-20 md:pt-40 md:pb-28">
-        <div className="container mx-auto px-4">
+        <NetworkBackground />
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <Badge variant="outline" className="mb-6 px-3 py-1 rounded-full border-primary/30 bg-primary/5 text-primary font-medium">
@@ -46,12 +51,27 @@ const Landing = () => {
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
                 Join Africa's premium network for digital products. Track every click, claim every commission, and get paid in your currency.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Link to="/become-affiliate">
-                  <Button size="lg" className="h-12 px-8 shadow-glow gap-2">Start earning <ArrowRight className="h-4 w-4" /></Button>
+              <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
+                <Link to="/become-affiliate" className="group relative w-full sm:w-auto">
+                  <div className="absolute inset-0 bg-primary/20 blur-xl group-hover:bg-primary/30 transition-colors rounded-3xl" />
+                  <div className="relative p-1 rounded-3xl bg-gradient-to-tr from-primary/50 to-primary/10 overflow-hidden shadow-2xl shadow-primary/20 hover:-translate-y-1 transition-transform">
+                    <div className="bg-background/90 backdrop-blur-xl px-10 py-6 rounded-[1.4rem] flex flex-col items-center justify-center min-w-[280px]">
+                      <Zap className="w-8 h-8 text-primary mb-3" />
+                      <span className="font-display font-black text-xl uppercase italic tracking-tight mb-1">Path of the Hunter</span>
+                      <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">Start Earning <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" /></span>
+                    </div>
+                  </div>
                 </Link>
-                <Link to="/become-seller">
-                  <Button size="lg" variant="outline" className="h-12 px-8">List a product</Button>
+
+                <Link to="/become-seller" className="group relative w-full sm:w-auto">
+                  <div className="absolute inset-0 bg-amber-500/10 blur-xl group-hover:bg-amber-500/20 transition-colors rounded-3xl" />
+                  <div className="relative p-1 rounded-3xl bg-gradient-to-tr from-amber-500/50 to-amber-500/10 overflow-hidden shadow-2xl shadow-amber-500/10 hover:-translate-y-1 transition-transform">
+                    <div className="bg-background/90 backdrop-blur-xl px-10 py-6 rounded-[1.4rem] flex flex-col items-center justify-center min-w-[280px]">
+                      <Globe className="w-8 h-8 text-amber-500 mb-3" />
+                      <span className="font-display font-black text-xl uppercase italic tracking-tight mb-1">Path of the Creator</span>
+                      <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest flex items-center gap-2">List your Product <ArrowRight className="w-3 h-3 group-hover:translate-x-2 transition-transform" /></span>
+                    </div>
+                  </div>
                 </Link>
               </div>
             </motion.div>
@@ -96,6 +116,12 @@ const Landing = () => {
         </div>
       </section>
 
+      <section className="py-24 relative z-10 bg-background/50 backdrop-blur-3xl border-t border-white/5">
+        <EarningsCalculator />
+      </section>
+
+      <EliteWallPeek />
+
       {/* Products */}
       {products.length > 0 && (
         <section className="py-24 bg-muted/40">
@@ -129,37 +155,55 @@ const Landing = () => {
         </section>
       )}
 
-      {/* Pricing */}
-      <section id="pricing" className="py-24">
+      <PayoutShowcase />
+
+      {/* Join Paths */}
+      <section id="join" className="py-24 relative z-10 bg-background/80">
         <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto text-center mb-16">
-            <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Pricing</p>
-            <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Pick your tier.</h2>
-            <p className="text-muted-foreground mt-3">All plans are annual. Cancel anytime.</p>
+          <div className="max-w-3xl mx-auto text-center mb-16">
+            <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Get Started</p>
+            <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight">Choose your path.</h2>
+            <p className="text-muted-foreground mt-3">Join Africa's fastest growing digital ecosystem.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
-            {packages.map((pkg) => {
-              const popular = pkg.name === "Standard";
-              return (
-                <div key={pkg.name} className={`relative p-7 rounded-xl border-2 glass flex flex-col ${popular ? "border-primary shadow-glow" : "border-transparent"}`}>
-                  {popular && <Badge className="absolute -top-2.5 left-7 px-2.5 py-0.5">Most popular</Badge>}
-                  <h3 className="font-display text-xl font-semibold mb-1">{pkg.name}</h3>
-                  <div className="flex items-baseline gap-1 mb-1">
-                    <span className="font-display text-4xl font-bold tabular">${pkg.price}</span>
-                    <span className="text-sm text-muted-foreground">/year</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-6">{pkg.commission}% commission on every sale.</p>
-                  <ul className="space-y-2.5 mb-8 flex-1">
-                    {[`${pkg.commission}% recurring commission`, pkg.name === "Pro" ? "Weekly payouts" : pkg.name === "Standard" ? "Bi-weekly payouts" : "Monthly payouts", "Marketing assets", "Full network access"].map((f) => (
-                      <li key={f} className="flex items-center gap-2 text-sm">
-                        <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />{f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link to="/become-affiliate"><Button className="w-full" variant={popular ? "default" : "outline"}>Get started</Button></Link>
-                </div>
-              );
-            })}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {/* Affiliate */}
+            <div className="p-8 rounded-[2rem] glass-subtle border border-primary/20 hover:border-primary/50 transition-all text-center group relative overflow-hidden shadow-xl">
+              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="w-16 h-16 mx-auto bg-primary/20 rounded-2xl flex items-center justify-center mb-6">
+                <Zap className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-display text-2xl font-bold mb-3">Join as Affiliate</h3>
+              <p className="text-sm text-muted-foreground mb-8">Promote premium digital products and earn massive recurring commissions. Get paid instantly.</p>
+              <Link to="/become-affiliate" className="block w-full">
+                <Button className="w-full h-12 shadow-md shadow-primary/20">View Affiliate Plans</Button>
+              </Link>
+            </div>
+
+            {/* Vendor */}
+            <div className="p-8 rounded-[2rem] glass-subtle border border-amber-500/20 hover:border-amber-500/50 transition-all text-center group relative overflow-hidden shadow-xl">
+              <div className="absolute inset-0 bg-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="w-16 h-16 mx-auto bg-amber-500/20 rounded-2xl flex items-center justify-center mb-6">
+                <Globe className="w-8 h-8 text-amber-500" />
+              </div>
+              <h3 className="font-display text-2xl font-bold mb-3">Join as Vendor</h3>
+              <p className="text-sm text-muted-foreground mb-8">List your courses, software, or ebooks. Let thousands of top affiliates sell for you.</p>
+              <Link to="/become-seller" className="block w-full">
+                <Button variant="outline" className="w-full h-12 border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-500">Create Vendor Account</Button>
+              </Link>
+            </div>
+
+            {/* Learner */}
+            <div className="p-8 rounded-[2rem] glass-subtle border border-blue-500/20 hover:border-blue-500/50 transition-all text-center group relative overflow-hidden shadow-xl">
+              <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="w-16 h-16 mx-auto bg-blue-500/20 rounded-2xl flex items-center justify-center mb-6">
+                <BookOpen className="w-8 h-8 text-blue-500" />
+              </div>
+              <h3 className="font-display text-2xl font-bold mb-3">Join as Learner</h3>
+              <p className="text-sm text-muted-foreground mb-8">Access world-class digital products, exclusive trade signals, and premium education.</p>
+              <Link to="/marketplace" className="block w-full">
+                <Button variant="outline" className="w-full h-12 border-blue-500/50 hover:bg-blue-500/10 hover:text-blue-500">Browse Marketplace</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -220,6 +264,7 @@ const Landing = () => {
       </section>
 
       <Footer />
+      <LiveTicker />
     </div>
   );
 };

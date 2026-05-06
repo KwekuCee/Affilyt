@@ -645,19 +645,16 @@ const AffiliatePayments = () => {
     if (val > stats.available) { toast({ title: "Insufficient Balance", variant: "destructive" }); return; }
     if (!profile.momo_number) { toast({ title: "Setup Payment Details", description: "Go to Settings to add your MoMo number.", variant: "destructive" }); return; }
 
-    const { error } = await (supabase.from("withdrawals" as any) as any).insert({
-      affiliate_id: user.id,
-      amount: val,
-      method: "momo",
-      provider: profile.momo_provider,
-      account_number: profile.momo_number,
-      account_name: profile.full_name,
-      status: "pending"
+    const { error } = await supabase.functions.invoke("korapay-payout", {
+      body: { amount: val, role: 'affiliate' }
     });
 
-    if (error) { toast({ title: "Error", description: error.message, variant: "destructive" }); return; }
+    if (error) {
+      toast({ title: "Withdrawal Failed", description: error.message || "An error occurred with the payout.", variant: "destructive" });
+      return;
+    }
 
-    toast({ title: "Withdrawal Requested!", description: "Funds will land in your wallet soon." });
+    toast({ title: "Withdrawal Processed!", description: "Funds have been sent to your wallet." });
     setAmount("");
     setShowForm(false);
     fetch_();
