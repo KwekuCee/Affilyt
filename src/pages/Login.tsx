@@ -41,13 +41,29 @@ const Login = () => {
     const { data: prof } = await supabase.from("profiles").select("package_tier").eq("user_id", data.user.id).maybeSingle();
     setLoading(false);
 
-    if (set.has("admin")) navigate("/dashboard/admin");
-    else if (set.has("seller")) navigate("/dashboard/seller");
-    else if (set.has("affiliate") || prof?.package_tier) navigate("/dashboard/affiliate");
-    else {
-      toast({ title: "No active plan", description: "Sign up as an affiliate or seller first.", variant: "destructive" });
+    const roleNames = Array.from(set);
+    console.log("Found roles for user:", roleNames);
+    console.log("Profile data:", prof);
+
+    if (set.has("admin")) {
+      navigate("/dashboard/admin");
+    } else if (set.has("seller")) {
+      navigate("/dashboard/vendor");
+    } else if (set.has("learner")) {
+      navigate("/dashboard/learner");
+    } else if (set.has("affiliate") || prof?.package_tier) {
+      navigate("/dashboard/affiliate");
+    } else {
+      // Fallback: Check if the user is a learner based on other profile cues
+      // If we can't find a role, it might be due to RLS or missing role record
+      toast({
+        title: "Access Restricted",
+        description: "We couldn't confirm your active plan. If you just signed up, please wait a moment or contact support.",
+        variant: "destructive"
+      });
+      console.error("Login redirect failed: User has no recognized roles or package tier.");
       await supabase.auth.signOut();
-      navigate("/affiliate-pricing");
+      navigate("/");
     }
   };
 

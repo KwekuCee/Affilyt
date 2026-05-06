@@ -173,21 +173,39 @@ const LearnerOverview = ({ user }: { user: any }) => (
 const LearnerDashboard = () => {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const { toast } = useToast();
     const navigate = useNavigate();
 
     useEffect(() => {
         const checkAuth = async () => {
-            const { data: { user: authUser } } = await supabase.auth.getUser();
-            if (!authUser) {
-                navigate("/login");
-                return;
+            try {
+                const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+                if (authError || !authUser) {
+                    console.error("Auth check failed:", authError);
+                    navigate("/login");
+                    return;
+                }
+
+                const { data: profile, error: profError } = await supabase.from('profiles').select('*').eq('user_id', authUser.id).maybeSingle();
+                if (profError) {
+                    console.error("Profile fetch error:", profError);
+                    toast({ title: "Error loading profile", description: profError.message, variant: "destructive" });
+                }
+                setUser(profile);
+            } catch (err) {
+                console.error("Unexpected error in dashboard init:", err);
+            } finally {
+                setLoading(false);
             }
-            const { data: profile } = await supabase.from('profiles').select('*').eq('id', authUser.id).single();
-            setUser(profile);
-            setLoading(false);
         };
         checkAuth();
-    }, [navigate]);
+
+        // Safety timeout
+        const timer = setTimeout(() => {
+            setLoading(false);
+        }, 8000);
+        return () => clearTimeout(timer);
+    }, [navigate, toast]);
 
     if (loading) return <div className="h-screen w-full flex items-center justify-center font-display font-black text-2xl uppercase tracking-widest animate-pulse">Infiltrating Learning Hub...</div>
 
