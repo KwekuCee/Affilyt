@@ -13,18 +13,18 @@ import DollarPaymentGateway from "@/components/DollarPaymentGateway";
 import { supabase } from "@/integrations/supabase/client";
 
 type Step = "intro" | "form" | "payment" | "success";
-const SELLER_PRICE = 50;
+const VENDOR_PRICE = 50;
 
 const FEATURES = [
   "List unlimited products in Basic / Standard / Pro marketplaces",
   "10% platform fee — keep 90% after affiliate commission",
-  "Dedicated Seller Dashboard with sales analytics",
+  "Dedicated Vendor Dashboard with sales analytics",
   "Affiliates promote your products automatically",
   "Withdraw earnings via Mobile Money or Skrill",
   "Downloadable sales & revenue reports",
 ];
 
-const BecomeSeller = () => {
+const BecomeVendor = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [step, setStep] = useState<Step>("intro");
@@ -63,7 +63,7 @@ const BecomeSeller = () => {
         business_website: businessWebsite,
       }).eq("user_id", user.id);
       await supabase.from("user_roles").insert({ user_id: user.id, role: "seller" as any });
-      await supabase.from("seller_subscriptions").insert({ user_id: user.id, amount: SELLER_PRICE, status: "active" });
+      await supabase.from("seller_subscriptions").insert({ user_id: user.id, amount: VENDOR_PRICE, status: "active" });
     }
     setStep("success");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -79,7 +79,7 @@ const BecomeSeller = () => {
               <div className="text-center mb-16 max-w-3xl mx-auto">
                 <Badge className="mb-6 px-4 py-1.5 rounded-full bg-primary/10 text-primary border-none text-xs font-black uppercase tracking-[0.2em]">For Product Owners</Badge>
                 <h1 className="font-display text-4xl md:text-7xl font-bold leading-tight tracking-tight text-foreground mb-6">
-                  Become a <span className="text-primary font-black">Seller.</span>
+                  Become a <span className="text-primary font-black">Vendor.</span>
                 </h1>
                 <p className="text-lg text-muted-foreground font-medium">
                   List your products on Affilyt and let our network of affiliates sell for you. One yearly fee. Keep 90% after commission.
@@ -91,9 +91,9 @@ const BecomeSeller = () => {
                   <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
                     <Store className="h-7 w-7 text-primary" />
                   </div>
-                  <h3 className="font-display text-2xl font-black text-foreground mb-2 uppercase tracking-widest">Seller Plan</h3>
+                  <h3 className="font-display text-2xl font-black text-foreground mb-2 uppercase tracking-widest">Vendor Plan</h3>
                   <div className="flex items-baseline gap-1 mb-2">
-                    <span className="font-display text-5xl font-black text-foreground">${SELLER_PRICE}</span>
+                    <span className="font-display text-5xl font-black text-foreground">${VENDOR_PRICE}</span>
                     <span className="text-muted-foreground font-bold">/year</span>
                   </div>
                   <p className="text-xs font-medium text-muted-foreground mb-8">One annual fee. Unlimited products. Cancel anytime.</p>
@@ -136,17 +136,17 @@ const BecomeSeller = () => {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 <div className="lg:col-span-4 space-y-8">
                   <div className="p-8 rounded-[2.5rem] bg-foreground text-background">
-                    <h3 className="font-display text-2xl font-black mb-4">Seller Account.</h3>
+                    <h3 className="font-display text-2xl font-black mb-4">Vendor Account.</h3>
                     <p className="text-sm opacity-60 leading-relaxed font-medium mb-8">
-                      Annual seller plan — <span className="text-primary font-bold">${SELLER_PRICE}/year</span>.
+                      Annual vendor plan — <span className="text-primary font-bold">${VENDOR_PRICE}/year</span>.
                     </p>
                     <div className="p-4 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-widest">Total</span>
-                      <span className="text-xl font-black">${SELLER_PRICE}.00</span>
+                      <span className="text-xl font-black">${VENDOR_PRICE}.00</span>
                     </div>
                   </div>
                   <div className="space-y-4">
-                    {[{ icon: Lock, text: "Secure Account Creation" }, { icon: CreditCard, text: "Korapay Secure Gateway" }, { icon: ShieldCheck, text: "Verified Seller Program" }].map((i) => (
+                    {[{ icon: Lock, text: "Secure Account Creation" }, { icon: CreditCard, text: "Korapay Secure Gateway" }, { icon: ShieldCheck, text: "Verified Vendor Program" }].map((i) => (
                       <div key={i.text} className="flex items-center gap-3">
                         <i.icon className="h-4 w-4 text-primary" />
                         <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{i.text}</span>
@@ -204,8 +204,8 @@ const BecomeSeller = () => {
           {step === "payment" && (
             <motion.section key="payment" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="container mx-auto px-4">
               <DollarPaymentGateway
-                amount={SELLER_PRICE}
-                itemLabel="Affilyt Seller Plan (1-Year)"
+                amount={VENDOR_PRICE}
+                itemLabel="Affilyt Vendor Plan (1-Year)"
                 buyerEmail={email}
                 onSuccess={handlePaymentSuccess}
                 onCancel={() => setStep("form")}
@@ -218,12 +218,12 @@ const BecomeSeller = () => {
               <div className="h-32 w-32 rounded-[2.5rem] bg-primary flex items-center justify-center mx-auto mb-10 shadow-3xl shadow-primary/40">
                 <Check className="h-16 w-16 text-white" />
               </div>
-              <h2 className="font-display text-5xl font-black text-foreground mb-6">Welcome, Seller!</h2>
+              <h2 className="font-display text-5xl font-black text-foreground mb-6">Welcome, Vendor!</h2>
               <p className="text-xl text-muted-foreground leading-relaxed font-medium mb-12">
-                Your seller account is active. You can now access your dedicated seller portal.
+                Your vendor account is active. You can now access your dedicated vendor portal.
               </p>
-              <Button onClick={() => window.location.href = "/dashboard/seller"} className="h-16 px-10 rounded-2xl font-black text-lg">
-                Go to Seller Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+              <Button onClick={() => window.location.href = "/dashboard/vendor"} className="h-16 px-10 rounded-2xl font-black text-lg">
+                Go to Vendor Dashboard <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </motion.section>
           )}
@@ -234,4 +234,4 @@ const BecomeSeller = () => {
   );
 };
 
-export default BecomeSeller;
+export default BecomeVendor;

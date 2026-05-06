@@ -13,11 +13,9 @@ export const EliteWallPeek = () => {
             .then(({ data }) => setLeaders(data || []));
     }, []);
 
-    const displayLeaders = leaders.length >= 3 ? leaders : [
-        { full_name: "Kwame A.", package_tier: "Pro", total_earnings: 12450 },
-        { full_name: "Sarah M.", package_tier: "Standard", total_earnings: 8200 },
-        { full_name: "John D.", package_tier: "Basic", total_earnings: 4100 },
-    ];
+    const displayLeaders = leaders;
+
+    if (leaders.length < 3) return null; // Don't show podium if not enough real data
 
     return (
         <section className="py-24 overflow-hidden relative">

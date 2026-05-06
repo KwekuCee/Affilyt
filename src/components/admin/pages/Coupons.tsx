@@ -81,7 +81,7 @@ const Coupons = () => {
           <div className="grid md:grid-cols-3 gap-3">
             <div><label className="text-xs font-medium">Applies to</label>
               <select value={form.applies_to} onChange={(e) => setForm({ ...form, applies_to: e.target.value })} className="h-9 w-full px-2 rounded-md border border-border bg-background text-sm">
-                <option value="all">All</option><option value="plans">Affiliate plans</option><option value="seller_plan">Seller plan</option><option value="products">Products</option>
+                <option value="all">All</option><option value="plans">Affiliate plans</option><option value="vendor_plan">Vendor plan</option><option value="products">Products</option>
               </select></div>
             <div><label className="text-xs font-medium">Max uses (optional)</label><Input type="number" value={form.max_uses} onChange={(e) => setForm({ ...form, max_uses: e.target.value })} /></div>
             <div><label className="text-xs font-medium">Expires (optional)</label><Input type="date" value={form.expires_at} onChange={(e) => setForm({ ...form, expires_at: e.target.value })} /></div>

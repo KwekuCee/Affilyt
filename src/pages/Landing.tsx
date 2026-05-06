@@ -23,6 +23,7 @@ const Landing = () => {
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
 
   useEffect(() => {
+    // @ts-ignore - is_featured column exists in DB but may not be in generated types yet
     supabase.from("products").select("*").eq("status", "active").eq("approval_status", "approved").eq("is_featured", true).order("created_at", { ascending: false }).limit(6).then(({ data }) => setProducts(data || []));
     supabase.from("blog_posts").select("*").eq("is_published", true).order("created_at", { ascending: false }).limit(3).then(({ data }) => setBlogPosts(data || []));
   }, []);
@@ -74,7 +75,7 @@ const Landing = () => {
                   </div>
                 </Link>
 
-                <Link to="/become-seller" className="group relative w-full sm:w-auto">
+                <Link to="/become-vendor" className="group relative w-full sm:w-auto">
                   <div className="absolute inset-0 bg-amber-500/10 blur-xl group-hover:bg-amber-500/20 transition-colors rounded-3xl" />
                   <div className="relative p-1 rounded-3xl bg-gradient-to-tr from-amber-500/50 to-amber-500/10 overflow-hidden shadow-2xl shadow-amber-500/10 hover:-translate-y-1 transition-transform">
                     <div className="bg-background/90 backdrop-blur-xl px-10 py-6 rounded-[1.4rem] flex flex-col items-center justify-center min-w-[280px]">
@@ -135,45 +136,6 @@ const Landing = () => {
 
       <EliteWallPeek />
 
-      {/* Products */}
-      {products.length > 0 && (
-        <section className="py-24 bg-muted/40">
-          <div className="container mx-auto px-4">
-            <div className="flex items-end justify-between mb-12">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-3">Marketplace</p>
-                <h2 className="font-display text-4xl font-bold tracking-tight">Featured products</h2>
-              </div>
-              <Link to="/marketplace"><Button variant="outline" className="gap-1.5 hidden md:inline-flex">Browse all <ArrowRight className="h-4 w-4" /></Button></Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {products.map((p) => (
-                <Link key={p.id} to={`/marketplace?product=${p.id}`} className="group relative rounded-3xl glass overflow-hidden hover:shadow-[0_0_40px_rgba(var(--primary-rgb),0.15)] hover:border-primary/40 transition-all border border-white/5">
-                  <div className="absolute top-4 right-4 z-20">
-                    <div className="px-3 py-1.5 rounded-xl bg-amber-500 text-amber-950 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-amber-500/30 rotate-3 group-hover:rotate-6 transition-transform whitespace-nowrap">
-                      Earn ${(Number(p.price) * (p.commission_rate / 100)).toFixed(2)}/sale
-                    </div>
-                  </div>
-                  <div className="aspect-[16/10] bg-muted overflow-hidden relative">
-                    {p.image_url ? <img src={p.image_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Sparkles /></div>}
-                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80" />
-                  </div>
-                  <div className="p-6 relative z-10 -mt-6">
-                    <Badge variant="secondary" className="mb-3 text-[10px] font-black uppercase tracking-widest bg-secondary/80 backdrop-blur-md">{p.category}</Badge>
-                    <h3 className="font-display font-bold text-xl mb-2 line-clamp-1 group-hover:text-primary transition-colors">{p.title}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-6 font-medium">{p.description}</p>
-                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
-                      <span className="font-display text-2xl font-black tabular-nums">${Number(p.price).toFixed(2)}</span>
-                      <span className="text-xs font-bold text-primary px-2 py-1 rounded-lg bg-primary/10">{p.commission_rate}% commission</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       <PayoutShowcase />
 
       {/* Join Paths */}
@@ -187,41 +149,53 @@ const Landing = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {/* Affiliate */}
             <div className="p-8 rounded-[2rem] glass-subtle border border-primary/20 hover:border-primary/50 transition-all text-center group relative overflow-hidden shadow-xl">
-              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="w-16 h-16 mx-auto bg-primary/20 rounded-2xl flex items-center justify-center mb-6">
-                <Zap className="w-8 h-8 text-primary" />
+              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative z-10 space-y-6">
+                <div className="w-16 h-16 mx-auto bg-primary/20 rounded-2xl flex items-center justify-center mb-6">
+                  <Zap className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-display text-2xl font-bold mb-3">Join as Affiliate</h3>
+                <p className="text-sm text-muted-foreground mb-8">Promote premium digital products and earn massive recurring commissions. Get paid instantly.</p>
+                <Link to="/affiliate-pricing" className="block w-full">
+                  <Button asChild className="w-full h-12 shadow-md shadow-primary/20 cursor-pointer">
+                    <span>View Affiliate Plans</span>
+                  </Button>
+                </Link>
               </div>
-              <h3 className="font-display text-2xl font-bold mb-3">Join as Affiliate</h3>
-              <p className="text-sm text-muted-foreground mb-8">Promote premium digital products and earn massive recurring commissions. Get paid instantly.</p>
-              <Link to="/become-affiliate" className="block w-full">
-                <Button className="w-full h-12 shadow-md shadow-primary/20">View Affiliate Plans</Button>
-              </Link>
             </div>
 
             {/* Vendor */}
             <div className="p-8 rounded-[2rem] glass-subtle border border-amber-500/20 hover:border-amber-500/50 transition-all text-center group relative overflow-hidden shadow-xl">
-              <div className="absolute inset-0 bg-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="w-16 h-16 mx-auto bg-amber-500/20 rounded-2xl flex items-center justify-center mb-6">
-                <Globe className="w-8 h-8 text-amber-500" />
+              <div className="absolute inset-0 bg-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative z-10 space-y-6">
+                <div className="w-16 h-16 mx-auto bg-amber-500/20 rounded-2xl flex items-center justify-center mb-6">
+                  <Globe className="w-8 h-8 text-amber-500" />
+                </div>
+                <h3 className="font-display text-2xl font-bold mb-3">Join as Vendor</h3>
+                <p className="text-sm text-muted-foreground mb-8">List your courses, software, or ebooks. Let thousands of top affiliates sell for you.</p>
+                <Link to="/become-vendor" className="block w-full">
+                  <Button asChild variant="outline" className="w-full h-12 border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-500 cursor-pointer">
+                    <span>Create Vendor Account</span>
+                  </Button>
+                </Link>
               </div>
-              <h3 className="font-display text-2xl font-bold mb-3">Join as Vendor</h3>
-              <p className="text-sm text-muted-foreground mb-8">List your courses, software, or ebooks. Let thousands of top affiliates sell for you.</p>
-              <Link to="/become-seller" className="block w-full">
-                <Button variant="outline" className="w-full h-12 border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-500">Create Vendor Account</Button>
-              </Link>
             </div>
 
             {/* Learner */}
             <div className="p-8 rounded-[2rem] glass-subtle border border-blue-500/20 hover:border-blue-500/50 transition-all text-center group relative overflow-hidden shadow-xl">
-              <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="w-16 h-16 mx-auto bg-blue-500/20 rounded-2xl flex items-center justify-center mb-6">
-                <BookOpen className="w-8 h-8 text-blue-500" />
+              <div className="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+              <div className="relative z-10 space-y-6">
+                <div className="w-16 h-16 mx-auto bg-blue-500/20 rounded-2xl flex items-center justify-center mb-6">
+                  <BookOpen className="w-8 h-8 text-blue-500" />
+                </div>
+                <h3 className="font-display text-2xl font-bold mb-3">Join as Learner</h3>
+                <p className="text-sm text-muted-foreground mb-8">Access world-class digital products, exclusive trade signals, and premium education.</p>
+                <Link to="/learner-checkout" className="block w-full">
+                  <Button asChild variant="outline" className="w-full h-12 border-blue-500/50 hover:bg-blue-500/10 hover:text-blue-500 cursor-pointer">
+                    <span>Join Student Ecosystem</span>
+                  </Button>
+                </Link>
               </div>
-              <h3 className="font-display text-2xl font-bold mb-3">Join as Learner</h3>
-              <p className="text-sm text-muted-foreground mb-8">Access world-class digital products, exclusive trade signals, and premium education.</p>
-              <Link to="/marketplace" className="block w-full">
-                <Button variant="outline" className="w-full h-12 border-blue-500/50 hover:bg-blue-500/10 hover:text-blue-500">Browse Marketplace</Button>
-              </Link>
             </div>
           </div>
         </div>
@@ -274,9 +248,7 @@ const Landing = () => {
           <div className="max-w-5xl mx-auto rounded-2xl gradient-hero p-12 md:p-20 text-center relative overflow-hidden">
             <div className="absolute inset-0 gradient-mesh opacity-50" />
             <div className="relative">
-              <h2 className="font-display text-4xl md:text-5xl font-bold tracking-tight text-white mb-5">Ready when you are.</h2>
-              <p className="text-white/70 text-lg mb-9 max-w-xl mx-auto">Three plans. One marketplace. Real payouts.</p>
-              <Link to="/become-affiliate"><Button size="lg" className="h-12 px-8 shadow-glow gap-2">Join Affilyt <ArrowRight className="h-4 w-4" /></Button></Link>
+              <Link to="/affiliate-pricing"><Button size="lg" className="h-12 px-8 shadow-glow gap-2">Join Affilyt <ArrowRight className="h-4 w-4" /></Button></Link>
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import AdminShell from "@/components/admin/AdminShell";
 import Overview from "@/components/admin/pages/Overview";
 import Users from "@/components/admin/pages/Users";
-import Sellers from "@/components/admin/pages/Sellers";
+import Vendors from "@/components/admin/pages/Vendors";
 import Products from "@/components/admin/pages/Products";
 import Withdrawals from "@/components/admin/pages/Withdrawals";
 import Testimonials from "@/components/admin/pages/Testimonials";
@@ -53,7 +53,7 @@ const AdminDashboard = () => {
         <Route path="analytics" element={<Analytics />} />
         <Route path="users" element={<Users />} />
         <Route path="tiers" element={<Tiers />} />
-        <Route path="sellers" element={<Sellers />} />
+        <Route path="vendors" element={<Vendors />} />
         <Route path="products" element={<Products />} />
         <Route path="moderation" element={<Moderation />} />
         <Route path="refunds" element={<Refunds />} />

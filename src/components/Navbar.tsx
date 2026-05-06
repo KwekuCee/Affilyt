@@ -13,9 +13,8 @@ const Navbar = ({ searchQuery = "", onSearchChange }: Props) => {
   const [open, setOpen] = useState(false);
   const links = [
     { to: "/", label: "Home" },
-    { to: "/marketplace", label: "Marketplace" },
-    { to: "/become-affiliate", label: "Affiliates" },
-    { to: "/become-seller", label: "Sellers" },
+    { to: "/affiliate-pricing", label: "Pricing" },
+    { to: "/become-vendor", label: "Vendors" },
     { to: "/about", label: "About" },
     { to: "/contact", label: "Contact" },
   ];
@@ -58,7 +57,7 @@ const Navbar = ({ searchQuery = "", onSearchChange }: Props) => {
             ) : (
               <>
                 <Link to="/login"><Button variant="outline" size="sm">Sign in</Button></Link>
-                <Link to="/become-affiliate"><Button size="sm">Join</Button></Link>
+                <Link to="/affiliate-pricing"><Button size="sm">Join</Button></Link>
               </>
             )}
           </div>

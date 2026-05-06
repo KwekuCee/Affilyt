@@ -121,7 +121,7 @@ const Users = () => {
             )}
             {filtered.map((r) => {
               const isAdmin = r.roles.includes("admin");
-              const isSeller = r.roles.includes("seller");
+              const isVendor = r.roles.includes("seller");
               return (
                 <tr key={r.user_id} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
@@ -156,8 +156,8 @@ const Users = () => {
                         <ShieldCheck className="h-3.5 w-3.5 mr-1" />
                         {isAdmin ? "Revoke admin" : "Make admin"}
                       </Button>
-                      <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => toggleRole(r.user_id, "seller", isSeller)}>
-                        {isSeller ? "Revoke seller" : "Make seller"}
+                      <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => toggleRole(r.user_id, "seller", isVendor)}>
+                        {isVendor ? "Revoke vendor" : "Make vendor"}
                       </Button>
                     </div>
                   </td>

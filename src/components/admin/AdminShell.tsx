@@ -14,7 +14,7 @@ const navItems = [
   { to: "/dashboard/admin/analytics", label: "Analytics", icon: BarChart3 },
   { to: "/dashboard/admin/users", label: "Users", icon: Users },
   { to: "/dashboard/admin/tiers", label: "Tiers", icon: Crown },
-  { to: "/dashboard/admin/sellers", label: "Sellers", icon: Store },
+  { to: "/dashboard/admin/vendors", label: "Vendors", icon: Store },
   { to: "/dashboard/admin/products", label: "Products", icon: Package },
   { to: "/dashboard/admin/moderation", label: "Moderation", icon: ShieldCheck },
   { to: "/dashboard/admin/refunds", label: "Refunds", icon: RotateCcw },

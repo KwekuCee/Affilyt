@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -9,6 +9,9 @@ import { useAuth } from "@/context/AuthContext";
 import { Slider } from "@/components/ui/slider";
 import { Search, CheckSquare, Square, ChevronDown, Link as LinkIcon, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
 const Storefront = () => {
@@ -17,10 +20,12 @@ const Storefront = () => {
   const [priceRange, setPriceRange] = useState([0, 1500]);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [searchParams] = useSearchParams();
+  const { productId: pathProductId } = useParams();
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const refId = searchParams.get("ref");
-  const productId = searchParams.get("product");
+  const queryProductId = searchParams.get("product");
+  const productId = pathProductId || queryProductId;
   const [referral, setReferral] = useState<{ affiliateId?: string; affiliateLinkId?: string; code?: string }>({});
 
   const { profile } = useAuth();
@@ -110,60 +115,88 @@ const Storefront = () => {
       </section>
 
       <div className="container mx-auto flex gap-8 px-4 py-10">
-        <aside className="hidden lg:block w-52 shrink-0 space-y-8">
-          <div>
-            <h3 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Search</h3>
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 h-8 text-xs rounded-lg bg-secondary border-0" />
-            </div>
+        {!productId ? (
+          <div className="flex-1 py-32 text-center">
+            <h2 className="text-3xl font-black mb-4 tracking-tighter uppercase italic">Private Ecosystem</h2>
+            <p className="text-muted-foreground max-w-sm mx-auto font-medium">
+              This storefront is restricted to direct affiliate referrals.
+              Please follow an official link to purchase.
+            </p>
+            <Link to="/">
+              <Button variant="outline" className="mt-8 rounded-xl font-bold uppercase tracking-widest text-[10px]">
+                Return to Home
+              </Button>
+            </Link>
           </div>
-          <div>
-            <h3 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-3">Category</h3>
-            <div className="space-y-1">
-              {categories.map((cat) => (
-                <button key={cat.label} onClick={() => setSelectedCategory(cat.label)} className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-sm transition-all ${selectedCategory === cat.label ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"}`}>
-                  {selectedCategory === cat.label ? <CheckSquare className="h-3.5 w-3.5 text-primary" /> : <Square className="h-3.5 w-3.5" />}
-                  <span className="flex-1 text-left text-xs">{cat.label}</span>
-                  <span className="text-[10px] text-muted-foreground">{cat.count}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Price</h3>
-              <span className="text-[10px] font-semibold text-primary">${priceRange[0]}—${priceRange[1]}</span>
-            </div>
-            <Slider min={0} max={1500} step={10} value={priceRange} onValueChange={setPriceRange} />
-          </div>
-        </aside>
+        ) : (
+          <main className="flex-1">
+            {isLoading ? (
+              <div className="py-20 text-center">
+                <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto mb-4" />
+                <p className="text-muted-foreground font-medium">Securing product data...</p>
+              </div>
+            ) : !selectedProduct ? (
+              <div className="py-20 text-center">
+                <h2 className="text-xl font-bold mb-2">Product Not Found</h2>
+                <p className="text-muted-foreground">The product link you followed may be invalid or expired.</p>
+              </div>
+            ) : (
+              <div className="max-w-5xl mx-auto py-8">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
+                >
+                  <div className="aspect-square rounded-[2.5rem] overflow-hidden glass shadow-2xl border-border relative group">
+                    <img
+                      src={selectedProduct.image_url || "/placeholder.svg"}
+                      alt={selectedProduct.title}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                      <Badge className="bg-primary/20 text-primary border-none uppercase tracking-widest text-[10px]">{selectedProduct.category}</Badge>
+                    </div>
+                  </div>
 
-        <main className="flex-1">
-          <div className="mb-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-primary" />
-              <h2 className="text-sm font-semibold text-foreground">{filtered.length} Products</h2>
-            </div>
-          </div>
+                  <div className="space-y-8">
+                    <div className="space-y-4">
+                      <Badge className="bg-primary text-primary-foreground font-black uppercase tracking-widest text-[10px] px-4 py-1.5 rounded-full italic">OFFER EXCLUSIVE</Badge>
+                      <h1 className="text-5xl font-black tracking-tighter uppercase italic leading-none">
+                        {selectedProduct.title}
+                      </h1>
+                      <p className="text-lg text-muted-foreground leading-relaxed font-medium">
+                        {selectedProduct.description}
+                      </p>
+                    </div>
 
-          {isLoading ? (
-            <div className="py-20 text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
-              <p className="text-muted-foreground text-sm">Loading products...</p>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="py-20 text-center">
-              <p className="text-muted-foreground">No products available yet.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {filtered.map((product: any, i: number) => (
-                <ProductCard key={product.id} product={product} onBuy={setSelectedProduct} index={i} />
-              ))}
-            </div>
-          )}
-        </main>
+                    <div className="p-8 rounded-[2rem] glass-subtle space-y-6">
+                      <div className="flex items-end justify-between">
+                        <div className="space-y-1">
+                          <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Investment</p>
+                          <p className="text-5xl font-black italic tracking-tighter text-primary">
+                            ${Number(selectedProduct.price).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+
+                      <Button
+                        onClick={() => setSelectedProduct({ ...selectedProduct })}
+                        className="w-full h-20 rounded-2xl text-xl font-black uppercase tracking-tight shadow-glow group"
+                      >
+                        Secure Access
+                        <ChevronDown className="ml-2 h-5 w-5 -rotate-90 group-hover:translate-x-1 transition-transform" />
+                      </Button>
+
+                      <p className="text-[10px] text-center text-muted-foreground font-bold uppercase tracking-widest">
+                        Standard Licensing & Support Included
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+            )}
+          </main>
+        )}
       </div>
 
       <Footer />

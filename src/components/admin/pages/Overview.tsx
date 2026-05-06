@@ -72,7 +72,7 @@ const Overview = () => {
         <StatCard icon={DollarSign} label="GMV" value={`$${stats.revenue.toLocaleString()}`} hint="All-time gross sales" />
         <StatCard icon={TrendingUp} label="Platform Fees" value={`$${stats.platformFees.toLocaleString()}`} hint="10% from sellers" accent="bg-emerald-500/10 text-emerald-600" />
         <StatCard icon={Users} label="Affiliates" value={stats.affiliates} hint="Paid members" />
-        <StatCard icon={Store} label="Sellers" value={stats.sellers} hint="Active subscriptions" />
+        <StatCard icon={Store} label="Vendors" value={stats.sellers} hint="Active subscriptions" />
         <StatCard icon={Package} label="Products" value={stats.products} />
         <StatCard icon={FileText} label="Orders" value={stats.orders} />
         <StatCard icon={Wallet} label="Pending Payouts" value={stats.pendingWithdrawals} accent="bg-amber-500/10 text-amber-600" />

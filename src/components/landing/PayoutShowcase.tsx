@@ -33,7 +33,7 @@ export const PayoutShowcase = () => {
                             ))}
                         </div>
 
-                        <Link to="/become-affiliate">
+                        <Link to="/affiliate-pricing">
                             <Button size="lg" className="h-14 px-8 rounded-2xl font-black uppercase tracking-tight shadow-lg shadow-primary/20">Experience Instant Payouts</Button>
                         </Link>
                     </motion.div>

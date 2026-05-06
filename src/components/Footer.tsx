@@ -27,9 +27,8 @@ const Footer = () => (
         <div className="space-y-4">
           <h5 className="text-xs font-semibold uppercase tracking-wider text-foreground">Platform</h5>
           <nav className="flex flex-col gap-2.5 text-sm text-muted-foreground">
-            <Link to="/become-affiliate" className="hover:text-foreground transition-colors w-fit">Become an Affiliate</Link>
-            <Link to="/become-seller" className="hover:text-foreground transition-colors w-fit">Become a Seller</Link>
-            <Link to="/marketplace" className="hover:text-foreground transition-colors w-fit">Marketplace</Link>
+            <Link to="/affiliate-pricing" className="hover:text-foreground transition-colors w-fit">Become an Affiliate</Link>
+            <Link to="/become-seller" className="hover:text-foreground transition-colors w-fit">Become a Vendor</Link>
             <Link to="/about" className="hover:text-foreground transition-colors w-fit">About</Link>
           </nav>
         </div>

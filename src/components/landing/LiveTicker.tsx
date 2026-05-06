@@ -17,7 +17,7 @@ export const LiveTicker = () => {
                 withdrawals.forEach((w: any, i: number) => compiledEvents.push({ id: `w-${i}`, type: "payout", text: `Affiliate withdrew $${w.amount} via Mobile Money`, icon: DollarSign, color: "text-success", created_at: w.created_at }));
             }
             if (sellerPayouts) {
-                sellerPayouts.forEach((s: any, i: number) => compiledEvents.push({ id: `s-${i}`, type: "payout", text: `Seller cashed out $${s.amount}`, icon: DollarSign, color: "text-amber-500", created_at: s.created_at }));
+                sellerPayouts.forEach((s: any, i: number) => compiledEvents.push({ id: `s-${i}`, type: "payout", text: `Vendor cashed out $${s.amount}`, icon: DollarSign, color: "text-amber-500", created_at: s.created_at }));
             }
 
             compiledEvents.push({ id: 'signup', type: "signup", text: "Platform adoption increasing", icon: Activity, color: "text-blue-500", created_at: new Date().toISOString() });

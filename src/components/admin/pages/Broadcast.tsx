@@ -47,7 +47,7 @@ const Broadcast = () => {
           <div>
             <label className="text-xs font-medium">Audience</label>
             <select value={form.audience} onChange={(e) => setForm({ ...form, audience: e.target.value })} className="h-9 w-full px-2 rounded-md border border-border bg-background text-sm">
-              <option value="all">Everyone</option><option value="affiliates">Affiliates only</option><option value="sellers">Sellers only</option>
+              <option value="all">Everyone</option><option value="affiliates">Affiliates only</option><option value="vendors">Vendors only</option>
             </select>
           </div>
           <div><label className="text-xs font-medium">Subject</label><Input value={form.subject} onChange={(e) => setForm({ ...form, subject: e.target.value })} /></div>

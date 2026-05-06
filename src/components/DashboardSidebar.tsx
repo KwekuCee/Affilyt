@@ -25,7 +25,7 @@ const adminLinks = [
 
 const affiliateLinks = [
   { id: "overview", to: "/dashboard/affiliate", label: "Overview", icon: LayoutDashboard },
-  { id: "marketplace", to: "/dashboard/affiliate/marketplace", label: "Products", icon: Store },
+  { id: "marketplace", to: "/dashboard/affiliate/products", label: "Inventory", icon: Store },
   { id: "links", to: "/dashboard/affiliate/links", label: "My Links", icon: LinkIcon },
   { id: "smart-links", to: "/dashboard/affiliate/smart-links", label: "Smart Links", icon: Zap },
   { id: "qr-codes", to: "/dashboard/affiliate/qr-codes", label: "QR Codes", icon: QrCode },
@@ -45,28 +45,28 @@ const affiliateLinks = [
   { id: "settings", to: "/dashboard/affiliate/settings", label: "Settings", icon: Settings },
 ];
 
-const sellerLinks = [
-  { id: "overview", to: "/dashboard/seller", label: "Overview", icon: LayoutDashboard },
-  { id: "analytics", to: "/dashboard/seller/analytics", label: "Analytics", icon: BarChart3 },
-  { id: "orders", to: "/dashboard/seller/orders", label: "Orders", icon: ShoppingCart },
-  { id: "products", to: "/dashboard/seller/products", label: "Products", icon: Package },
-  { id: "import", to: "/dashboard/seller/import", label: "Bulk Import", icon: UploadCloud },
-  { id: "stock", to: "/dashboard/seller/stock", label: "Inventory", icon: Boxes },
-  { id: "ab-testing", to: "/dashboard/seller/ab-testing", label: "A/B Testing", icon: FlaskConical },
-  { id: "leaderboard", to: "/dashboard/seller/leaderboard", label: "Leaderboard", icon: Trophy },
-  { id: "commissions", to: "/dashboard/seller/commissions", label: "Commissions", icon: Percent },
-  { id: "coupons", to: "/dashboard/seller/coupons", label: "Coupons", icon: Ticket },
-  { id: "reviews", to: "/dashboard/seller/reviews", label: "Reviews", icon: Star },
-  { id: "storefront", to: "/dashboard/seller/storefront", label: "Storefront", icon: Store },
-  { id: "subscription", to: "/dashboard/seller/subscription", label: "Subscription", icon: CreditCard },
-  { id: "tax", to: "/dashboard/seller/tax", label: "Taxes", icon: Calculator },
-  { id: "payouts", to: "/dashboard/seller/payouts", label: "Payouts", icon: Wallet },
-  { id: "reports", to: "/dashboard/seller/reports", label: "Reports", icon: FileText },
-  { id: "settings", to: "/dashboard/seller/settings", label: "Settings", icon: Settings },
+const vendorLinks = [
+  { id: "overview", to: "/dashboard/vendor", label: "Overview", icon: LayoutDashboard },
+  { id: "analytics", to: "/dashboard/vendor/analytics", label: "Analytics", icon: BarChart3 },
+  { id: "orders", to: "/dashboard/vendor/orders", label: "Orders", icon: ShoppingCart },
+  { id: "products", to: "/dashboard/vendor/products", label: "Products", icon: Package },
+  { id: "import", to: "/dashboard/vendor/import", label: "Bulk Import", icon: UploadCloud },
+  { id: "stock", to: "/dashboard/vendor/stock", label: "Inventory", icon: Boxes },
+  { id: "ab-testing", to: "/dashboard/vendor/ab-testing", label: "A/B Testing", icon: FlaskConical },
+  { id: "leaderboard", to: "/dashboard/vendor/leaderboard", label: "Leaderboard", icon: Trophy },
+  { id: "commissions", to: "/dashboard/vendor/commissions", label: "Commissions", icon: Percent },
+  { id: "coupons", to: "/dashboard/vendor/coupons", label: "Coupons", icon: Ticket },
+  { id: "reviews", to: "/dashboard/vendor/reviews", label: "Reviews", icon: Star },
+  { id: "storefront", to: "/dashboard/vendor/products", label: "Inventory", icon: Store },
+  { id: "subscription", to: "/dashboard/vendor/subscription", label: "Subscription", icon: CreditCard },
+  { id: "tax", to: "/dashboard/vendor/tax", label: "Taxes", icon: Calculator },
+  { id: "payouts", to: "/dashboard/vendor/payouts", label: "Payouts", icon: Wallet },
+  { id: "reports", to: "/dashboard/vendor/reports", label: "Reports", icon: FileText },
+  { id: "settings", to: "/dashboard/vendor/settings", label: "Settings", icon: Settings },
 ];
 
 interface DashboardSidebarProps {
-  type: "affiliate" | "admin" | "seller";
+  type: "affiliate" | "admin" | "vendor";
 }
 
 const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
@@ -75,7 +75,7 @@ const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const links = type === "admin" ? adminLinks : type === "affiliate" ? affiliateLinks : sellerLinks;
+  const links = type === "admin" ? adminLinks : type === "affiliate" ? affiliateLinks : vendorLinks;
 
   // Close mobile sidebar on route change
   useEffect(() => {

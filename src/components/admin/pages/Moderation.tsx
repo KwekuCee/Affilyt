@@ -59,7 +59,7 @@ const Moderation = () => {
             <tr>
               <th className="px-4 py-3 w-10"><input type="checkbox" checked={!!items.length && selected.size === items.length} onChange={toggleAll} /></th>
               <th className="text-left px-4 py-3">Product</th>
-              <th className="text-left px-4 py-3">Seller</th>
+              <th className="text-left px-4 py-3">Vendor</th>
               <th className="text-left px-4 py-3">Price</th>
               <th className="text-left px-4 py-3">Submitted</th>
             </tr>

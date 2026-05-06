@@ -9,9 +9,9 @@ import Landing from "@/pages/Landing";
 import Storefront from "@/pages/Storefront";
 import AffiliateDashboard from "@/pages/AffiliateDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
-import BecomeSeller from "@/pages/BecomeSeller";
+import BecomeVendor from "@/pages/BecomeVendor";
 import LearnerDashboard from "@/pages/LearnerDashboard";
-import SellerDashboard from "@/pages/SellerDashboard";
+import VendorDashboard from "@/pages/VendorDashboard";
 import Contact from "@/pages/Contact";
 import Login from "@/pages/Login";
 import About from "@/pages/About";
@@ -19,6 +19,7 @@ import NotFound from "@/pages/NotFound";
 import GlobalBackground from "@/components/GlobalBackground";
 import AffiliatePricing from "@/pages/AffiliatePricing";
 import LearnerCheckout from "@/pages/LearnerCheckout";
+import ProductStorefront from "@/pages/Storefront";
 
 const queryClient = new QueryClient();
 
@@ -34,14 +35,14 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/marketplace" element={<Storefront />} />
-              <Route path="/become-seller" element={<BecomeSeller />} />
+              <Route path="/become-vendor" element={<BecomeVendor />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
               <Route path="/affiliate-pricing" element={<AffiliatePricing />} />
               <Route path="/learner-checkout" element={<LearnerCheckout />} />
+              <Route path="/product/:productId" element={<ProductStorefront />} />
               <Route path="/dashboard/affiliate/*" element={<AffiliateDashboard />} />
-              <Route path="/dashboard/seller/*" element={<SellerDashboard />} />
+              <Route path="/dashboard/vendor/*" element={<VendorDashboard />} />
               <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
               <Route path="/dashboard/learner/*" element={<LearnerDashboard />} />
               <Route path="*" element={<NotFound />} />

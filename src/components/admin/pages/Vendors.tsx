@@ -5,7 +5,7 @@ import PageHeader from "@/components/admin/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-const Sellers = () => {
+const Vendors = () => {
   const [rows, setRows] = useState<any[]>([]);
   const { toast } = useToast();
 
@@ -40,12 +40,12 @@ const Sellers = () => {
 
   return (
     <div>
-      <PageHeader title="Sellers" description="Manage seller subscriptions and access." />
+      <PageHeader title="Vendors" description="Manage vendor subscriptions and access." />
       <div className="rounded-lg border border-border glass-subtle overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
-              <th className="text-left px-4 py-3 font-medium">Seller</th>
+              <th className="text-left px-4 py-3 font-medium">Vendor</th>
               <th className="text-left px-4 py-3 font-medium">Business</th>
               <th className="text-left px-4 py-3 font-medium">Plan</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
@@ -55,7 +55,7 @@ const Sellers = () => {
           </thead>
           <tbody className="divide-y divide-border">
             {rows.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">No sellers yet.</td></tr>
+              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">No vendors yet.</td></tr>
             )}
             {rows.map((r) => (
               <tr key={r.id} className="hover:bg-muted/30">
@@ -87,4 +87,4 @@ const Sellers = () => {
   );
 };
 
-export default Sellers;
+export default Vendors;

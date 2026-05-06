@@ -57,7 +57,7 @@ const StorefrontSettings = () => {
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Storefront</h2>
-                    <p className="text-muted-foreground font-medium">Customize your public seller landing page.</p>
+                    <p className="text-muted-foreground font-medium">Customize your public vendor landing page.</p>
                 </div>
                 <Store className="h-10 w-10 text-primary" />
             </div>

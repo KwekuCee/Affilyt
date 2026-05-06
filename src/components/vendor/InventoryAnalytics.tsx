@@ -82,7 +82,7 @@ const InventoryAnalytics = () => {
                     <div className="p-8 rounded-[2rem] glass-primary space-y-6">
                         <div className="flex items-center gap-3 text-primary">
                             <TrendingUp className="h-5 w-5" />
-                            <h3 className="text-sm font-black uppercase tracking-widest">Best Sellers</h3>
+                            <h3 className="text-sm font-black uppercase tracking-widest">Best Selling Products</h3>
                         </div>
                         <div className="space-y-4">
                             {bestSellers.map(p => (

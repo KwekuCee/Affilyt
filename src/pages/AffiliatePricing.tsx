@@ -52,7 +52,7 @@ const AffiliatePricing = () => {
                                             Start with {pkg.name} <ArrowRight className="w-4 h-4 ml-2" />
                                         </Button>
                                     </Link>
-                                    <p className="text-center text-xs text-muted-foreground mt-4 flex items-center justify-center gap-1"><ShieldCheck className="w-3 h-3" /> Secure Stripe checkout</p>
+                                    <p className="text-center text-xs text-muted-foreground mt-4 flex items-center justify-center gap-1"><ShieldCheck className="w-3 h-3" /> Secure Korapay checkout</p>
                                 </div>
                             );
                         })}

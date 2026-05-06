@@ -47,7 +47,7 @@ const Login = () => {
     else {
       toast({ title: "No active plan", description: "Sign up as an affiliate or seller first.", variant: "destructive" });
       await supabase.auth.signOut();
-      navigate("/become-affiliate");
+      navigate("/affiliate-pricing");
     }
   };
 
@@ -94,7 +94,7 @@ const Login = () => {
           </form>
 
           <div className="mt-6 pt-6 border-t border-border text-center text-sm text-muted-foreground">
-            New here? <Link to="/become-affiliate" className="text-primary font-semibold hover:underline">Join Affilyt</Link>
+            New here? <Link to="/affiliate-pricing" className="text-primary font-semibold hover:underline">Join Affilyt</Link>
           </div>
         </div>
 

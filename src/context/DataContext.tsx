@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-export type SellerTier = "Basic" | "Standard" | "Pro";
+export type VendorTier = "Basic" | "Standard" | "Pro";
 export type UserRole = "ADMIN" | "MANAGER" | "AFFILIATE" | "SUB_AFFILIATE";
 export type UserStatus = "ACTIVE" | "PENDING" | "SUSPENDED" | "ARCHIVED";
 
 export interface Package {
-    name: SellerTier;
+    name: VendorTier;
     price: number;
     commission: number;
     payoutSchedule: string;

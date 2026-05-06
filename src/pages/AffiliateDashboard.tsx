@@ -181,7 +181,7 @@ const DashboardOverview = () => {
             <div className="relative z-10 space-y-6">
               <h3 className="text-xl font-black uppercase italic tracking-tight">Quick Actions</h3>
               <div className="grid grid-cols-1 gap-3">
-                <Button onClick={() => navigate("/dashboard/affiliate/marketplace")} className="h-12 justify-start px-4 w-full bg-background/20 hover:bg-background/40 border-none text-foreground backdrop-blur font-bold"><Store className="mr-3 h-4 w-4" /> Browse Marketplace</Button>
+                <Button onClick={() => navigate("/dashboard/affiliate/products")} className="h-12 justify-start px-4 w-full bg-background/20 hover:bg-background/40 border-none text-foreground backdrop-blur font-bold"><Store className="mr-3 h-4 w-4" /> Browse Inventory</Button>
                 <Button onClick={() => navigate("/dashboard/affiliate/links")} className="h-12 justify-start px-4 w-full bg-background/20 hover:bg-background/40 border-none text-foreground backdrop-blur font-bold"><LinkIcon className="mr-3 h-4 w-4" /> Your Links</Button>
                 <Button onClick={() => navigate("/dashboard/affiliate/payments")} className="h-12 justify-start px-4 w-full bg-background/20 hover:bg-background/40 border-none text-foreground backdrop-blur font-bold"><Wallet className="mr-3 h-4 w-4" /> Request Payout</Button>
               </div>
@@ -220,7 +220,10 @@ const AffiliateLinks = () => {
   // Using user_id slice or custom slug if exists
   const refId = profile?.affiliate_link || user?.id?.slice(0, 8);
   const baseUrl = window.location.origin;
-  const link = `${baseUrl}/marketplace?ref=${refId}`;
+  const link = `${baseUrl}/product/${refId}`; // General referral link logic needs to be careful here, maybe redirect to home with ref?
+  // User said affiliate-only model. Usually links go to home or specific products.
+  // I'll make the link go to home with ref for now if it's the "Marketplace Hub" link
+  const homeLink = `${baseUrl}/?ref=${refId}`;
 
   useEffect(() => {
     if (!user) return;
@@ -253,18 +256,18 @@ const AffiliateLinks = () => {
           </div>
           <div className="relative z-10 space-y-6">
             <Badge className="bg-primary/20 text-primary text-[10px] font-black uppercase tracking-widest px-4 py-1 rounded-full italic">PRIMARY TRACKER</Badge>
-            <h3 className="text-3xl font-black text-foreground uppercase italic leading-none tracking-tighter">Marketplace Hub</h3>
-            <p className="text-sm text-muted-foreground font-medium leading-relaxed">Directs customers to the main store while tracking your ID.</p>
+            <h3 className="text-3xl font-black text-foreground uppercase italic leading-none tracking-tighter">Platform Hub</h3>
+            <p className="text-sm text-muted-foreground font-medium leading-relaxed">Directs customers to the home page while tracking your ID.</p>
 
             <div className="flex items-center gap-4 p-4 rounded-2xl glass-subtle">
-              <code className="text-xs font-bold text-primary truncate flex-1">{link}</code>
-              <Button onClick={() => copy(link)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-primary/20 hover:text-primary transition-colors">
+              <code className="text-xs font-bold text-primary truncate flex-1">{homeLink}</code>
+              <Button onClick={() => copy(homeLink)} size="icon" variant="ghost" className="h-10 w-10 rounded-xl hover:bg-primary/20 hover:text-primary transition-colors">
                 <Copy className="h-4 w-4" />
               </Button>
             </div>
 
             <div className="flex gap-4 pt-4">
-              <Button onClick={() => copy(link)} className="flex-1 h-14 rounded-2xl font-black text-sm uppercase tracking-tight shadow-lg shadow-primary/20">Copy Link</Button>
+              <Button onClick={() => copy(homeLink)} className="flex-1 h-14 rounded-2xl font-black text-sm uppercase tracking-tight shadow-lg shadow-primary/20">Copy Link</Button>
               <Button variant="secondary" className="h-14 w-14 rounded-2xl flex items-center justify-center">
                 <Globe className="h-5 w-5" />
               </Button>
@@ -810,7 +813,7 @@ const AffiliateDashboard = () => {
         <div className="max-w-7xl mx-auto space-y-8 lg:space-y-10">
           <Routes>
             <Route index element={<DashboardOverview />} />
-            <Route path="marketplace" element={<AffiliateProducts />} />
+            <Route path="products" element={<AffiliateProducts />} />
             <Route path="links" element={<AffiliateLinks />} />
             <Route path="smart-links" element={<SmartLinkCustomizer />} />
             <Route path="qr-codes" element={<QRCodeGenerator />} />

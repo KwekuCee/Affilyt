@@ -19,22 +19,22 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from "@/components/ui/dialog";
 
-// ─── External Seller Components ───────────────────────────────────────
-import InventoryAnalytics from "@/components/seller/InventoryAnalytics";
-import OrderManagement from "@/components/seller/OrderManagement";
-import AffiliateLeaderboard from "@/components/seller/AffiliateLeaderboard";
-import CommissionOverrides from "@/components/seller/CommissionOverrides";
-import CouponCodes from "@/components/seller/CouponCodes";
-import StorefrontSettings from "@/components/seller/StorefrontSettings";
-import StockManagement from "@/components/seller/StockManagement";
-import CustomerReviews from "@/components/seller/CustomerReviews";
-import TaxSettings from "@/components/seller/TaxSettings";
-import SubscriptionManagement from "@/components/seller/SubscriptionManagement";
-import BulkImport from "@/components/seller/BulkImport";
-import ABTesting from "@/components/seller/ABTesting";
+// ─── External Vendor Components ───────────────────────────────────────
+import InventoryAnalytics from "@/components/vendor/InventoryAnalytics";
+import OrderManagement from "@/components/vendor/OrderManagement";
+import AffiliateLeaderboard from "@/components/vendor/AffiliateLeaderboard";
+import CommissionOverrides from "@/components/vendor/CommissionOverrides";
+import CouponCodes from "@/components/vendor/CouponCodes";
+import StorefrontSettings from "@/components/vendor/StorefrontSettings";
+import StockManagement from "@/components/vendor/StockManagement";
+import CustomerReviews from "@/components/vendor/CustomerReviews";
+import TaxSettings from "@/components/vendor/TaxSettings";
+import SubscriptionManagement from "@/components/vendor/SubscriptionManagement";
+import BulkImport from "@/components/vendor/BulkImport";
+import ABTesting from "@/components/vendor/ABTesting";
 
 // ─── Overview ─────────────────────────────────────────────────────────
-const SellerOverview = () => {
+const VendorOverview = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState({ revenue: 0, orders: 0, products: 0, affiliates: 0 });
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
@@ -60,14 +60,14 @@ const SellerOverview = () => {
         .lte("stock_quantity", 10); // Mocking comparing directly to a low stock number, normally you'd fetch and filter or use rpc.
 
       if (lowStock && lowStock > 0) {
-        tasks.push({ type: "Low Stock Items", count: lowStock, icon: AlertTriangle, link: "/dashboard/seller/stock", color: "text-warning" });
+        tasks.push({ type: "Low Stock Items", count: lowStock, icon: AlertTriangle, link: "/dashboard/vendor/stock", color: "text-warning" });
       }
 
       const { count: reviews } = await supabase.from("product_reviews").select("id", { count: "exact" })
         .eq("seller_response", null); // Just a mock check
 
       if (reviews && reviews > 0) {
-        tasks.push({ type: "Unanswered Reviews", count: reviews, icon: MessageSquare, link: "/dashboard/seller/reviews", color: "text-primary" });
+        tasks.push({ type: "Unanswered Reviews", count: reviews, icon: MessageSquare, link: "/dashboard/vendor/reviews", color: "text-primary" });
       }
 
       setPendingTasks(tasks);
@@ -75,10 +75,10 @@ const SellerOverview = () => {
   }, [user]);
 
   const QUICK_ACTIONS = [
-    { label: "New Product", icon: Plus, link: "/dashboard/seller/products", color: "bg-primary/20 text-primary" },
-    { label: "View Analytics", icon: BarChart3, link: "/dashboard/seller/analytics", color: "bg-success/20 text-success" },
-    { label: "Storefront", icon: Store, link: "/dashboard/seller/storefront", color: "bg-amber-500/20 text-amber-500" },
-    { label: "Create Coupon", icon: DollarSign, link: "/dashboard/seller/coupons", color: "bg-blue-500/20 text-blue-500" },
+    { label: "New Product", icon: Plus, link: "/dashboard/vendor/products", color: "bg-primary/20 text-primary" },
+    { label: "View Analytics", icon: BarChart3, link: "/dashboard/vendor/analytics", color: "bg-success/20 text-success" },
+    { label: "Storefront", icon: Store, link: "/dashboard/vendor/storefront", color: "bg-amber-500/20 text-amber-500" },
+    { label: "Create Coupon", icon: DollarSign, link: "/dashboard/vendor/coupons", color: "bg-blue-500/20 text-blue-500" },
   ];
 
   return (
@@ -89,8 +89,8 @@ const SellerOverview = () => {
           <p className="text-muted-foreground font-medium">Your business velocity at a glance.</p>
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline" className="rounded-xl h-12 uppercase font-black text-xs tracking-widest"><Link to="/dashboard/seller/orders">View Orders</Link></Button>
-          <Button asChild className="rounded-xl h-12 uppercase font-black text-xs tracking-widest"><Link to="/dashboard/seller/products"><Plus className="w-4 h-4 mr-2" /> Add Product</Link></Button>
+          <Button asChild variant="outline" className="rounded-xl h-12 uppercase font-black text-xs tracking-widest"><Link to="/dashboard/vendor/orders">View Orders</Link></Button>
+          <Button asChild className="rounded-xl h-12 uppercase font-black text-xs tracking-widest"><Link to="/dashboard/vendor/products"><Plus className="w-4 h-4 mr-2" /> Add Product</Link></Button>
         </div>
       </div>
 
@@ -143,7 +143,7 @@ const SellerOverview = () => {
         <div className="xl:col-span-2 p-6 rounded-[2rem] glass">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xs uppercase font-black tracking-widest text-muted-foreground">Recent Transactions</h3>
-            <Link to="/dashboard/seller/orders" className="text-[10px] uppercase font-black text-primary hover:underline">View All</Link>
+            <Link to="/dashboard/vendor/orders" className="text-[10px] uppercase font-black text-primary hover:underline">View All</Link>
           </div>
 
           {recentOrders.length === 0 ? (
@@ -183,7 +183,7 @@ const SellerOverview = () => {
 };
 
 // ─── Products CRUD ────────────────────────────────────────────────────
-const SellerProducts = () => {
+const VendorProducts = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [products, setProducts] = useState<any[]>([]);
@@ -297,7 +297,7 @@ const SellerProducts = () => {
 };
 
 // ─── Orders ───────────────────────────────────────────────────────────
-const SellerOrders = () => {
+const VendorOrders = () => {
   const { user } = useAuth();
   const [orders, setOrders] = useState<any[]>([]);
   useEffect(() => {
@@ -330,7 +330,7 @@ const SellerOrders = () => {
 };
 
 // ─── Affiliates promoting me ──────────────────────────────────────────
-const SellerAffiliates = () => {
+const VendorAffiliates = () => {
   const { user } = useAuth();
   const [rows, setRows] = useState<any[]>([]);
   useEffect(() => {
@@ -372,7 +372,7 @@ const SellerAffiliates = () => {
 };
 
 // ─── Payouts ──────────────────────────────────────────────────────────
-const SellerPayouts = () => {
+const VendorPayouts = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const [payouts, setPayouts] = useState<any[]>([]);
@@ -439,7 +439,7 @@ const SellerPayouts = () => {
 };
 
 // ─── Reports ──────────────────────────────────────────────────────────
-const SellerReports = () => {
+const VendorReports = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -490,7 +490,7 @@ const SellerReports = () => {
 };
 
 // ─── Settings ─────────────────────────────────────────────────────────
-const SellerSettings = () => {
+const VendorSettings = () => {
   const { profile, user, refreshProfile } = useAuth();
   const { toast } = useToast();
   const [form, setForm] = useState({
@@ -569,11 +569,11 @@ const SellerSettings = () => {
 };
 
 // ─── Main ─────────────────────────────────────────────────────────────
-const SellerDashboard = () => {
+const VendorDashboard = () => {
   const { user, isLoading, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isSeller, setIsSeller] = useState<boolean | null>(null);
+  const [isVendor, setIsVendor] = useState<boolean | null>(null);
 
   useEffect(() => {
     if (!isLoading && !user) navigate("/login");
@@ -583,37 +583,37 @@ const SellerDashboard = () => {
     if (!user) return;
     (async () => {
       const { data } = await supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "seller" as any).maybeSingle();
-      setIsSeller(!!data);
-      if (!data) navigate("/become-seller");
+      setIsVendor(!!data);
+      if (!data) navigate("/become-vendor");
     })();
   }, [user, navigate]);
 
-  if (isLoading || isSeller === null) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
-  if (!user || !isSeller) return null;
+  if (isLoading || isVendor === null) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+  if (!user || !isVendor) return null;
 
   const items = [
-    { label: "Overview", icon: LayoutDashboard, path: "/dashboard/seller" },
-    { label: "Products", icon: Package, path: "/dashboard/seller/products" },
-    { label: "Orders", icon: ShoppingCart, path: "/dashboard/seller/orders" },
-    { label: "Affiliates", icon: Users, path: "/dashboard/seller/affiliates" },
-    { label: "Payouts", icon: Wallet, path: "/dashboard/seller/payouts" },
-    { label: "Reports", icon: FileText, path: "/dashboard/seller/reports" },
-    { label: "Settings", icon: SettingsIcon, path: "/dashboard/seller/settings" },
+    { label: "Overview", icon: LayoutDashboard, path: "/dashboard/vendor" },
+    { label: "Products", icon: Package, path: "/dashboard/vendor/products" },
+    { label: "Orders", icon: ShoppingCart, path: "/dashboard/vendor/orders" },
+    { label: "Affiliates", icon: Users, path: "/dashboard/vendor/affiliates" },
+    { label: "Payouts", icon: Wallet, path: "/dashboard/vendor/payouts" },
+    { label: "Reports", icon: FileText, path: "/dashboard/vendor/reports" },
+    { label: "Settings", icon: SettingsIcon, path: "/dashboard/vendor/settings" },
   ];
 
   return (
-    <div className="min-h-screen flex bg-background theme-seller relative overflow-hidden text-foreground">
+    <div className="min-h-screen flex bg-background theme-vendor relative overflow-hidden text-foreground">
       {/* Glassmorphic Animated Background Blobs */}
       <div className="bg-blob bg-blob-1" />
       <div className="bg-blob bg-blob-2" />
       <div className="bg-blob bg-blob-3" />
 
-      <DashboardSidebar type="seller" />
+      <DashboardSidebar type="vendor" />
       <main className="flex-1 pt-16 lg:pt-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10 overflow-y-auto min-h-screen relative z-10 scrollbar-hide">
         <Routes>
-          <Route index element={<SellerOverview />} />
+          <Route index element={<VendorOverview />} />
           <Route path="analytics" element={<InventoryAnalytics />} />
-          <Route path="products" element={<SellerProducts />} />
+          <Route path="products" element={<VendorProducts />} />
           <Route path="orders" element={<OrderManagement />} />
           <Route path="import" element={<BulkImport />} />
           <Route path="stock" element={<StockManagement />} />
@@ -625,14 +625,14 @@ const SellerDashboard = () => {
           <Route path="storefront" element={<StorefrontSettings />} />
           <Route path="subscription" element={<SubscriptionManagement />} />
           <Route path="tax" element={<TaxSettings />} />
-          <Route path="affiliates" element={<SellerAffiliates />} />
-          <Route path="payouts" element={<SellerPayouts />} />
-          <Route path="reports" element={<SellerReports />} />
-          <Route path="settings" element={<SellerSettings />} />
+          <Route path="affiliates" element={<VendorAffiliates />} />
+          <Route path="payouts" element={<VendorPayouts />} />
+          <Route path="reports" element={<VendorReports />} />
+          <Route path="settings" element={<VendorSettings />} />
         </Routes>
       </main>
     </div>
   );
 };
 
-export default SellerDashboard;
+export default VendorDashboard;

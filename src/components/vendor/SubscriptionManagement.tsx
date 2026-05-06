@@ -44,7 +44,7 @@ const SubscriptionManagement = () => {
             <div className="flex items-center justify-between">
                 <div>
                     <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Subscription</h2>
-                    <p className="text-muted-foreground font-medium">Manage your seller plan, billing, and renewals.</p>
+                    <p className="text-muted-foreground font-medium">Manage your vendor plan, billing, and renewals.</p>
                 </div>
                 <CreditCard className="h-10 w-10 text-primary" />
             </div>
