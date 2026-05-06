@@ -95,7 +95,7 @@ const SellerOverview = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        <StatsCard title="Net Revenue" value={`$${stats.revenue.toFixed(2)}`} icon={Wallet} trend={<span className="text-success flex items-center"><TrendingUp className="w-3 h-3 mr-1" /> +12.5%</span>} />
+        <StatsCard title="Net Revenue" value={`$${stats.revenue.toFixed(2)}`} icon={Wallet} trend="↑ 12.5% vs last period" />
         <StatsCard title="Total Volume" value={stats.orders.toString()} icon={ShoppingCart} trend="Total orders processed" />
         <StatsCard title="Active Listings" value={stats.products.toString()} icon={Package} trend="Live on marketplace" />
         <StatsCard title="Promoters" value={stats.affiliates.toString()} icon={Activity} trend="Affiliates driving sales" />
