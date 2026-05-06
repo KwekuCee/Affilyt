@@ -31,10 +31,10 @@ const CommissionOverrides = () => {
         let finalOverrides = overridesRes.data || [];
         if (finalOverrides.length > 0) {
             const authIds = finalOverrides.map(o => o.affiliate_id);
-            const { data: profiles } = await supabase.from("profiles").select("user_id, email, full_name").in("user_id", authIds);
+            const { data: profiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", authIds);
             finalOverrides = finalOverrides.map(o => {
                 const p = profiles?.find((profile: any) => profile.user_id === o.affiliate_id);
-                return { ...o, affiliate_email: p?.email, affiliate_name: p?.full_name };
+                return { ...o, affiliate_name: p?.full_name };
             });
         }
 
@@ -50,9 +50,9 @@ const CommissionOverrides = () => {
     const handleCreate = async () => {
         if (!user || !formAffiliateEmail || !formRate) return toast({ title: "Incomplete fields", variant: "destructive" });
 
-        // Resolve affiliate ID from email
-        const { data: profiles } = await supabase.from("profiles").select("user_id").eq("email", formAffiliateEmail).maybeSingle();
-        if (!profiles) return toast({ title: "Affiliate not found", variant: "destructive" });
+        // Resolve affiliate ID from full name
+        const { data: profiles } = await supabase.from("profiles").select("user_id").ilike("full_name", formAffiliateEmail).maybeSingle();
+        if (!profiles) return toast({ title: "Affiliate not found", description: "No affiliate matches that name", variant: "destructive" });
 
         const payload = {
             seller_id: user.id,
@@ -101,8 +101,8 @@ const CommissionOverrides = () => {
                         </DialogHeader>
                         <div className="space-y-4 pt-4">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-muted-foreground uppercase">Affiliate Email</label>
-                                <Input placeholder="affiliate@example.com" value={formAffiliateEmail} onChange={(e) => setFormAffiliateEmail(e.target.value)} className="bg-secondary/50 border-none h-12" />
+                                <label className="text-xs font-bold text-muted-foreground uppercase">Affiliate Full Name</label>
+                                <Input placeholder="Jane Doe" value={formAffiliateEmail} onChange={(e) => setFormAffiliateEmail(e.target.value)} className="bg-secondary/50 border-none h-12" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-muted-foreground uppercase">Target Product (Optional)</label>
@@ -142,7 +142,7 @@ const CommissionOverrides = () => {
                                         </Button>
                                     </div>
                                     <p className="text-sm font-bold text-foreground mt-2">{o.affiliate_name || 'VIP Affiliate'}</p>
-                                    <p className="text-xs text-muted-foreground">{o.affiliate_email || 'Unknown Email'}</p>
+                                    <p className="text-xs text-muted-foreground">{o.affiliate_name || 'Unknown Affiliate'}</p>
                                 </div>
                                 <div className="inline-flex">
                                     <span className="text-[10px] font-black tracking-widest uppercase bg-secondary/50 px-3 py-1 rounded-full text-foreground/70">

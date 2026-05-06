@@ -30,7 +30,7 @@ const AffiliateLeaderboard = () => {
             }
 
             // Fetch profiles
-            const { data: profiles } = await supabase.from("profiles").select("user_id, full_name, email").in("user_id", affiliateIds);
+            const { data: profiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", affiliateIds);
 
             const combined = (profiles || []).map((p: any) => ({
                 ...p,
@@ -75,7 +75,7 @@ const AffiliateLeaderboard = () => {
                                         {l.full_name || 'Anonymous Affiliate'}
                                         {index === 0 && <Trophy className="h-4 w-4 text-warning" />}
                                     </h3>
-                                    <p className="text-xs text-muted-foreground">{l.email}</p>
+                                    <p className="text-xs text-muted-foreground">ID: {l.user_id?.slice(0, 8)}</p>
                                 </div>
                             </div>
 
@@ -91,9 +91,9 @@ const AffiliateLeaderboard = () => {
                             </div>
 
                             <div className="w-full md:w-auto flex justify-end">
-                                <Button variant="secondary" className="w-full md:w-auto rounded-xl" onClick={() => window.location.href = `mailto:${l.email}`}>
-                                    <MessageSquare className="h-4 w-4 mr-2" /> Message
-                                </Button>
+                                <Badge variant="secondary" className="rounded-xl px-3 py-2">
+                                    <MessageSquare className="h-4 w-4 mr-2" /> Top Promoter
+                                </Badge>
                             </div>
                         </div>
                     ))
