@@ -101,8 +101,8 @@ const CommissionOverrides = () => {
                         </DialogHeader>
                         <div className="space-y-4 pt-4">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-muted-foreground uppercase">Affiliate Email</label>
-                                <Input placeholder="affiliate@example.com" value={formAffiliateEmail} onChange={(e) => setFormAffiliateEmail(e.target.value)} className="bg-secondary/50 border-none h-12" />
+                                <label className="text-xs font-bold text-muted-foreground uppercase">Affiliate Full Name</label>
+                                <Input placeholder="Jane Doe" value={formAffiliateEmail} onChange={(e) => setFormAffiliateEmail(e.target.value)} className="bg-secondary/50 border-none h-12" />
                             </div>
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-muted-foreground uppercase">Target Product (Optional)</label>
