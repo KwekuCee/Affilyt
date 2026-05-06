@@ -3,8 +3,46 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import LandingNavbar from "@/components/LandingNavbar";
 import Footer from "@/components/Footer";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const LearnerCheckout = () => {
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
+
+    const handleCheckout = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+            const { data: authData, error: authError } = await supabase.auth.signUp({
+                email,
+                password,
+            });
+            if (authError) throw authError;
+
+            // Simulate payment processing delay
+            await new Promise(res => setTimeout(res, 2000));
+
+            if (authData.user) {
+                await supabase.from("profiles").update({
+                    full_name: name,
+                    role: "learner"
+                }).eq("id", authData.user.id);
+            }
+
+            alert("Payment processed successfully. Welcome to the Learner Ecosystem!");
+            navigate("/dashboard/learner");
+
+        } catch (error: any) {
+            alert(error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <LandingNavbar />
@@ -50,24 +88,28 @@ const LearnerCheckout = () => {
                                     <div className="mb-8 border-b border-white/10 pb-6">
                                         <h3 className="font-display text-2xl font-bold">Learner Access</h3>
                                         <div className="flex items-baseline gap-1 mt-2">
-                                            <span className="font-display text-5xl font-black">$49</span>
-                                            <span className="text-muted-foreground font-medium">/lifetime</span>
+                                            <span className="font-display text-5xl font-black">$5</span>
+                                            <span className="text-muted-foreground font-medium">/lifetime access</span>
                                         </div>
                                     </div>
 
-                                    <form className="space-y-4 mb-8" onSubmit={(e) => { e.preventDefault(); alert("Proceeding to Korapay Gateway..."); }}>
+                                    <form className="space-y-4 mb-8" onSubmit={handleCheckout}>
                                         <div>
                                             <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1 mb-2 block">Full Name</label>
-                                            <input type="text" className="w-full h-12 px-4 rounded-xl glass-input text-sm" placeholder="John Doe" required />
+                                            <input type="text" value={name} onChange={e => setName(e.target.value)} className="w-full h-12 px-4 rounded-xl glass-input text-sm" placeholder="John Doe" required />
                                         </div>
                                         <div>
                                             <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1 mb-2 block">Email Address</label>
-                                            <input type="email" className="w-full h-12 px-4 rounded-xl glass-input text-sm" placeholder="john@example.com" required />
+                                            <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full h-12 px-4 rounded-xl glass-input text-sm" placeholder="john@example.com" required />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1 mb-2 block">Create Password</label>
+                                            <input type="password" value={password} onChange={e => setPassword(e.target.value)} className="w-full h-12 px-4 rounded-xl glass-input text-sm" placeholder="••••••••" required />
                                         </div>
 
                                         <div className="pt-4">
-                                            <Button className="w-full h-14 text-sm font-bold tracking-wider" size="lg" type="submit">
-                                                <Lock className="w-4 h-4 mr-2" /> Pay securely & Unlock
+                                            <Button disabled={isLoading} className="w-full h-14 text-sm font-bold tracking-wider" size="lg" type="submit">
+                                                <Lock className="w-4 h-4 mr-2" /> {isLoading ? "Processing..." : "Pay $5 securely & Unlock"}
                                             </Button>
                                             <p className="text-center text-xs text-muted-foreground mt-4 flex items-center justify-center gap-1"><ShieldCheck className="w-3 h-3" /> Secured by Stripe & Korapay</p>
                                         </div>

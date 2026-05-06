@@ -72,7 +72,7 @@ export const EliteWallPeek = () => {
                 </div>
 
                 <div>
-                    <Link to="/become-affiliate"><Button variant="outline" className="gap-2 rounded-xl h-12 uppercase font-black text-xs">Claim your spot <ArrowRight className="w-4 h-4 border-white" /></Button></Link>
+                    <Link to="/affiliate-pricing"><Button variant="outline" className="gap-2 rounded-xl h-12 uppercase font-black text-xs">Claim your spot <ArrowRight className="w-4 h-4 border-white" /></Button></Link>
                 </div>
             </div>
         </section>

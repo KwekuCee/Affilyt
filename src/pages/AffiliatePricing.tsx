@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useData } from "@/context/DataContext";
 import LandingNavbar from "@/components/LandingNavbar";
 import Footer from "@/components/Footer";
+import { NetworkBackground } from "@/components/landing/NetworkBackground";
 
 const AffiliatePricing = () => {
     const { packages } = useData();
@@ -13,10 +14,13 @@ const AffiliatePricing = () => {
         <div className="min-h-screen bg-background flex flex-col">
             <LandingNavbar />
 
-            <main className="flex-1 pt-32 pb-24">
-                <div className="container mx-auto px-4">
+            <main className="flex-1 pt-32 pb-24 relative overflow-hidden">
+                <NetworkBackground />
+                <div className="bg-blob bg-blob-1 opacity-20" />
+                <div className="bg-blob bg-blob-2 opacity-10" />
+                <div className="container mx-auto px-4 relative z-10">
                     <div className="max-w-2xl mx-auto text-center mb-16">
-                        <Badge variant="outline" className="mb-4">Affiliate Programs</Badge>
+                        <Badge variant="outline" className="mb-4 px-3 py-1 bg-primary/10 text-primary border-primary/20">Affiliate Programs</Badge>
                         <h1 className="font-display text-4xl md:text-6xl font-bold tracking-tight mb-4">Choose your hunting ground.</h1>
                         <p className="text-xl text-muted-foreground">Select a tier to start promoting Africa's top digital products.</p>
                     </div>
@@ -25,8 +29,8 @@ const AffiliatePricing = () => {
                         {packages.map((pkg) => {
                             const popular = pkg.name === "Standard";
                             return (
-                                <div key={pkg.name} className={`relative p-8 rounded-3xl border-2 glass-subtle flex flex-col ${popular ? "border-primary shadow-glow bg-primary/5" : "border-white/10"}`}>
-                                    {popular && <Badge className="absolute -top-3 left-8 px-3 py-1">Most popular</Badge>}
+                                <div key={pkg.name} className={`relative p-8 rounded-3xl border-2 glass-subtle flex flex-col ${popular ? "border-primary shadow-[0_0_40px_rgba(var(--primary-rgb),0.2)] bg-primary/5" : "border-white/10"}`}>
+                                    {popular && <Badge className="absolute -top-3 left-8 px-3 py-1 shadow-lg">Most popular</Badge>}
                                     <h3 className="font-display text-2xl font-bold mb-2">{pkg.name}</h3>
                                     <div className="flex items-baseline gap-1 mb-2">
                                         <span className="font-display text-5xl font-black tabular-nums">${pkg.price}</span>
@@ -43,7 +47,7 @@ const AffiliatePricing = () => {
                                         ))}
                                     </ul>
 
-                                    <Link to="/become-affiliate" className="block w-full mt-auto">
+                                    <Link to={`/login?plan=${pkg.name}&role=affiliate`} className="block w-full mt-auto">
                                         <Button className="w-full h-14 text-sm font-bold tracking-wider" variant={popular ? "default" : "outline"}>
                                             Start with {pkg.name} <ArrowRight className="w-4 h-4 ml-2" />
                                         </Button>

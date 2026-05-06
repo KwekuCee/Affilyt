@@ -78,10 +78,10 @@ const BecomeSeller = () => {
             <motion.section key="intro" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="container mx-auto px-4">
               <div className="text-center mb-16 max-w-3xl mx-auto">
                 <Badge className="mb-6 px-4 py-1.5 rounded-full bg-primary/10 text-primary border-none text-xs font-black uppercase tracking-[0.2em]">For Product Owners</Badge>
-                <h1 className="text-4xl md:text-7xl font-black leading-tight tracking-tight text-foreground mb-6">
-                  Become a <span className="text-primary italic">Seller.</span>
+                <h1 className="font-display text-4xl md:text-7xl font-bold leading-tight tracking-tight text-foreground mb-6">
+                  Become a <span className="text-primary font-black">Seller.</span>
                 </h1>
-                <p className="text-lg text-muted-foreground font-medium italic">
+                <p className="text-lg text-muted-foreground font-medium">
                   List your products on Affilyt and let our network of affiliates sell for you. One yearly fee. Keep 90% after commission.
                 </p>
               </div>
@@ -91,12 +91,12 @@ const BecomeSeller = () => {
                   <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
                     <Store className="h-7 w-7 text-primary" />
                   </div>
-                  <h3 className="text-2xl font-black text-foreground mb-2 uppercase tracking-widest italic">Seller Plan</h3>
+                  <h3 className="font-display text-2xl font-black text-foreground mb-2 uppercase tracking-widest">Seller Plan</h3>
                   <div className="flex items-baseline gap-1 mb-2">
-                    <span className="text-5xl font-black text-foreground">${SELLER_PRICE}</span>
-                    <span className="text-muted-foreground font-bold italic">/year</span>
+                    <span className="font-display text-5xl font-black text-foreground">${SELLER_PRICE}</span>
+                    <span className="text-muted-foreground font-bold">/year</span>
                   </div>
-                  <p className="text-xs font-medium text-muted-foreground italic mb-8">One annual fee. Unlimited products. Cancel anytime.</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-8">One annual fee. Unlimited products. Cancel anytime.</p>
                   <div className="space-y-4 mb-10">
                     {FEATURES.map((f) => (
                       <div key={f} className="flex items-start gap-3">
@@ -107,7 +107,7 @@ const BecomeSeller = () => {
                       </div>
                     ))}
                   </div>
-                  <Button onClick={() => setStep("form")} className="w-full h-16 rounded-2xl font-black text-lg italic">
+                  <Button onClick={() => setStep("form")} className="w-full h-16 rounded-2xl font-black text-lg">
                     Start Selling <ArrowRight className="ml-2 h-5 w-5" />
                   </Button>
                 </div>
@@ -122,7 +122,7 @@ const BecomeSeller = () => {
                       <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                         <b.icon className="h-6 w-6 text-primary" />
                       </div>
-                      <h4 className="text-lg font-black text-foreground mb-2 italic">{b.title}</h4>
+                      <h4 className="font-display text-lg font-black text-foreground mb-2">{b.title}</h4>
                       <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
                     </div>
                   ))}
@@ -136,8 +136,8 @@ const BecomeSeller = () => {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                 <div className="lg:col-span-4 space-y-8">
                   <div className="p-8 rounded-[2.5rem] bg-foreground text-background">
-                    <h3 className="text-2xl font-black mb-4 italic">Seller Account.</h3>
-                    <p className="text-sm opacity-60 leading-relaxed font-medium italic mb-8">
+                    <h3 className="font-display text-2xl font-black mb-4">Seller Account.</h3>
+                    <p className="text-sm opacity-60 leading-relaxed font-medium mb-8">
                       Annual seller plan — <span className="text-primary font-bold">${SELLER_PRICE}/year</span>.
                     </p>
                     <div className="p-4 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between">
@@ -191,7 +191,7 @@ const BecomeSeller = () => {
                       </div>
                     </div>
 
-                    <Button type="submit" disabled={isLoading} className="w-full h-20 rounded-[2rem] font-black text-xl italic flex gap-3 items-center justify-center shadow-2xl shadow-primary/30">
+                    <Button type="submit" disabled={isLoading} className="w-full h-20 rounded-[2rem] font-bold text-xl flex gap-3 items-center justify-center shadow-2xl shadow-primary/30">
                       {isLoading ? "Creating Account..." : "Continue to Payment"}
                       {!isLoading && <ArrowRight className="h-6 w-6" />}
                     </Button>
@@ -218,12 +218,12 @@ const BecomeSeller = () => {
               <div className="h-32 w-32 rounded-[2.5rem] bg-primary flex items-center justify-center mx-auto mb-10 shadow-3xl shadow-primary/40">
                 <Check className="h-16 w-16 text-white" />
               </div>
-              <h2 className="text-5xl font-black text-foreground mb-6">Welcome, Seller!</h2>
-              <p className="text-xl text-muted-foreground leading-relaxed italic font-medium mb-12">
-                Your seller account is active. Verify your email, log in, and start listing products.
+              <h2 className="font-display text-5xl font-black text-foreground mb-6">Welcome, Seller!</h2>
+              <p className="text-xl text-muted-foreground leading-relaxed font-medium mb-12">
+                Your seller account is active. You can now access your dedicated seller portal.
               </p>
-              <Button onClick={() => navigate("/login")} className="h-16 px-10 rounded-2xl font-black text-lg">
-                Go to Login <ArrowRight className="ml-2 h-5 w-5" />
+              <Button onClick={() => window.location.href = "/dashboard/seller"} className="h-16 px-10 rounded-2xl font-black text-lg">
+                Go to Seller Dashboard <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </motion.section>
           )}

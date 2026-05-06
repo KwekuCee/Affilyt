@@ -1,13 +1,15 @@
 import { useState } from "react";
-import { DollarSign, MousePointerClick, Percent } from "lucide-react";
+import { DollarSign, MousePointerClick, Percent, Package } from "lucide-react";
 
 export const EarningsCalculator = () => {
-    const [clicks, setClicks] = useState(1000);
-    const [conversionRate, setConversionRate] = useState(5);
+    const [sales, setSales] = useState(50);
+    const [tier, setTier] = useState<"Basic" | "Standard" | "Pro">("Standard");
 
-    const avgCommission = 25;
-    const sales = Math.floor(clicks * (conversionRate / 100));
-    const potentialEarnings = sales * avgCommission;
+    const commissionRates = { Basic: 25, Standard: 35, Pro: 50 };
+    const avgProductValue = 100; // Assume $100 avg product price
+    const commissionSplit = commissionRates[tier];
+
+    const potentialEarnings = sales * (avgProductValue * (commissionSplit / 100));
 
     return (
         <div className="w-full max-w-4xl mx-auto p-8 rounded-[2rem] glass-subtle border-dashed shadow-2xl relative overflow-hidden">
@@ -26,26 +28,32 @@ export const EarningsCalculator = () => {
                     <div className="space-y-6">
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
-                                <label className="text-xs font-bold uppercase tracking-widest flex items-center gap-2"><MousePointerClick className="w-4 h-4" /> Monthly Clicks</label>
-                                <span className="font-black text-lg">{clicks.toLocaleString()}</span>
+                                <label className="text-xs font-bold uppercase tracking-widest flex items-center gap-2"><MousePointerClick className="w-4 h-4" /> Monthly Sales</label>
+                                <span className="font-black text-lg">{sales.toLocaleString()}</span>
                             </div>
                             <input
-                                type="range" min="100" max="10000" step="100"
-                                value={clicks} onChange={(e) => setClicks(Number(e.target.value))}
+                                type="range" min="10" max="1000" step="10"
+                                value={sales} onChange={(e) => setSales(Number(e.target.value))}
                                 className="w-full accent-primary h-2 bg-secondary rounded-lg appearance-none cursor-pointer"
                             />
                         </div>
 
                         <div className="space-y-4">
                             <div className="flex justify-between items-center">
-                                <label className="text-xs font-bold uppercase tracking-widest flex items-center gap-2"><Percent className="w-4 h-4" /> Conversion Rate</label>
-                                <span className="font-black text-lg">{conversionRate}%</span>
+                                <label className="text-xs font-bold uppercase tracking-widest flex items-center gap-2"><Package className="w-4 h-4" /> Affiliate Package</label>
+                                <span className="font-black text-lg text-primary">{tier}</span>
                             </div>
-                            <input
-                                type="range" min="1" max="15" step="1"
-                                value={conversionRate} onChange={(e) => setConversionRate(Number(e.target.value))}
-                                className="w-full accent-primary h-2 bg-secondary rounded-lg appearance-none cursor-pointer"
-                            />
+                            <div className="flex bg-secondary p-1 rounded-xl">
+                                {["Basic", "Standard", "Pro"].map((t) => (
+                                    <button
+                                        key={t}
+                                        onClick={() => setTier(t as any)}
+                                        className={`flex-1 py-3 text-xs font-bold uppercase tracking-widest rounded-lg transition-colors ${tier === t ? 'bg-primary text-primary-foreground shadow-md' : 'text-muted-foreground hover:text-foreground'}`}
+                                    >
+                                        {t} ({commissionRates[t as keyof typeof commissionRates]}%)
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

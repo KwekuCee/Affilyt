@@ -14,13 +14,16 @@ import { LiveTicker } from "@/components/landing/LiveTicker";
 import { EarningsCalculator } from "@/components/landing/EarningsCalculator";
 import { EliteWallPeek } from "@/components/landing/EliteWallPeek";
 import { PayoutShowcase } from "@/components/landing/PayoutShowcase";
+import { PlatformStats } from "@/components/landing/PlatformStats";
+import { Users } from "lucide-react";
+
 const Landing = () => {
   const { packages } = useData();
   const [products, setProducts] = useState<any[]>([]);
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
 
   useEffect(() => {
-    supabase.from("products").select("*").eq("status", "active").eq("approval_status", "approved").order("created_at", { ascending: false }).limit(6).then(({ data }) => setProducts(data || []));
+    supabase.from("products").select("*").eq("status", "active").eq("approval_status", "approved").eq("is_featured", true).order("created_at", { ascending: false }).limit(6).then(({ data }) => setProducts(data || []));
     supabase.from("blog_posts").select("*").eq("is_published", true).order("created_at", { ascending: false }).limit(3).then(({ data }) => setBlogPosts(data || []));
   }, []);
 
@@ -41,8 +44,16 @@ const Landing = () => {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <Badge variant="outline" className="mb-6 px-3 py-1 rounded-full border-primary/30 bg-primary/5 text-primary font-medium">
-                <Sparkles className="h-3 w-3 mr-1.5" /> Now serving 4 markets
+              <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
+                <Badge variant="outline" className="px-3 py-1 rounded-full border-success/30 bg-success/5 text-success font-medium flex items-center shadow-lg shadow-success/10">
+                  <ShieldCheck className="h-3 w-3 mr-1.5" /> Secure & Verified Platform
+                </Badge>
+                <Badge variant="outline" className="px-3 py-1 rounded-full border-primary/30 bg-primary/5 text-primary font-medium flex items-center shadow-lg shadow-primary/10">
+                  <Users className="h-3 w-3 mr-1.5" /> 1,000+ Active Users
+                </Badge>
+              </div>
+              <Badge variant="outline" className="mb-6 px-4 py-1.5 rounded-full border-amber-500/30 bg-amber-500/10 text-amber-500 font-black uppercase tracking-widest text-[10px]">
+                <Sparkles className="h-3 w-3 mr-1.5 text-amber-500" /> Africa's Premium Affiliate Platform
               </Badge>
               <h1 className="font-display text-5xl md:text-7xl font-bold tracking-tighter leading-[1.05] mb-6">
                 The affiliate marketplace
@@ -116,6 +127,8 @@ const Landing = () => {
         </div>
       </section>
 
+      <PlatformStats />
+
       <section className="py-24 relative z-10 bg-background/50 backdrop-blur-3xl border-t border-white/5">
         <EarningsCalculator />
       </section>
@@ -135,17 +148,23 @@ const Landing = () => {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {products.map((p) => (
-                <Link key={p.id} to={`/marketplace?product=${p.id}`} className="group rounded-lg glass overflow-hidden hover:shadow-elevated hover:border-primary/40 transition-all">
-                  <div className="aspect-[16/10] bg-muted overflow-hidden">
-                    {p.image_url ? <img src={p.image_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Sparkles /></div>}
+                <Link key={p.id} to={`/marketplace?product=${p.id}`} className="group relative rounded-3xl glass overflow-hidden hover:shadow-[0_0_40px_rgba(var(--primary-rgb),0.15)] hover:border-primary/40 transition-all border border-white/5">
+                  <div className="absolute top-4 right-4 z-20">
+                    <div className="px-3 py-1.5 rounded-xl bg-amber-500 text-amber-950 font-black text-[10px] uppercase tracking-widest shadow-lg shadow-amber-500/30 rotate-3 group-hover:rotate-6 transition-transform whitespace-nowrap">
+                      Earn ${(Number(p.price) * (p.commission_rate / 100)).toFixed(2)}/sale
+                    </div>
                   </div>
-                  <div className="p-5">
-                    <Badge variant="secondary" className="mb-2 text-xs">{p.category}</Badge>
-                    <h3 className="font-semibold text-base mb-1.5 line-clamp-1">{p.title}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{p.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="font-display text-xl font-bold tabular">${Number(p.price).toFixed(2)}</span>
-                      <span className="text-xs font-medium text-primary">{p.commission_rate}% commission</span>
+                  <div className="aspect-[16/10] bg-muted overflow-hidden relative">
+                    {p.image_url ? <img src={p.image_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground"><Sparkles /></div>}
+                    <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-80" />
+                  </div>
+                  <div className="p-6 relative z-10 -mt-6">
+                    <Badge variant="secondary" className="mb-3 text-[10px] font-black uppercase tracking-widest bg-secondary/80 backdrop-blur-md">{p.category}</Badge>
+                    <h3 className="font-display font-bold text-xl mb-2 line-clamp-1 group-hover:text-primary transition-colors">{p.title}</h3>
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-6 font-medium">{p.description}</p>
+                    <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                      <span className="font-display text-2xl font-black tabular-nums">${Number(p.price).toFixed(2)}</span>
+                      <span className="text-xs font-bold text-primary px-2 py-1 rounded-lg bg-primary/10">{p.commission_rate}% commission</span>
                     </div>
                   </div>
                 </Link>

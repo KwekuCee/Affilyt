@@ -6,12 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Edit, Check, X } from "lucide-react";
+import { Plus, Trash2, Edit, Check, X, Star } from "lucide-react";
 import ImageUploader from "@/components/admin/ImageUploader";
 
 const empty = {
   title: "", description: "", price: "", category: "Courses",
   commission_rate: "50", min_tier: "Basic", image_url: "", approval_status: "approved",
+  is_featured: false,
 };
 
 const Products = () => {
@@ -42,6 +43,7 @@ const Products = () => {
       min_tier: form.min_tier,
       image_url: form.image_url || null,
       approval_status: form.approval_status,
+      is_featured: form.is_featured,
       status: "active",
     };
     if (editingId) {
@@ -72,12 +74,20 @@ const Products = () => {
     load();
   };
 
+  const toggleFeatured = async (id: string, current: boolean) => {
+    const { error } = await supabase.from("products").update({ is_featured: !current }).eq("id", id);
+    if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
+    toast({ title: !current ? "Featured" : "Unfeatured" });
+    load();
+  };
+
   const startEdit = (p: any) => {
     setForm({
       title: p.title || "", description: p.description || "", price: String(p.price),
       category: p.category || "Courses", commission_rate: String(p.commission_rate),
       min_tier: p.min_tier || "Basic", image_url: p.image_url || "",
       approval_status: p.approval_status || "approved",
+      is_featured: p.is_featured || false,
     });
     setEditingId(p.id);
     setShowForm(true);
@@ -138,6 +148,18 @@ const Products = () => {
               </select>
             </div>
           </div>
+          <div className="flex items-center space-x-2 py-2">
+            <input
+              type="checkbox"
+              id="is_featured"
+              checked={form.is_featured}
+              onChange={(e) => setForm({ ...form, is_featured: e.target.checked })}
+              className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <label htmlFor="is_featured" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Feature this product on homepage
+            </label>
+          </div>
           <Button onClick={save} className="w-full">{editingId ? "Save changes" : "Create product"}</Button>
         </div>
       )}
@@ -163,12 +185,13 @@ const Products = () => {
               <th className="text-left px-4 py-3 font-medium">Price</th>
               <th className="text-left px-4 py-3 font-medium">Commission</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
+              <th className="text-center px-4 py-3 font-medium">Featured</th>
               <th className="text-right px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {filtered.length === 0 && (
-              <tr><td colSpan={6} className="px-4 py-12 text-center text-muted-foreground">No products.</td></tr>
+              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">No products.</td></tr>
             )}
             {filtered.map((p) => (
               <tr key={p.id} className="hover:bg-muted/30">
@@ -190,6 +213,16 @@ const Products = () => {
                   <Badge variant={p.approval_status === "approved" ? "default" : p.approval_status === "pending" ? "secondary" : "destructive"}>
                     {p.approval_status}
                   </Badge>
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className={`h-8 w-8 ${p.is_featured ? 'text-amber-500' : 'text-muted-foreground'}`}
+                    onClick={() => toggleFeatured(p.id, p.is_featured)}
+                  >
+                    <Star className={`h-4 w-4 ${p.is_featured ? 'fill-amber-500' : ''}`} />
+                  </Button>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-1 justify-end">
