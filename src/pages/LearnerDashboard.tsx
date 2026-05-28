@@ -1,74 +1,20 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, Link, useLocation, useNavigate } from "react-router-dom";
-import { BookOpen, HelpCircle, Target, Trophy, LogOut, ArrowRight, User, Play, Clock, Star } from "lucide-react";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { BookOpen, HelpCircle, Target, Trophy, ArrowRight, Play, Clock, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-
-const LearnerSidebar = ({ user }: { user: any }) => {
-    const location = useLocation();
-    const navigate = useNavigate();
-    const links = [
-        { path: "/dashboard/learner", icon: Target, label: "Overview" },
-        { path: "/dashboard/learner/courses", icon: BookOpen, label: "Course Library" },
-        { path: "/dashboard/learner/quizzes", icon: HelpCircle, label: "Quizzes & Certs" },
-        { path: "/dashboard/learner/achievements", icon: Trophy, label: "Achievements" },
-    ];
-
-    const handleSignOut = async () => {
-        await supabase.auth.signOut();
-        navigate("/login");
-    };
-
-    return (
-        <aside className="w-64 glass-card border-r border-border h-full flex flex-col sticky top-0 bg-background/50 backdrop-blur-xl">
-            <div className="h-20 flex items-center px-6 border-b border-border">
-                <span className="font-display font-bold text-xl tracking-tight text-foreground flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                        <BookOpen className="w-5 h-5 text-white" />
-                    </div>
-                    Affilyt<span className="text-primary">.Learn</span>
-                </span>
-            </div>
-
-            <nav className="flex-1 px-4 py-8 space-y-2">
-                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground px-2 mb-4">Dashboard</p>
-                {links.map((link) => {
-                    const isActive = location.pathname === link.path;
-                    return (
-                        <Link key={link.path} to={link.path} className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium text-sm ${isActive ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/20 scale-105' : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'}`}>
-                            <link.icon className={`h-5 w-5 ${isActive ? 'opacity-100' : 'opacity-70'}`} />
-                            {link.label}
-                        </Link>
-                    )
-                })}
-            </nav>
-
-            <div className="p-4 border-t border-border mt-auto">
-                <div className="flex items-center gap-3 px-2 py-3 mb-4 rounded-xl glass-subtle border border-white/5">
-                    <div className="h-10 w-10 rounded-full bg-primary/20 flex items-center justify-center">
-                        <User className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold truncate">{user?.full_name || 'Student'}</p>
-                        <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Learner</p>
-                    </div>
-                </div>
-                <Button onClick={handleSignOut} variant="ghost" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10">
-                    <LogOut className="mr-2 h-4 w-4" /> Sign Out
-                </Button>
-            </div>
-        </aside>
-    );
-}
+import DashboardLayout from "@/components/DashboardLayout";
 
 const CourseCard = ({ course }: { course: any }) => (
     <div className="rounded-[2rem] glass-subtle border border-white/5 overflow-hidden group hover:border-primary/30 transition-all duration-500">
         <div className="h-48 relative overflow-hidden">
             <img src={course.image_url || "/placeholder.svg"} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="" />
             <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
-                <Button className="w-full h-12 rounded-xl scale-90 group-hover:scale-100 transition-transform duration-500 font-bold"><Play className="w-4 h-4 mr-2 fill-current" /> Start Learning</Button>
+                <Link to={`/course/${course.id}`} className="w-full">
+                    <Button className="w-full h-12 rounded-xl scale-90 group-hover:scale-100 transition-transform duration-500 font-bold"><Play className="w-4 h-4 mr-2 fill-current" /> Start Learning</Button>
+                </Link>
             </div>
             <div className="absolute top-4 left-4">
                 <Badge className="bg-background/80 backdrop-blur-md text-foreground border-white/10 uppercase text-[10px] tracking-widest font-black">{course.category || 'Course'}</Badge>
@@ -210,17 +156,15 @@ const LearnerDashboard = () => {
     if (loading) return <div className="h-screen w-full flex items-center justify-center font-display font-black text-2xl uppercase tracking-widest animate-pulse">Infiltrating Learning Hub...</div>
 
     return (
-        <div className="flex h-screen bg-background overflow-hidden relative">
-            <LearnerSidebar user={user} />
-            <main className="flex-1 overflow-y-auto relative z-10 w-full p-4 md:p-12">
-                <Routes>
-                    <Route path="/" element={<LearnerOverview user={user} />} />
-                    <Route path="/courses" element={<LearnerCourses />} />
-                    <Route path="/quizzes" element={<div className="p-8 animate-fade-in"><h1 className="text-2xl font-bold">Quizzes</h1><p className="text-muted-foreground mt-4 uppercase text-xs font-black tracking-widest">Evaluations coming in the next payload.</p></div>} />
-                    <Route path="/achievements" element={<div className="p-8 animate-fade-in"><h1 className="text-2xl font-bold">Achievements</h1><p className="text-muted-foreground mt-4 uppercase text-xs font-black tracking-widest">Unlock badges for excellence.</p></div>} />
-                </Routes>
-            </main>
-        </div>
+        <Routes>
+            <Route element={<DashboardLayout type="learner" />}>
+                <Route index element={<LearnerOverview user={user} />} />
+                <Route path="courses" element={<LearnerCourses />} />
+                <Route path="quizzes" element={<div className="p-8 animate-fade-in"><h1 className="text-2xl font-bold">Quizzes</h1><p className="text-muted-foreground mt-4 uppercase text-xs font-black tracking-widest">Evaluations coming in the next payload.</p></div>} />
+                <Route path="achievements" element={<div className="p-8 animate-fade-in"><h1 className="text-2xl font-bold">Achievements</h1><p className="text-muted-foreground mt-4 uppercase text-xs font-black tracking-widest">Unlock badges for excellence.</p></div>} />
+                <Route path="settings" element={<div className="p-8 animate-fade-in"><h1 className="text-2xl font-bold">Settings</h1></div>} />
+            </Route>
+        </Routes>
     );
 };
 export default LearnerDashboard;

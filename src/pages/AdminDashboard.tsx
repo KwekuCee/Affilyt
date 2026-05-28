@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate, Routes, Route } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import AdminShell from "@/components/admin/AdminShell";
+import DashboardLayout from "@/components/DashboardLayout";
 import Overview from "@/components/admin/pages/Overview";
 import Users from "@/components/admin/pages/Users";
 import Vendors from "@/components/admin/pages/Vendors";
@@ -47,7 +47,7 @@ const AdminDashboard = () => {
 
   return (
     <Routes>
-      <Route element={<AdminShell />}>
+      <Route element={<DashboardLayout type="admin" />}>
         <Route index element={<Overview />} />
         <Route path="activity" element={<Activity />} />
         <Route path="analytics" element={<Analytics />} />
