@@ -62,11 +62,20 @@ const vendorLinks = [
   { id: "tax", to: "/dashboard/vendor/tax", label: "Taxes", icon: Calculator },
   { id: "payouts", to: "/dashboard/vendor/payouts", label: "Payouts", icon: Wallet },
   { id: "reports", to: "/dashboard/vendor/reports", label: "Reports", icon: FileText },
+  { id: "messages", to: "/dashboard/vendor/messages", label: "Messages", icon: MessageSquare },
   { id: "settings", to: "/dashboard/vendor/settings", label: "Settings", icon: Settings },
 ];
 
+const learnerLinks = [
+  { id: "overview", to: "/dashboard/learner", label: "Overview", icon: LayoutDashboard },
+  { id: "courses", to: "/dashboard/learner/courses", label: "My Courses", icon: BookOpen },
+  { id: "quizzes", to: "/dashboard/learner/quizzes", label: "Quizzes", icon: HelpCircle },
+  { id: "achievements", to: "/dashboard/learner/achievements", label: "Achievements", icon: Trophy },
+  { id: "settings", to: "/dashboard/learner/settings", label: "Settings", icon: Settings },
+];
+
 interface DashboardSidebarProps {
-  type: "affiliate" | "admin" | "vendor";
+  type: "affiliate" | "admin" | "vendor" | "learner";
 }
 
 const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
@@ -75,7 +84,7 @@ const DashboardSidebar = ({ type }: DashboardSidebarProps) => {
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const links = type === "admin" ? adminLinks : type === "affiliate" ? affiliateLinks : vendorLinks;
+  const links = type === "admin" ? adminLinks : type === "affiliate" ? affiliateLinks : type === "vendor" ? vendorLinks : learnerLinks;
 
   // Close mobile sidebar on route change
   useEffect(() => {

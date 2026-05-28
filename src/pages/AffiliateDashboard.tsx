@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import DashboardSidebar from "@/components/DashboardSidebar";
+import DashboardLayout from "@/components/DashboardLayout";
 import HelpAI from "@/components/HelpAI";
 import SmartLinkCustomizer from "@/components/affiliate/SmartLinkCustomizer";
 import QRCodeGenerator from "@/components/affiliate/QRCodeGenerator";
@@ -783,9 +783,8 @@ const AffiliateReports = () => {
 
 // --- Main Dashboard ---
 const AffiliateDashboard = () => {
-  const { user, isLoading, profile, signOut } = useAuth();
+  const { user, isLoading, profile } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     if (!isLoading) {
@@ -801,45 +800,36 @@ const AffiliateDashboard = () => {
   if (!user || !profile?.package_tier) return null;
 
   return (
-    <div className="min-h-screen flex bg-background theme-affiliate relative overflow-hidden text-foreground">
-      {/* Glassmorphic Animated Background Blobs */}
-      <div className="bg-blob bg-blob-1" />
-      <div className="bg-blob bg-blob-2" />
-      <div className="bg-blob bg-blob-3" />
-
-      <DashboardSidebar type="affiliate" />
-
-      <main className="flex-1 pt-16 lg:pt-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10 overflow-y-auto min-h-screen relative z-10 scrollbar-hide">
-        <div className="max-w-7xl mx-auto space-y-8 lg:space-y-10">
-          <Routes>
-            <Route index element={<DashboardOverview />} />
-            <Route path="products" element={<AffiliateProducts />} />
-            <Route path="links" element={<AffiliateLinks />} />
-            <Route path="smart-links" element={<SmartLinkCustomizer />} />
-            <Route path="qr-codes" element={<QRCodeGenerator />} />
-            <Route path="calendar" element={<EarningsCalendar />} />
-            <Route path="funnel" element={<ConversionFunnel />} />
-            <Route path="top-products" element={<TopProductsCarousel />} />
-            <Route path="notifications" element={<NotificationsCenter />} />
-            <Route path="resources" element={<MarketingResources />} />
-            <Route path="goals" element={<GoalTracker />} />
-            <Route path="channels" element={<ChannelAttribution />} />
-            <Route path="referrals" element={<ReferralProgram />} />
-            <Route path="tax-docs" element={<TaxDocumentGenerator />} />
-            <Route path="reports" element={<AffiliateReports />} />
-            <Route path="contests" element={<AffiliatePrizes />} />
-            <Route path="leaderboard" element={<AffiliateLeaderboard />} />
-            <Route path="membership" element={<div>Membership Module (Coming Soon)</div>} />
-            <Route path="prizes" element={<AffiliatePrizes />} />
-            <Route path="payments" element={<AffiliatePayments />} />
-            <Route path="community" element={<div>Community Module (Coming Soon)</div>} />
-            <Route path="blogs" element={<div>News Module (Coming Soon)</div>} />
-            <Route path="settings" element={<AffiliateSettings />} />
-          </Routes>
-        </div>
-      </main>
+    <>
+      <Routes>
+        <Route element={<DashboardLayout type="affiliate" />}>
+          <Route index element={<DashboardOverview />} />
+          <Route path="products" element={<AffiliateProducts />} />
+          <Route path="links" element={<AffiliateLinks />} />
+          <Route path="smart-links" element={<SmartLinkCustomizer />} />
+          <Route path="qr-codes" element={<QRCodeGenerator />} />
+          <Route path="calendar" element={<EarningsCalendar />} />
+          <Route path="funnel" element={<ConversionFunnel />} />
+          <Route path="top-products" element={<TopProductsCarousel />} />
+          <Route path="notifications" element={<NotificationsCenter />} />
+          <Route path="resources" element={<MarketingResources />} />
+          <Route path="goals" element={<GoalTracker />} />
+          <Route path="channels" element={<ChannelAttribution />} />
+          <Route path="referrals" element={<ReferralProgram />} />
+          <Route path="tax-docs" element={<TaxDocumentGenerator />} />
+          <Route path="reports" element={<AffiliateReports />} />
+          <Route path="contests" element={<AffiliatePrizes />} />
+          <Route path="leaderboard" element={<AffiliateLeaderboard />} />
+          <Route path="membership" element={<div>Membership Module (Coming Soon)</div>} />
+          <Route path="prizes" element={<AffiliatePrizes />} />
+          <Route path="payments" element={<AffiliatePayments />} />
+          <Route path="community" element={<div>Community Module (Coming Soon)</div>} />
+          <Route path="blogs" element={<div>News Module (Coming Soon)</div>} />
+          <Route path="settings" element={<AffiliateSettings />} />
+        </Route>
+      </Routes>
       <HelpAI />
-    </div>
+    </>
   );
 };
 

@@ -32,24 +32,55 @@ import TaxSettings from "@/components/vendor/TaxSettings";
 import SubscriptionManagement from "@/components/vendor/SubscriptionManagement";
 import BulkImport from "@/components/vendor/BulkImport";
 import ABTesting from "@/components/vendor/ABTesting";
+import MessagingSystem from "@/components/MessagingSystem";
+
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
 
 // ─── Overview ─────────────────────────────────────────────────────────
 const VendorOverview = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState({ revenue: 0, orders: 0, products: 0, affiliates: 0 });
+  const [chartData, setChartData] = useState<any[]>([]);
   const [recentOrders, setRecentOrders] = useState<any[]>([]);
   const [pendingTasks, setPendingTasks] = useState<{ type: string; count: number; icon: any; link: string; color: string }[]>([]);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      // 1. Fetch main stats
-      const { data: orders } = await supabase.from("orders").select("id, amount, seller_earnings, affiliate_id, buyer_email, created_at, status").eq("seller_id", user.id).order('created_at', { ascending: false });
-      const revenue = (orders || []).reduce((s: number, o: any) => s + Number(o.seller_earnings || 0), 0);
-      const affiliateSet = new Set((orders || []).map((o: any) => o.affiliate_id).filter(Boolean));
-      const { count: products } = await supabase.from("products").select("id", { count: "exact" }).eq("seller_id", user.id);
+      // 1. Fetch main stats via performance view
+      const { data: vStats } = await (supabase.from("vendor_stats" as any) as any).select("*").eq("seller_id", user.id).single();
+      const { data: orders } = await supabase.from("orders").select("id, amount, seller_earnings, affiliate_id, buyer_email, created_at, status").eq("seller_id", user.id).order('created_at', { ascending: false }).limit(50);
 
-      setStats({ revenue, orders: (orders || []).length, products: products || 0, affiliates: affiliateSet.size });
+      if (vStats) {
+        setStats({
+          revenue: vStats.total_revenue || 0,
+          orders: vStats.total_orders || 0,
+          products: vStats.total_products || 0,
+          affiliates: vStats.total_affiliates || 0
+        });
+
+        // Chart data (last 7 days)
+        const last7Days = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date();
+          d.setDate(d.getDate() - (6 - i));
+          return {
+            date: d.toLocaleDateString('en-US', { weekday: 'short' }),
+            rawDate: d.setHours(0, 0, 0, 0),
+            revenue: 0,
+            orders: 0
+          };
+        });
+
+        (orders || []).forEach((o: any) => {
+          const oDate = new Date(o.created_at).setHours(0, 0, 0, 0);
+          const day = last7Days.find(d => d.rawDate === oDate);
+          if (day) {
+            day.revenue += Number(o.seller_earnings);
+            day.orders += 1;
+          }
+        });
+        setChartData(last7Days);
+      }
       setRecentOrders((orders || []).slice(0, 4));
 
       // 2. Fetch pending tasks (Low stock, Pending Reviews)
@@ -99,6 +130,27 @@ const VendorOverview = () => {
         <StatsCard title="Total Volume" value={stats.orders.toString()} icon={ShoppingCart} trend="Total orders processed" />
         <StatsCard title="Active Listings" value={stats.products.toString()} icon={Package} trend="Live on marketplace" />
         <StatsCard title="Promoters" value={stats.affiliates.toString()} icon={Activity} trend="Affiliates driving sales" />
+      </div>
+
+      <div className="p-8 rounded-[2rem] glass">
+        <h3 className="text-sm font-black uppercase text-muted-foreground tracking-widest mb-6">Revenue Trend (Last 7 Days)</h3>
+        <div className="h-[300px] w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData}>
+              <defs>
+                <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
+              <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fontSize: 10 }} />
+              <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10 }} width={40} tickFormatter={(v) => `$${v}`} />
+              <RechartsTooltip contentStyle={{ borderRadius: '1rem', border: 'none', background: 'hsl(var(--background))', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)' }} />
+              <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -568,11 +620,21 @@ const VendorSettings = () => {
   );
 };
 
+import DashboardLayout from "@/components/DashboardLayout";
+
+const VendorMessages = () => {
+  return (
+    <div className="space-y-8 animate-in fade-in duration-500">
+      <h2 className="text-3xl font-black text-foreground italic uppercase tracking-tight">Messages</h2>
+      <MessagingSystem />
+    </div>
+  );
+};
+
 // ─── Main ─────────────────────────────────────────────────────────────
 const VendorDashboard = () => {
-  const { user, isLoading, profile, signOut } = useAuth();
+  const { user, isLoading } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const [isVendor, setIsVendor] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -591,47 +653,30 @@ const VendorDashboard = () => {
   if (isLoading || isVendor === null) return <div className="min-h-screen flex items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   if (!user || !isVendor) return null;
 
-  const items = [
-    { label: "Overview", icon: LayoutDashboard, path: "/dashboard/vendor" },
-    { label: "Products", icon: Package, path: "/dashboard/vendor/products" },
-    { label: "Orders", icon: ShoppingCart, path: "/dashboard/vendor/orders" },
-    { label: "Affiliates", icon: Users, path: "/dashboard/vendor/affiliates" },
-    { label: "Payouts", icon: Wallet, path: "/dashboard/vendor/payouts" },
-    { label: "Reports", icon: FileText, path: "/dashboard/vendor/reports" },
-    { label: "Settings", icon: SettingsIcon, path: "/dashboard/vendor/settings" },
-  ];
-
   return (
-    <div className="min-h-screen flex bg-background theme-vendor relative overflow-hidden text-foreground">
-      {/* Glassmorphic Animated Background Blobs */}
-      <div className="bg-blob bg-blob-1" />
-      <div className="bg-blob bg-blob-2" />
-      <div className="bg-blob bg-blob-3" />
-
-      <DashboardSidebar type="vendor" />
-      <main className="flex-1 pt-16 lg:pt-0 px-4 py-6 sm:px-6 sm:py-8 lg:px-10 lg:py-10 overflow-y-auto min-h-screen relative z-10 scrollbar-hide">
-        <Routes>
-          <Route index element={<VendorOverview />} />
-          <Route path="analytics" element={<InventoryAnalytics />} />
-          <Route path="products" element={<VendorProducts />} />
-          <Route path="orders" element={<OrderManagement />} />
-          <Route path="import" element={<BulkImport />} />
-          <Route path="stock" element={<StockManagement />} />
-          <Route path="ab-testing" element={<ABTesting />} />
-          <Route path="leaderboard" element={<AffiliateLeaderboard />} />
-          <Route path="commissions" element={<CommissionOverrides />} />
-          <Route path="coupons" element={<CouponCodes />} />
-          <Route path="reviews" element={<CustomerReviews />} />
-          <Route path="storefront" element={<StorefrontSettings />} />
-          <Route path="subscription" element={<SubscriptionManagement />} />
-          <Route path="tax" element={<TaxSettings />} />
-          <Route path="affiliates" element={<VendorAffiliates />} />
-          <Route path="payouts" element={<VendorPayouts />} />
-          <Route path="reports" element={<VendorReports />} />
-          <Route path="settings" element={<VendorSettings />} />
-        </Routes>
-      </main>
-    </div>
+    <Routes>
+      <Route element={<DashboardLayout type="vendor" />}>
+        <Route index element={<VendorOverview />} />
+        <Route path="analytics" element={<InventoryAnalytics />} />
+        <Route path="products" element={<VendorProducts />} />
+        <Route path="orders" element={<OrderManagement />} />
+        <Route path="import" element={<BulkImport />} />
+        <Route path="stock" element={<StockManagement />} />
+        <Route path="ab-testing" element={<ABTesting />} />
+        <Route path="leaderboard" element={<AffiliateLeaderboard />} />
+        <Route path="commissions" element={<CommissionOverrides />} />
+        <Route path="coupons" element={<CouponCodes />} />
+        <Route path="reviews" element={<CustomerReviews />} />
+        <Route path="storefront" element={<StorefrontSettings />} />
+        <Route path="subscription" element={<SubscriptionManagement />} />
+        <Route path="tax" element={<TaxSettings />} />
+        <Route path="affiliates" element={<VendorAffiliates />} />
+        <Route path="payouts" element={<VendorPayouts />} />
+        <Route path="reports" element={<VendorReports />} />
+          <Route path="messages" element={<VendorMessages />} />
+        <Route path="settings" element={<VendorSettings />} />
+      </Route>
+    </Routes>
   );
 };
 

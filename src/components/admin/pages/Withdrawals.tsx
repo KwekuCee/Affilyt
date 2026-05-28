@@ -4,10 +4,18 @@ import { useToast } from "@/hooks/use-toast";
 import PageHeader from "@/components/admin/PageHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Eye } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter
+} from "@/components/ui/dialog";
 
 const Withdrawals = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [tab, setTab] = useState<"affiliate" | "seller">("affiliate");
+  const [selected, setSelected] = useState<any>(null);
+  const [notes, setNotes] = useState("");
+  const [open, setOpen] = useState(false);
   const { toast } = useToast();
 
   const load = async () => {
@@ -28,13 +36,22 @@ const Withdrawals = () => {
 
   useEffect(() => { load(); }, [tab]);
 
-  const setStatus = async (id: string, status: string) => {
+  const setStatus = async (id: string, status: string, adminNotes?: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
     const table = tab === "affiliate" ? "withdrawals" : "seller_payouts";
-    const update: any = { status };
+    const update: any = {
+      status,
+      admin_notes: adminNotes,
+      approved_by: user?.id
+    };
     if (status === "completed") update.processed_at = new Date().toISOString();
-    const { error } = await supabase.from(table).update(update).eq("id", id);
+    const { error } = await (supabase.from(table) as any).update(update).eq("id", id);
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { toast({ title: `Marked ${status}` }); load(); }
+    else {
+      toast({ title: `Marked ${status}` });
+      setOpen(false);
+      load();
+    }
   };
 
   return (
@@ -90,18 +107,62 @@ const Withdrawals = () => {
                   {new Date(r.created_at).toLocaleString()}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  {r.status === "pending" && (
-                    <div className="flex gap-1 justify-end">
-                      <Button size="sm" variant="ghost" className="h-8 text-emerald-600" onClick={() => setStatus(r.id, "completed")}>Approve</Button>
-                      <Button size="sm" variant="ghost" className="h-8 text-destructive" onClick={() => setStatus(r.id, "rejected")}>Reject</Button>
-                    </div>
-                  )}
+                  <div className="flex gap-1 justify-end">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8"
+                      onClick={() => {
+                        setSelected(r);
+                        setNotes(r.admin_notes || "");
+                        setOpen(true);
+                      }}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                    {r.status === "pending" && (
+                      <>
+                        <Button size="sm" variant="ghost" className="h-8 text-emerald-600" onClick={() => setStatus(r.id, "completed")}>Approve</Button>
+                        <Button size="sm" variant="ghost" className="h-8 text-destructive" onClick={() => setStatus(r.id, "rejected")}>Reject</Button>
+                      </>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Review Payout</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div><p className="text-muted-foreground">User ID</p><p className="font-mono">{selected?.affiliate_id || selected?.seller_id}</p></div>
+              <div><p className="text-muted-foreground">Amount</p><p className="font-bold">${selected?.amount}</p></div>
+              {tab === "affiliate" && (
+                <>
+                  <div><p className="text-muted-foreground">Method</p><p className="uppercase">{selected?.method}</p></div>
+                  <div><p className="text-muted-foreground">Account</p><p>{selected?.account_number}</p></div>
+                </>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold uppercase text-muted-foreground">Admin Notes</label>
+              <Input
+                placeholder="Internal notes or reason for rejection..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" className="flex-1" onClick={() => setStatus(selected.id, 'rejected', notes)}>Reject</Button>
+            <Button className="flex-1" onClick={() => setStatus(selected.id, 'completed', notes)}>Approve & Complete</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

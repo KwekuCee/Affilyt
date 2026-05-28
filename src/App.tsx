@@ -20,6 +20,7 @@ import GlobalBackground from "@/components/GlobalBackground";
 import AffiliatePricing from "@/pages/AffiliatePricing";
 import LearnerCheckout from "@/pages/LearnerCheckout";
 import ProductStorefront from "@/pages/Storefront";
+import CoursePlayer from "@/pages/CoursePlayer";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,7 @@ const App = () => (
               <Route path="/dashboard/vendor/*" element={<VendorDashboard />} />
               <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
               <Route path="/dashboard/learner/*" element={<LearnerDashboard />} />
+              <Route path="/course/:productId" element={<CoursePlayer />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
