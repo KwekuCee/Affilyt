@@ -6,7 +6,7 @@ import {
   Gift, Wallet, MessageSquare, FileText, ChevronLeft, ChevronRight,
   User as UserIcon, Shield, ShoppingCart, QrCode, CalendarDays,
   Filter, Star, Bell, FolderOpen, Target, Globe, UserPlus, Menu, X,
-  Percent, Ticket, Boxes, FlaskConical, UploadCloud, Calculator
+  Percent, Ticket, Boxes, FlaskConical, UploadCloud, Calculator, BookOpen
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
