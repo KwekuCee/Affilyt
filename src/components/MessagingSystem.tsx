@@ -46,7 +46,7 @@ const MessagingSystem = () => {
         .select("*")
         .or(`and(sender_id.eq.${user.id},receiver_id.eq.${selectedContact.user_id}),and(sender_id.eq.${selectedContact.user_id},receiver_id.eq.${user.id})`)
         .order("created_at", { ascending: true });
-      setMessages(data || []);
+      setMessages((data as any) || []);
 
       // Mark as read
       await supabase
@@ -93,7 +93,7 @@ const MessagingSystem = () => {
     if (error) {
       toast({ title: "Error", description: "Failed to send message.", variant: "destructive" });
     } else {
-      setMessages(prev => [...prev, data]);
+      setMessages(prev => [...prev, data as any]);
       setNewMessage("");
     }
   };
