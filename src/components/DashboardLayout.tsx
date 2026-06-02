@@ -99,6 +99,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ type }) => {
         <main className="flex-1 p-4 lg:p-8 overflow-y-auto relative z-10 scrollbar-hide">
           <div className="max-w-7xl mx-auto">
             <AnnouncementBanner audience={type} />
+            <Outlet />
           </div>
         </main>
       </div>
