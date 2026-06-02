@@ -5,6 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 import { Bell, Search, MessageSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
+import NotificationsBell from "./NotificationsBell";
+import AnnouncementBanner from "./AnnouncementBanner";
 
 interface DashboardLayoutProps {
   type: "admin" | "vendor" | "affiliate" | "learner";
@@ -80,10 +82,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ type }) => {
                 <span className="absolute top-2 right-2 h-2 w-2 bg-primary rounded-full ring-2 ring-background" />
               )}
             </button>
-            <button className="h-9 w-9 rounded-xl hover:bg-muted flex items-center justify-center text-muted-foreground transition-colors relative">
-              <Bell className="h-4 w-4" />
-              <span className="absolute top-2 right-2 h-2 w-2 bg-success rounded-full ring-2 ring-background" />
-            </button>
+            <NotificationsBell />
           </div>
 
           <div className="flex items-center gap-2 pl-3 border-l border-border">
@@ -99,7 +98,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ type }) => {
 
         <main className="flex-1 p-4 lg:p-8 overflow-y-auto relative z-10 scrollbar-hide">
           <div className="max-w-7xl mx-auto">
-            <Outlet />
+            <AnnouncementBanner audience={type} />
           </div>
         </main>
       </div>
