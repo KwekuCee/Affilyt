@@ -160,6 +160,51 @@ export type Database = {
           },
         ]
       }
+      announcements: {
+        Row: {
+          audience: string
+          body: string
+          created_at: string
+          created_by: string | null
+          cta_label: string | null
+          cta_url: string | null
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          starts_at: string
+          title: string
+          variant: string
+        }
+        Insert: {
+          audience?: string
+          body: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          starts_at?: string
+          title: string
+          variant?: string
+        }
+        Update: {
+          audience?: string
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string | null
+          cta_url?: string | null
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          starts_at?: string
+          title?: string
+          variant?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           action: string
@@ -1595,6 +1640,36 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      withdrawal_settings: {
+        Row: {
+          auto_withdraw: boolean
+          created_at: string
+          id: string
+          min_payout_amount: number
+          preferred_method: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_withdraw?: boolean
+          created_at?: string
+          id?: string
+          min_payout_amount?: number
+          preferred_method?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_withdraw?: boolean
+          created_at?: string
+          id?: string
+          min_payout_amount?: number
+          preferred_method?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
