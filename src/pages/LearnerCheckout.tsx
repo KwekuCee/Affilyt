@@ -30,8 +30,7 @@ const LearnerCheckout = () => {
             if (authData.user) {
                 await supabase.from("profiles").update({
                     full_name: name,
-                    role: "learner"
-                }).eq("id", authData.user.id);
+                }).eq("user_id", authData.user.id);
             }
 
             alert("Payment processed successfully. Welcome to the Learner Ecosystem!");

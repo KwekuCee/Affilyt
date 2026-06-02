@@ -6,7 +6,7 @@ import {
   Gift, Wallet, MessageSquare, FileText, ChevronLeft, ChevronRight,
   User as UserIcon, Shield, ShoppingCart, QrCode, CalendarDays,
   Filter, Star, Bell, FolderOpen, Target, Globe, UserPlus, Menu, X,
-  Percent, Ticket, Boxes, FlaskConical, UploadCloud, Calculator
+  Percent, Ticket, Boxes, FlaskConical, UploadCloud, Calculator, BookOpen
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useEffect } from "react";
@@ -57,7 +57,7 @@ const vendorLinks = [
   { id: "commissions", to: "/dashboard/vendor/commissions", label: "Commissions", icon: Percent },
   { id: "coupons", to: "/dashboard/vendor/coupons", label: "Coupons", icon: Ticket },
   { id: "reviews", to: "/dashboard/vendor/reviews", label: "Reviews", icon: Star },
-  { id: "storefront", to: "/dashboard/vendor/products", label: "Inventory", icon: Store },
+  { id: "storefront", to: "/dashboard/vendor/storefront", label: "Storefront", icon: Store },
   { id: "subscription", to: "/dashboard/vendor/subscription", label: "Subscription", icon: CreditCard },
   { id: "tax", to: "/dashboard/vendor/tax", label: "Taxes", icon: Calculator },
   { id: "payouts", to: "/dashboard/vendor/payouts", label: "Payouts", icon: Wallet },
