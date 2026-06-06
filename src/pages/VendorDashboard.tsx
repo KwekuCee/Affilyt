@@ -33,6 +33,8 @@ import SubscriptionManagement from "@/components/vendor/SubscriptionManagement";
 import BulkImport from "@/components/vendor/BulkImport";
 import ABTesting from "@/components/vendor/ABTesting";
 import MessagingSystem from "@/components/MessagingSystem";
+import SalesHeatmap from "@/components/vendor/SalesHeatmap";
+import RefundRequestUI from "@/components/vendor/RefundRequestUI";
 
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from "recharts";
 
@@ -658,6 +660,8 @@ const VendorDashboard = () => {
       <Route element={<DashboardLayout type="vendor" />}>
         <Route index element={<VendorOverview />} />
         <Route path="analytics" element={<InventoryAnalytics />} />
+        <Route path="heatmap" element={<SalesHeatmap />} />
+        <Route path="refund-requests" element={<RefundRequestUI />} />
         <Route path="products" element={<VendorProducts />} />
         <Route path="orders" element={<OrderManagement />} />
         <Route path="import" element={<BulkImport />} />

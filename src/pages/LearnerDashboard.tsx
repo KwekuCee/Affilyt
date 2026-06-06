@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
+import CertificateGenerator from "@/components/learner/CertificateGenerator";
 
 const CourseCard = ({ course }: { course: any }) => (
     <div className="rounded-[2rem] glass-subtle border border-white/5 overflow-hidden group hover:border-primary/30 transition-all duration-500">
@@ -162,6 +163,7 @@ const LearnerDashboard = () => {
                 <Route path="courses" element={<LearnerCourses />} />
                 <Route path="quizzes" element={<div className="p-8 animate-fade-in"><h1 className="text-2xl font-bold">Quizzes</h1><p className="text-muted-foreground mt-4 uppercase text-xs font-black tracking-widest">Evaluations coming in the next payload.</p></div>} />
                 <Route path="achievements" element={<div className="p-8 animate-fade-in"><h1 className="text-2xl font-bold">Achievements</h1><p className="text-muted-foreground mt-4 uppercase text-xs font-black tracking-widest">Unlock badges for excellence.</p></div>} />
+                <Route path="certificates" element={<CertificateGenerator />} />
                 <Route path="settings" element={<div className="p-8 animate-fade-in"><h1 className="text-2xl font-bold">Settings</h1></div>} />
             </Route>
         </Routes>

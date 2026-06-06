@@ -28,6 +28,9 @@ import GoalTracker from "@/components/affiliate/GoalTracker";
 import ChannelAttribution from "@/components/affiliate/ChannelAttribution";
 import ReferralProgram from "@/components/affiliate/ReferralProgram";
 import TaxDocumentGenerator from "@/components/affiliate/TaxDocumentGenerator";
+import DeepLinkGenerator from "@/components/affiliate/DeepLinkGenerator";
+import WithdrawalBalanceCard from "@/components/affiliate/WithdrawalBalanceCard";
+import EarningsProjection from "@/components/affiliate/EarningsProjection";
 
 // --- Overview ---
 const DashboardOverview = () => {
@@ -806,6 +809,9 @@ const AffiliateDashboard = () => {
           <Route index element={<DashboardOverview />} />
           <Route path="products" element={<AffiliateProducts />} />
           <Route path="links" element={<AffiliateLinks />} />
+          <Route path="deep-links" element={<DeepLinkGenerator />} />
+          <Route path="balance" element={<WithdrawalBalanceCard />} />
+          <Route path="projection" element={<EarningsProjection />} />
           <Route path="smart-links" element={<SmartLinkCustomizer />} />
           <Route path="qr-codes" element={<QRCodeGenerator />} />
           <Route path="calendar" element={<EarningsCalendar />} />
