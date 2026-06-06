@@ -26,7 +26,7 @@ const SellerSubscriptions = () => {
 
   return (
     <div className="p-8 space-y-6 animate-fade-in">
-      <PageHeader title="Seller Subscriptions" subtitle="$50/year seller plan management" icon={Crown} />
+      <PageHeader title="Seller Subscriptions" description="$50/year seller plan management" />
       <div className="grid gap-3">
         {subs.map((s) => (
           <Card key={s.id} className="p-5 flex items-center justify-between glass-subtle">
