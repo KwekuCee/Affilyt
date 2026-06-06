@@ -20,6 +20,7 @@ import Refunds from "@/components/admin/pages/Refunds";
 import AuditLog from "@/components/admin/pages/AuditLog";
 import Coupons from "@/components/admin/pages/Coupons";
 import Health from "@/components/admin/pages/Health";
+import SellerSubscriptions from "@/components/admin/pages/SellerSubscriptions";
 
 const AdminDashboard = () => {
   const { user, isAdmin, isLoading } = useAuth();
@@ -64,6 +65,7 @@ const AdminDashboard = () => {
         <Route path="blogs" element={<Blogs />} />
         <Route path="audit" element={<AuditLog />} />
         <Route path="health" element={<Health />} />
+        <Route path="seller-subscriptions" element={<SellerSubscriptions />} />
         <Route path="settings" element={<Settings />} />
       </Route>
     </Routes>
