@@ -23,8 +23,8 @@ const WithdrawalBalanceCard = () => {
       setEarned(completed);
       setPending(requested);
 
-      const { data: ws } = await supabase.from("withdrawal_settings").select("min_payout").eq("user_id", user.id).maybeSingle();
-      if (ws?.min_payout) setMinPayout(Number(ws.min_payout));
+      const { data: ws } = await supabase.from("withdrawal_settings").select("min_payout_amount").eq("user_id", user.id).maybeSingle();
+      if (ws?.min_payout_amount) setMinPayout(Number(ws.min_payout_amount));
     })();
   }, [user]);
 
