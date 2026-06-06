@@ -21,22 +21,33 @@ Deno.serve(async (req) => {
 
     let processed = 0
     for (const b of queued || []) {
-      let userQuery = supabase.from('user_roles').select('user_id')
-      if (b.audience && b.audience !== 'all') {
-        userQuery = userQuery.eq('role', b.audience)
+      // Resolve audience -> user list
+      let userIds: string[] = []
+      if (b.audience === 'all' || !b.audience) {
+        const { data } = await supabase.from('profiles').select('user_id')
+        userIds = (data || []).map((u: any) => u.user_id)
+      } else if (b.audience === 'admins') {
+        const { data } = await supabase.from('user_roles').select('user_id').eq('role', 'admin')
+        userIds = (data || []).map((u: any) => u.user_id)
+      } else if (b.audience === 'affiliates') {
+        const { data } = await supabase.from('profiles').select('user_id').not('package_tier', 'is', null)
+        userIds = (data || []).map((u: any) => u.user_id)
+      } else if (b.audience === 'sellers') {
+        const { data } = await supabase.from('seller_subscriptions').select('user_id').eq('status', 'active')
+        userIds = (data || []).map((u: any) => u.user_id)
       }
-      const { data: users } = await userQuery
-      const rows = (users || []).map((u: any) => ({
-        user_id: u.user_id,
+
+      const rows = userIds.map((id) => ({
+        user_id: id,
         type: 'broadcast',
-        title: b.title,
+        title: b.subject,
         description: b.body,
       }))
       if (rows.length) await supabase.from('notifications').insert(rows)
 
       await supabase
         .from('broadcasts')
-        .update({ status: 'sent', sent_at: new Date().toISOString(), recipients_count: rows.length })
+        .update({ status: 'sent', sent_at: new Date().toISOString(), recipient_count: rows.length })
         .eq('id', b.id)
       processed++
     }

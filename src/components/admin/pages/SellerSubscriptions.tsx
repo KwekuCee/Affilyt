@@ -13,7 +13,7 @@ const SellerSubscriptions = () => {
   const load = async () => {
     const { data } = await supabase
       .from("seller_subscriptions")
-      .select("*, profiles!seller_subscriptions_user_id_fkey(full_name, email)")
+      .select("*")
       .order("created_at", { ascending: false });
     setSubs(data || []);
   };
@@ -31,9 +31,9 @@ const SellerSubscriptions = () => {
         {subs.map((s) => (
           <Card key={s.id} className="p-5 flex items-center justify-between glass-subtle">
             <div>
-              <div className="font-black uppercase tracking-tight">{s.profiles?.full_name || s.user_id}</div>
+              <div className="font-black uppercase tracking-tight text-sm">{s.user_id.substring(0, 8)}…</div>
               <div className="text-[10px] text-muted-foreground flex items-center gap-2 mt-1">
-                <Calendar className="w-3 h-3" /> Renews {s.renews_at ? new Date(s.renews_at).toLocaleDateString() : "—"}
+                <Calendar className="w-3 h-3" /> Expires {s.expires_at ? new Date(s.expires_at).toLocaleDateString() : "—"} · ${Number(s.amount).toFixed(2)}
               </div>
             </div>
             <div className="flex items-center gap-3">

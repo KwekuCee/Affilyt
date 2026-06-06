@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
     const { data: { user } } = await supabase.auth.getUser(auth.replace('Bearer ', ''))
     if (!user) throw new Error('Unauthorized')
 
-    const { year, region } = await req.json()
+    const { year } = await req.json()
     const yr = Number(year) || new Date().getFullYear()
 
     const { data: commissions } = await supabase
@@ -24,18 +24,33 @@ Deno.serve(async (req) => {
       .gte('created_at', `${yr}-01-01`)
       .lt('created_at', `${yr + 1}-01-01`)
 
-    const total = (commissions || []).reduce((s: number, c: any) => s + Number(c.amount), 0)
+    const gross = (commissions || []).reduce((s: number, c: any) => s + Number(c.amount), 0)
+    const fees = gross * 0.1
+    const net = gross - fees
+
+    const monthly = Array.from({ length: 12 }, (_, m) => ({ month: m + 1, amount: 0 }))
+    ;(commissions || []).forEach((c: any) => {
+      monthly[new Date(c.created_at).getMonth()].amount += Number(c.amount)
+    })
+
+    const { data: ordCount } = await supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('affiliate_id', user.id)
+      .gte('created_at', `${yr}-01-01`)
+      .lt('created_at', `${yr + 1}-01-01`)
 
     const { data: doc, error } = await supabase
       .from('tax_documents')
-      .insert({
+      .upsert({
         user_id: user.id,
-        year: yr,
-        region: region || 'GH',
-        total_earnings: total,
-        status: 'ready',
-        document_type: 'annual_summary',
-      })
+        tax_year: yr,
+        gross_earnings: gross,
+        total_fees: fees,
+        net_earnings: net,
+        total_orders: (ordCount as any)?.length || 0,
+        monthly_breakdown: monthly,
+      }, { onConflict: 'user_id,tax_year' })
       .select()
       .single()
     if (error) throw error
