@@ -36,9 +36,9 @@ const Footer = () => (
         <div className="space-y-4">
           <h5 className="text-xs font-semibold uppercase tracking-wider text-foreground">Legal</h5>
           <nav className="flex flex-col gap-2.5 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors w-fit">Terms of Service</a>
-            <a href="#" className="hover:text-foreground transition-colors w-fit">Privacy Policy</a>
-            <a href="#" className="hover:text-foreground transition-colors w-fit">Refund Policy</a>
+            <Link to="/terms-of-service" className="hover:text-foreground transition-colors w-fit">Terms of Service</Link>
+            <Link to="/privacy-policy" className="hover:text-foreground transition-colors w-fit">Privacy Policy</Link>
+            <Link to="/refund-policy" className="hover:text-foreground transition-colors w-fit">Refund Policy</Link>
           </nav>
         </div>
 

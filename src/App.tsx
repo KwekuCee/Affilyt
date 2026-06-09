@@ -21,6 +21,9 @@ import AffiliatePricing from "@/pages/AffiliatePricing";
 import LearnerCheckout from "@/pages/LearnerCheckout";
 import ProductStorefront from "@/pages/Storefront";
 import CoursePlayer from "@/pages/CoursePlayer";
+import TermsOfService from "@/pages/TermsOfService";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import RefundPolicy from "@/pages/RefundPolicy";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +50,9 @@ const App = () => (
               <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
               <Route path="/dashboard/learner/*" element={<LearnerDashboard />} />
               <Route path="/course/:productId" element={<CoursePlayer />} />
+              <Route path="/terms-of-service" element={<TermsOfService />} />
+              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="/refund-policy" element={<RefundPolicy />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
