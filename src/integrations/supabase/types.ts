@@ -46,27 +46,60 @@ export type Database = {
       }
       affiliate_applications: {
         Row: {
+          amount: number | null
           approved_at: string | null
+          audience_size: string | null
+          commission_rate: number | null
+          country: string | null
           created_at: string
+          email: string | null
+          experience: string | null
+          full_name: string | null
           id: string
+          marketing_channels: string | null
+          package_name: string | null
           payment_reference: string | null
+          phone: string | null
           status: string
+          updated_at: string
           user_id: string
         }
         Insert: {
+          amount?: number | null
           approved_at?: string | null
+          audience_size?: string | null
+          commission_rate?: number | null
+          country?: string | null
           created_at?: string
+          email?: string | null
+          experience?: string | null
+          full_name?: string | null
           id?: string
+          marketing_channels?: string | null
+          package_name?: string | null
           payment_reference?: string | null
+          phone?: string | null
           status?: string
+          updated_at?: string
           user_id: string
         }
         Update: {
+          amount?: number | null
           approved_at?: string | null
+          audience_size?: string | null
+          commission_rate?: number | null
+          country?: string | null
           created_at?: string
+          email?: string | null
+          experience?: string | null
+          full_name?: string | null
           id?: string
+          marketing_channels?: string | null
+          package_name?: string | null
           payment_reference?: string | null
+          phone?: string | null
           status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
