@@ -32,7 +32,7 @@ const BecomeAffiliate = () => {
 
   const [step, setStep] = useState<Step>("intro");
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedPkg, setSelectedPkg] = useState(packages[1]?.name || "Standard");
+  const [selectedPkg, setSelectedPkg] = useState<string>(packages[1]?.name || "Standard");
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
