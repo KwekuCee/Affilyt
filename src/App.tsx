@@ -10,6 +10,7 @@ import Storefront from "@/pages/Storefront";
 import AffiliateDashboard from "@/pages/AffiliateDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
 import BecomeVendor from "@/pages/BecomeVendor";
+import BecomeAffiliate from "@/pages/BecomeAffiliate";
 import LearnerDashboard from "@/pages/LearnerDashboard";
 import VendorDashboard from "@/pages/VendorDashboard";
 import Contact from "@/pages/Contact";
@@ -40,6 +41,8 @@ const App = () => (
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
               <Route path="/become-vendor" element={<BecomeVendor />} />
+              <Route path="/become-affiliate" element={<BecomeAffiliate />} />
+              <Route path="/become-seller" element={<BecomeVendor />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/about" element={<About />} />
               <Route path="/affiliate-pricing" element={<AffiliatePricing />} />

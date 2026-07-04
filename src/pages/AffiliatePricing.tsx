@@ -47,7 +47,7 @@ const AffiliatePricing = () => {
                                         ))}
                                     </ul>
 
-                                    <Link to={`/login?plan=${pkg.name}&role=affiliate`} className="block w-full mt-auto">
+                                    <Link to={`/become-affiliate?plan=${pkg.name}`} className="block w-full mt-auto">
                                         <Button className="w-full h-14 text-sm font-bold tracking-wider" variant={popular ? "default" : "outline"}>
                                             Start with {pkg.name} <ArrowRight className="w-4 h-4 ml-2" />
                                         </Button>
