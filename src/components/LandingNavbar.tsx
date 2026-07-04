@@ -56,8 +56,8 @@ const LandingNavbar = () => {
 
         <div className="hidden lg:flex items-center gap-2">
           <Link to="/login"><Button variant="ghost" size="sm">Sign in</Button></Link>
-          <Link to="/become-seller"><Button variant="outline" size="sm">Sell</Button></Link>
-          <Link to="/affiliate-pricing">
+          <Link to="/become-vendor"><Button variant="outline" size="sm">Sell</Button></Link>
+          <Link to="/become-affiliate">
             <Button size="sm" className="gap-1.5 shadow-glow">
               Join now <ArrowRight className="h-3.5 w-3.5" />
             </Button>
@@ -81,7 +81,7 @@ const LandingNavbar = () => {
             )}
             <div className="grid grid-cols-2 gap-2 pt-3 mt-2 border-t border-border">
               <Link to="/login" onClick={() => setOpen(false)}><Button variant="outline" className="w-full">Sign in</Button></Link>
-              <Link to="/affiliate-pricing" onClick={() => setOpen(false)}><Button className="w-full">Join</Button></Link>
+              <Link to="/become-affiliate" onClick={() => setOpen(false)}><Button className="w-full">Join</Button></Link>
             </div>
           </div>
         </div>
