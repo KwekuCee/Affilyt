@@ -69,10 +69,9 @@ const Storefront = () => {
           user_agent: navigator.userAgent,
           ip_address: "0.0.0.0",
         } as any);
-        await supabase.rpc as any;
-        await supabase.from("affiliate_links").update({ clicks: undefined } as any).eq("id", link.id);
         return;
       }
+
 
       const { data: profileMatch } = await supabase
         .from("profiles")
