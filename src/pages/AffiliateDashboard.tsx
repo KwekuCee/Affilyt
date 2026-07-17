@@ -813,7 +813,7 @@ const AffiliateDashboard = () => {
           <Route path="balance" element={<WithdrawalBalanceCard />} />
           <Route path="projection" element={<EarningsProjection />} />
           <Route path="smart-links" element={<SmartLinkCustomizer />} />
-          <Route path="qr-codes" element={<QRCodeGenerator />} />
+          
           <Route path="calendar" element={<EarningsCalendar />} />
           <Route path="funnel" element={<ConversionFunnel />} />
           <Route path="top-products" element={<TopProductsCarousel />} />
