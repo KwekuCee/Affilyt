@@ -18,7 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import HelpAI from "@/components/HelpAI";
 import SmartLinkCustomizer from "@/components/affiliate/SmartLinkCustomizer";
-import QRCodeGenerator from "@/components/affiliate/QRCodeGenerator";
+
 import EarningsCalendar from "@/components/affiliate/EarningsCalendar";
 import ConversionFunnel from "@/components/affiliate/ConversionFunnel";
 import TopProductsCarousel from "@/components/affiliate/TopProductsCarousel";
@@ -813,7 +813,7 @@ const AffiliateDashboard = () => {
           <Route path="balance" element={<WithdrawalBalanceCard />} />
           <Route path="projection" element={<EarningsProjection />} />
           <Route path="smart-links" element={<SmartLinkCustomizer />} />
-          <Route path="qr-codes" element={<QRCodeGenerator />} />
+          
           <Route path="calendar" element={<EarningsCalendar />} />
           <Route path="funnel" element={<ConversionFunnel />} />
           <Route path="top-products" element={<TopProductsCarousel />} />

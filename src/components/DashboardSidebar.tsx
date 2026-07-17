@@ -28,7 +28,7 @@ const affiliateLinks = [
   { id: "marketplace", to: "/dashboard/affiliate/products", label: "Inventory", icon: Store },
   { id: "links", to: "/dashboard/affiliate/links", label: "My Links", icon: LinkIcon },
   { id: "smart-links", to: "/dashboard/affiliate/smart-links", label: "Smart Links", icon: Zap },
-  { id: "qr-codes", to: "/dashboard/affiliate/qr-codes", label: "QR Codes", icon: QrCode },
+  
   { id: "top-products", to: "/dashboard/affiliate/top-products", label: "Top Products", icon: Star },
   { id: "reports", to: "/dashboard/affiliate/reports", label: "Performance", icon: BarChart3 },
   { id: "funnel", to: "/dashboard/affiliate/funnel", label: "Funnel", icon: Filter },

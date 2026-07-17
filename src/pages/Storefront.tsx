@@ -50,13 +50,28 @@ const Storefront = () => {
     (async () => {
       const { data: link } = await supabase
         .from("affiliate_links")
-        .select("id, affiliate_id")
+        .select("id, affiliate_id, product_id")
         .eq("short_code", refId)
         .maybeSingle();
       if (link) {
         setReferral({ affiliateId: link.affiliate_id, affiliateLinkId: link.id, code: refId });
+        // Track click with utm/channel
+        const utm_source = searchParams.get("utm_source");
+        const utm_medium = searchParams.get("utm_medium");
+        const utm_campaign = searchParams.get("utm_campaign");
+        await supabase.from("link_clicks").insert({
+          affiliate_id: link.affiliate_id,
+          link_id: link.id,
+          product_id: link.product_id,
+          channel: utm_source || null,
+          utm_source, utm_medium, utm_campaign,
+          referrer: document.referrer || null,
+          user_agent: navigator.userAgent,
+          ip_address: "0.0.0.0",
+        } as any);
         return;
       }
+
 
       const { data: profileMatch } = await supabase
         .from("profiles")
@@ -66,6 +81,7 @@ const Storefront = () => {
       setReferral(profileMatch ? { affiliateId: profileMatch.user_id, code: refId } : { code: refId });
     })();
   }, [refId]);
+
 
   useEffect(() => {
     if (!productId || products.length === 0) return;
