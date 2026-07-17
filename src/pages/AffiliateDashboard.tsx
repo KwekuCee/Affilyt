@@ -18,7 +18,7 @@ import { supabase } from "@/integrations/supabase/client";
 import DashboardLayout from "@/components/DashboardLayout";
 import HelpAI from "@/components/HelpAI";
 import SmartLinkCustomizer from "@/components/affiliate/SmartLinkCustomizer";
-import QRCodeGenerator from "@/components/affiliate/QRCodeGenerator";
+
 import EarningsCalendar from "@/components/affiliate/EarningsCalendar";
 import ConversionFunnel from "@/components/affiliate/ConversionFunnel";
 import TopProductsCarousel from "@/components/affiliate/TopProductsCarousel";
