@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, Lock, CheckCircle2, Loader2, Wallet, CreditCard } from "lucide-react";
+import { ShieldCheck, Lock, CheckCircle2, Loader2, Wallet, CreditCard, XCircle, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useData } from "@/context/DataContext";
@@ -22,11 +23,13 @@ interface DollarPaymentGatewayProps {
 
 declare global {
   interface Window {
-    Korapay: {
-      initialize: (config: Record<string, unknown>) => void;
-    };
+    Korapay: { initialize: (config: Record<string, unknown>) => void };
   }
 }
+
+type Step = "ready" | "processing" | "verifying" | "success" | "failed";
+
+const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 const DollarPaymentGateway = ({
   amount,
@@ -36,10 +39,17 @@ const DollarPaymentGateway = ({
   productId,
   affiliateId,
   affiliateLinkId,
-  buyerEmail,
+  buyerEmail: initialEmail,
 }: DollarPaymentGatewayProps) => {
-  const [step, setStep] = useState<"ready" | "processing" | "success" | "failed">("ready");
+  const [step, setStep] = useState<Step>("ready");
+  const stepRef = useRef<Step>("ready");
+  const setStepSafe = (s: Step) => { stepRef.current = s; setStep(s); };
+
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [email, setEmail] = useState(initialEmail || "");
+  const [reference, setReference] = useState<string>("");
+  const [errorMsg, setErrorMsg] = useState<string>("");
+  const { exchangeRate } = useData();
 
   useEffect(() => {
     if (document.querySelector('script[src*="korapay-collections"]')) {
@@ -50,79 +60,83 @@ const DollarPaymentGateway = ({
     script.src = "https://korablobstorage.blob.core.windows.net/modal-bucket/korapay-collections.min.js";
     script.async = true;
     script.onload = () => setScriptLoaded(true);
+    script.onerror = () => toast.error("Could not load payment gateway. Check your connection.");
     document.body.appendChild(script);
   }, []);
 
-  const generateReference = () => {
-    return `TXN-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-  };
+  const generateReference = () =>
+    `TXN-${Date.now()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
-  const verifyPayment = async (reference: string) => {
+  const verifyPayment = async (ref: string): Promise<{ ok: boolean; message?: string }> => {
     try {
-      const { data, error } = await supabase.functions.invoke("korapay-verify", {
-        body: { reference },
-      });
-      if (error) throw error;
-      return data?.success === true;
-    } catch (err) {
-      console.error("Verification error:", err);
-      return false;
+      const { data, error } = await supabase.functions.invoke("korapay-verify", { body: { reference: ref } });
+      if (error) return { ok: false, message: error.message };
+      if (data?.success === true) return { ok: true };
+      return { ok: false, message: `Status: ${data?.status || "unknown"}` };
+    } catch (err: any) {
+      return { ok: false, message: err?.message || "Network error" };
     }
   };
-
-  const { exchangeRate } = useData();
 
   const handlePay = () => {
     if (!scriptLoaded || !window.Korapay) {
-      toast.error("Payment gateway is loading, please try again.");
+      toast.error("Payment gateway is still loading. Please try again.");
+      return;
+    }
+    if (!isEmail(email)) {
+      toast.error("Enter a valid email so we can send your receipt.");
       return;
     }
 
-    const reference = generateReference();
+    const ref = generateReference();
+    setReference(ref);
+    setErrorMsg("");
     const ghsAmount = Number((amount * exchangeRate).toFixed(2));
-    setStep("processing");
+    setStepSafe("processing");
 
     window.Korapay.initialize({
       key: KORAPAY_PUBLIC_KEY,
-      reference,
+      reference: ref,
       amount: ghsAmount,
       currency: "GHS",
-      customer: {
-        name: buyerEmail ? buyerEmail.split("@")[0] : "Customer",
-        email: buyerEmail || "customer@example.com",
-      },
+      customer: { name: email.split("@")[0], email },
       metadata: {
         product_id: productId,
         affiliate_id: affiliateId,
         affiliate_link_id: affiliateLinkId,
-        buyer_email: buyerEmail,
+        buyer_email: email,
         usd_amount: amount,
         exchange_rate: exchangeRate,
       },
-      notification_url: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/korapay-verify`,
+      // Webhook endpoint (signature-verified); do NOT point this at verify.
+      notification_url: `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/korapay-webhook`,
       onClose: () => {
-        if (step !== "success") {
-          setStep("ready");
-        }
+        // Use ref, not stale state from closure.
+        if (stepRef.current === "processing") setStepSafe("ready");
       },
-      onSuccess: async (data: Record<string, unknown>) => {
-        const verified = await verifyPayment(reference);
-        if (verified) {
-          setStep("success");
-          toast.success("Payment Verified", {
-            description: `$${amount.toFixed(2)} processed successfully.`,
-          });
-          setTimeout(() => onSuccess(), 2000);
+      onSuccess: async () => {
+        setStepSafe("verifying");
+        const result = await verifyPayment(ref);
+        if (result.ok) {
+          setStepSafe("success");
+          toast.success("Payment verified", { description: `$${amount.toFixed(2)} confirmed.` });
+          setTimeout(() => onSuccess(), 1800);
         } else {
-          setStep("failed");
-          toast.error("Verification failed. Contact support.");
+          setStepSafe("failed");
+          setErrorMsg(result.message || "Verification failed. Contact support with your reference.");
         }
       },
-      onFailed: () => {
-        setStep("failed");
-        toast.error("Payment failed. Please try again.");
+      onFailed: (data: any) => {
+        setStepSafe("failed");
+        setErrorMsg(data?.message || "Payment failed. Please try again.");
       },
     });
+  };
+
+  const copyRef = () => {
+    if (!reference) return;
+    navigator.clipboard.writeText(reference);
+    toast.success("Reference copied");
   };
 
   return (
@@ -141,7 +155,7 @@ const DollarPaymentGateway = ({
       <div className="p-8">
         {step === "ready" && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className="mb-6">
+            <div>
               <p className="text-[10px] font-black uppercase text-muted-foreground mb-1">Total Payable</p>
               <div className="flex items-baseline gap-3">
                 <p className="text-4xl font-black text-foreground italic">${amount.toFixed(2)}</p>
@@ -152,19 +166,31 @@ const DollarPaymentGateway = ({
               </div>
             </div>
 
-            <div className="space-y-3">
-              <div className="p-4 rounded-2xl bg-secondary/50 border border-border flex items-center gap-4">
-                <CreditCard className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-xs font-black uppercase">Card, Bank Transfer, Mobile Money</p>
-                  <p className="text-[10px] text-muted-foreground">All payment methods supported via Korapay</p>
-                </div>
+            <div>
+              <label className="text-[10px] font-black uppercase text-muted-foreground mb-2 block">
+                Email for receipt
+              </label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                className="h-12 rounded-2xl"
+                required
+              />
+            </div>
+
+            <div className="p-4 rounded-2xl bg-secondary/50 border border-border flex items-center gap-4">
+              <CreditCard className="h-5 w-5 text-primary" />
+              <div>
+                <p className="text-xs font-black uppercase">Card, Bank Transfer, Mobile Money</p>
+                <p className="text-[10px] text-muted-foreground">All payment methods supported via Korapay</p>
               </div>
             </div>
 
             <Button
               onClick={handlePay}
-              disabled={!scriptLoaded}
+              disabled={!scriptLoaded || !isEmail(email)}
               className="w-full h-16 rounded-[2rem] font-black uppercase tracking-widest shadow-xl shadow-primary/20 gap-3"
             >
               {!scriptLoaded ? (
@@ -184,9 +210,24 @@ const DollarPaymentGateway = ({
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 flex flex-col items-center text-center space-y-6">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
             <div>
-              <h4 className="text-xl font-black italic uppercase tracking-tighter">Processing...</h4>
-              <p className="text-sm text-muted-foreground font-medium mt-2">Complete payment in the Korapay window.</p>
+              <h4 className="text-xl font-black italic uppercase tracking-tighter">Awaiting payment...</h4>
+              <p className="text-sm text-muted-foreground font-medium mt-2">Complete the transaction in the Korapay window.</p>
             </div>
+          </motion.div>
+        )}
+
+        {step === "verifying" && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 flex flex-col items-center text-center space-y-4">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            <div>
+              <h4 className="text-xl font-black italic uppercase tracking-tighter">Verifying with Korapay...</h4>
+              <p className="text-sm text-muted-foreground font-medium mt-2">Confirming your payment on-chain. Don't close this window.</p>
+            </div>
+            {reference && (
+              <button onClick={copyRef} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground">
+                Ref: {reference} <Copy className="h-3 w-3" />
+              </button>
+            )}
           </motion.div>
         )}
 
@@ -197,23 +238,38 @@ const DollarPaymentGateway = ({
             </div>
             <div>
               <h4 className="text-2xl font-black italic uppercase tracking-tighter">Payment Verified.</h4>
-              <p className="text-sm text-muted-foreground font-medium mt-2">Transaction confirmed and recorded.</p>
+              <p className="text-sm text-muted-foreground font-medium mt-2">Receipt sent to {email}.</p>
             </div>
+            {reference && (
+              <button onClick={copyRef} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground">
+                Ref: {reference} <Copy className="h-3 w-3" />
+              </button>
+            )}
           </motion.div>
         )}
 
         {step === "failed" && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-12 flex flex-col items-center text-center space-y-6">
-            <div className="h-24 w-24 rounded-full bg-destructive/10 flex items-center justify-center">
-              <ShieldCheck className="h-12 w-12 text-destructive" />
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="py-8 flex flex-col items-center text-center space-y-5">
+            <div className="h-20 w-20 rounded-full bg-destructive/10 flex items-center justify-center">
+              <XCircle className="h-10 w-10 text-destructive" />
             </div>
             <div>
               <h4 className="text-2xl font-black italic uppercase tracking-tighter">Payment Failed.</h4>
-              <p className="text-sm text-muted-foreground font-medium mt-2">Please try again or use a different method.</p>
+              <p className="text-sm text-muted-foreground font-medium mt-2 px-4">{errorMsg || "Please try again or use a different method."}</p>
             </div>
-            <Button onClick={() => setStep("ready")} className="h-14 rounded-2xl font-black uppercase text-xs tracking-widest">
-              Retry Payment
-            </Button>
+            {reference && (
+              <button onClick={copyRef} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground">
+                Ref: {reference} <Copy className="h-3 w-3" />
+              </button>
+            )}
+            <div className="flex gap-2 w-full">
+              <Button onClick={() => setStepSafe("ready")} className="flex-1 h-14 rounded-2xl font-black uppercase text-xs tracking-widest">
+                Retry Payment
+              </Button>
+              <Button variant="ghost" onClick={onCancel} className="flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest text-muted-foreground">
+                Cancel
+              </Button>
+            </div>
           </motion.div>
         )}
       </div>
