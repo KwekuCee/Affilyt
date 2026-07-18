@@ -1,6 +1,62 @@
 import { corsHeaders } from 'npm:@supabase/supabase-js@2/cors'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { upsertOrderFromCharge } from '../korapay-verify/index.ts'
+
+async function upsertOrderFromCharge(
+  supabase: ReturnType<typeof createClient>,
+  data: Record<string, any>,
+  reference: string,
+) {
+  try {
+    const { data: existing } = await supabase
+      .from('orders').select('id').eq('payment_reference', reference).maybeSingle()
+    if (existing) return
+
+    const metadata = data.metadata || {}
+    let product: { commission_rate: number; seller_id: string | null } | null = null
+    if (metadata.product_id) {
+      const { data: p } = await supabase
+        .from('products').select('commission_rate, seller_id')
+        .eq('id', metadata.product_id).maybeSingle()
+      product = p as any
+    }
+
+    const amount = Number(data.amount) || 0
+    let commissionAmount = 0
+    const orderData: Record<string, unknown> = {
+      product_id: metadata.product_id || null,
+      buyer_email: data.customer?.email || metadata.buyer_email || 'unknown',
+      amount, status: 'completed', payment_reference: reference,
+    }
+    if (metadata.affiliate_id) {
+      orderData.affiliate_id = metadata.affiliate_id
+      orderData.affiliate_link_id = metadata.affiliate_link_id || null
+      if (product) {
+        commissionAmount = (amount * Number(product.commission_rate)) / 100
+        orderData.commission_amount = commissionAmount
+      }
+    }
+    if (product?.seller_id) {
+      const platformFee = amount * 0.10
+      const sellerEarnings = amount - commissionAmount - platformFee
+      orderData.seller_id = product.seller_id
+      orderData.platform_fee = platformFee
+      orderData.seller_earnings = sellerEarnings > 0 ? sellerEarnings : 0
+    }
+
+    const { data: order, error: orderError } = await supabase
+      .from('orders').insert(orderData).select().single()
+    if (orderError) {
+      if ((orderError as any).code === '23505') return
+      console.error('Order insert error:', orderError); return
+    }
+    if (order && metadata.affiliate_id && commissionAmount > 0) {
+      await supabase.from('commissions').insert({
+        affiliate_id: metadata.affiliate_id, order_id: order.id,
+        amount: commissionAmount, status: 'pending',
+      })
+    }
+  } catch (e) { console.error('upsertOrderFromCharge failed:', e) }
+}
 
 // Korapay signs the JSON-stringified `data` object with HMAC-SHA256 using
 // your live secret key. The signature arrives in the `x-korapay-signature`
