@@ -856,6 +856,7 @@ export type Database = {
           created_at: string
           funnel_stage: string | null
           id: string
+          payment_reference: string | null
           platform_fee: number | null
           product_id: string
           seller_earnings: number | null
@@ -875,6 +876,7 @@ export type Database = {
           created_at?: string
           funnel_stage?: string | null
           id?: string
+          payment_reference?: string | null
           platform_fee?: number | null
           product_id: string
           seller_earnings?: number | null
@@ -894,6 +896,7 @@ export type Database = {
           created_at?: string
           funnel_stage?: string | null
           id?: string
+          payment_reference?: string | null
           platform_fee?: number | null
           product_id?: string
           seller_earnings?: number | null
