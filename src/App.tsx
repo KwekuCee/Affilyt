@@ -23,6 +23,7 @@ import LearnerCheckout from "@/pages/LearnerCheckout";
 import ProductStorefront from "@/pages/Storefront";
 import CoursePlayer from "@/pages/CoursePlayer";
 import TermsOfService from "@/pages/TermsOfService";
+import Marketplace from "@/pages/Marketplace";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import RefundPolicy from "@/pages/RefundPolicy";
 
