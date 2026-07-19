@@ -49,6 +49,8 @@ const App = () => (
               <Route path="/affiliate-pricing" element={<AffiliatePricing />} />
               <Route path="/learner-checkout" element={<LearnerCheckout />} />
               <Route path="/product/:productId" element={<ProductStorefront />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/marketplace/:tier" element={<Marketplace />} />
               <Route path="/dashboard/affiliate/*" element={<AffiliateDashboard />} />
               <Route path="/dashboard/vendor/*" element={<VendorDashboard />} />
               <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
