@@ -25,7 +25,7 @@ const adminLinks = [
 
 const affiliateLinks = [
   { id: "overview", to: "/dashboard/affiliate", label: "Overview", icon: LayoutDashboard },
-  { id: "marketplace", to: "/dashboard/affiliate/products", label: "Inventory", icon: Store },
+  { id: "marketplace", to: "/marketplace", label: "Marketplace", icon: Store },
   { id: "links", to: "/dashboard/affiliate/links", label: "My Links", icon: LinkIcon },
   { id: "smart-links", to: "/dashboard/affiliate/smart-links", label: "Smart Links", icon: Zap },
   
