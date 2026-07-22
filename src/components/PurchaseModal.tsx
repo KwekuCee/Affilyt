@@ -61,32 +61,48 @@ const PurchaseModal = ({ product, onClose, affiliateReferral }: PurchaseModalPro
                   </div>
                 </div>
 
-                <div className="space-y-4 border-2 border-border rounded-3xl p-6 mb-8 bg-secondary/20">
-                  <div className="flex justify-between text-xs font-bold uppercase tracking-tight">
-                    <span className="text-muted-foreground">Commission Cut</span>
-                    <span className="text-success">{product.minimumTier} Tier Yield</span>
+                <div className="space-y-4 border-2 border-border rounded-3xl p-6 mb-6 bg-secondary/20">
+                  <div className="flex justify-between text-sm font-black">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="text-foreground">${Number(product.price).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm font-black">
-                    <span className="text-muted-foreground">Escrow Verification (1.5%)</span>
+                    <span className="text-muted-foreground">Processing (1.5%)</span>
                     <span className="text-foreground">+${(Number(product.price) * 0.015).toFixed(2)}</span>
                   </div>
                   <div className="h-px bg-border w-full" />
                   <div className="flex justify-between text-lg font-black italic">
-                    <span className="text-foreground">Total Inflow</span>
+                    <span className="text-foreground">Total</span>
                     <span className="text-primary">${(Number(product.price) * 1.015).toFixed(2)}</span>
                   </div>
                 </div>
 
+                {(refId || affiliateReferral?.affiliateId) && product.commission_rate ? (
+                  <div className="mb-6 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
+                        <Check className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-primary">Referral attribution</p>
+                        <p className="text-sm font-bold text-foreground mt-0.5">
+                          This purchase supports affiliate <code className="font-mono text-xs">{refId || affiliateReferral?.code}</code>
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Estimated commission earned:{" "}
+                          <b className="text-primary">
+                            ${((Number(product.price) * Number(product.commission_rate)) / 100).toFixed(2)}
+                          </b>{" "}
+                          ({product.commission_rate}% of subtotal)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : null}
+
                 <Button className="w-full rounded-2xl bg-primary text-white h-16 text-xs font-black uppercase tracking-widest gap-2 mb-4 shadow-xl shadow-primary/20" onClick={() => setShowPayment(true)}>
                   Proceed to Secure Gateway <ArrowRight className="h-4 w-4" />
                 </Button>
-
-                {refId && (
-                  <div className="mb-6 flex items-center gap-3 rounded-2xl bg-success/5 border border-success/10 px-4 py-3 text-[10px] font-black uppercase tracking-widest text-success text-center justify-center">
-                    <Check className="h-4 w-4" />
-                    Affiliate Routing Identity: {refId}
-                  </div>
-                )}
 
                 <div className="flex items-center justify-center gap-2 text-[10px] text-muted-foreground font-black uppercase tracking-widest">
                   <ShieldCheck className="h-4 w-4 text-success" />
