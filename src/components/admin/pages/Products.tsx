@@ -223,13 +223,33 @@ const Products = () => {
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3"><Badge variant="secondary">{p.min_tier}</Badge></td>
+                <td className="px-4 py-3">
+                  <Select value={p.min_tier || "Basic"} onValueChange={(v) => updateTier(p.id, v)}>
+                    <SelectTrigger className="h-8 w-[120px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Basic">Basic</SelectItem>
+                      <SelectItem value="Standard">Standard</SelectItem>
+                      <SelectItem value="Pro">Pro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </td>
                 <td className="px-4 py-3 font-medium">${Number(p.price).toFixed(2)}</td>
                 <td className="px-4 py-3">{p.commission_rate}%</td>
                 <td className="px-4 py-3">
                   <Badge variant={p.approval_status === "approved" ? "default" : p.approval_status === "pending" ? "secondary" : "destructive"}>
                     {p.approval_status}
                   </Badge>
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className={`h-8 w-8 ${p.status === "active" ? "text-emerald-600" : "text-muted-foreground"}`}
+                    onClick={() => toggleVisibility(p.id, p.status)}
+                    title={p.status === "active" ? "Hide from marketplace" : "Show in marketplace"}
+                  >
+                    {p.status === "active" ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  </Button>
                 </td>
                 <td className="px-4 py-3 text-center">
                   <Button
