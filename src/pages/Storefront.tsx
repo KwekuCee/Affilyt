@@ -119,9 +119,17 @@ const Storefront = () => {
       <Navbar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       {refId && (
-        <div className="border-b border-primary/20 bg-primary/5 py-2 text-center text-sm text-primary font-medium">
-          <LinkIcon className="inline h-3.5 w-3.5 mr-1.5" />
-          REFERRAL ACTIVE: SUPPORT OUR PARTNERS BY BUYING HERE
+        <div className="border-b border-primary/20 bg-primary/5 py-2.5 text-center text-xs md:text-sm text-primary font-semibold flex items-center justify-center gap-2 flex-wrap px-4">
+          <LinkIcon className="h-3.5 w-3.5" />
+          <span className="uppercase tracking-wider">Referral active</span>
+          <span className="opacity-70">·</span>
+          <span>Purchase attributed to code <code className="font-mono font-bold">{refId}</code></span>
+          {selectedProduct?.commission_rate ? (
+            <>
+              <span className="opacity-70">·</span>
+              <span>Est. commission <b>${((Number(selectedProduct.price) * Number(selectedProduct.commission_rate)) / 100).toFixed(2)}</b></span>
+            </>
+          ) : null}
         </div>
       )}
 
