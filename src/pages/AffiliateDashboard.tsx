@@ -292,20 +292,43 @@ const AffiliateLinks = () => {
 
       <div className="rounded-[2rem] glass overflow-hidden">
         <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-muted/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-          <span className="col-span-5">Product</span><span className="col-span-2">Clicks</span><span className="col-span-3">Code</span><span className="col-span-2 text-right">Action</span>
+          <span className="col-span-4">Product</span>
+          <span className="col-span-2">Clicks</span>
+          <span className="col-span-3">Referral Link</span>
+          <span className="col-span-3 text-right">Actions</span>
         </div>
         {links.map((row) => {
-          const deepLink = `${baseUrl}/marketplace?ref=${row.short_code}&product=${row.product_id}`;
+          const deepLink = row.product_id
+            ? `${baseUrl}/product/${row.product_id}?ref=${row.short_code}`
+            : `${baseUrl}/?ref=${row.short_code}`;
+          const estCommission = row.products
+            ? (Number(row.products.price) * Number(row.products.commission_rate || 0)) / 100
+            : 0;
           return (
             <div key={row.id} className="grid grid-cols-12 gap-4 items-center px-6 py-4 border-t border-border text-sm">
-              <div className="col-span-5 min-w-0"><p className="font-black truncate">{row.products?.title || "Product"}</p><p className="text-xs text-muted-foreground">${Number(row.products?.price || 0).toFixed(2)} • {row.products?.commission_rate || 0}%</p></div>
+              <div className="col-span-4 min-w-0">
+                <p className="font-black truncate">{row.products?.title || "General referral"}</p>
+                <p className="text-xs text-muted-foreground">
+                  ${Number(row.products?.price || 0).toFixed(2)} • {row.products?.commission_rate || 0}%
+                  {estCommission > 0 && <span className="text-primary font-bold"> · +${estCommission.toFixed(2)}/sale</span>}
+                </p>
+              </div>
               <p className="col-span-2 font-black">{row.clicks || 0}</p>
-              <code className="col-span-3 text-xs text-primary truncate">{row.short_code}</code>
-              <div className="col-span-2 flex justify-end"><Button size="sm" variant="outline" onClick={() => copy(deepLink)} className="rounded-lg"><Copy className="h-3 w-3 mr-1" />Copy</Button></div>
+              <code className="col-span-3 text-xs text-primary truncate" title={deepLink}>{deepLink.replace(baseUrl, "")}</code>
+              <div className="col-span-3 flex justify-end gap-2">
+                <Button size="sm" variant="outline" onClick={() => copy(deepLink)} className="rounded-lg">
+                  <Copy className="h-3 w-3 mr-1" />Copy
+                </Button>
+                <a href={deepLink} target="_blank" rel="noopener noreferrer">
+                  <Button size="sm" variant="secondary" className="rounded-lg">
+                    <ExternalLink className="h-3 w-3 mr-1" />Open
+                  </Button>
+                </a>
+              </div>
             </div>
           );
         })}
-        {links.length === 0 && <p className="py-10 text-center text-sm text-muted-foreground">No product links yet.</p>}
+        {links.length === 0 && <p className="py-10 text-center text-sm text-muted-foreground">No product links yet. Visit the Marketplace to generate one.</p>}
       </div>
     </div>
   );
