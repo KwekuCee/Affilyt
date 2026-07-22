@@ -26,7 +26,7 @@ const Storefront = () => {
   const refId = searchParams.get("ref");
   const queryProductId = searchParams.get("product");
   const productId = pathProductId || queryProductId;
-  const [referral, setReferral] = useState<{ affiliateId?: string; affiliateLinkId?: string; code?: string }>({});
+  const [referral, setReferral] = useState<{ affiliateId?: string; affiliateLinkId?: string; code?: string; affiliateName?: string }>({});
 
   const { profile } = useAuth();
   const userTier = profile?.package_tier || "Basic";
