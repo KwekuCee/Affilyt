@@ -197,7 +197,7 @@ const Products = () => {
           <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="text-left px-4 py-3 font-medium">Product</th>
-              <th className="text-left px-4 py-3 font-medium">Tier</th>
+              <th className="text-left px-4 py-3 font-medium">Tier eligibility</th>
               <th className="text-left px-4 py-3 font-medium">Price</th>
               <th className="text-left px-4 py-3 font-medium">Commission</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
