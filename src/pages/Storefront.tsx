@@ -26,7 +26,7 @@ const Storefront = () => {
   const refId = searchParams.get("ref");
   const queryProductId = searchParams.get("product");
   const productId = pathProductId || queryProductId;
-  const [referral, setReferral] = useState<{ affiliateId?: string; affiliateLinkId?: string; code?: string }>({});
+  const [referral, setReferral] = useState<{ affiliateId?: string; affiliateLinkId?: string; code?: string; affiliateName?: string }>({});
 
   const { profile } = useAuth();
   const userTier = profile?.package_tier || "Basic";
@@ -53,28 +53,40 @@ const Storefront = () => {
         .select("id, affiliate_id, product_id")
         .eq("short_code", refId)
         .maybeSingle();
+
+      let affId: string | undefined;
+      let linkId: string | undefined;
+      let productForClick: string | null = null;
+
       if (link) {
-        setReferral({ affiliateId: link.affiliate_id, affiliateLinkId: link.id, code: refId });
-        // Track click with utm/channel
+        affId = link.affiliate_id;
+        linkId = link.id;
+        productForClick = link.product_id;
+      } else {
+        const { data: resolved } = await supabase.rpc("resolve_affiliate_ref", { _ref: refId });
+        affId = (resolved as string) || undefined;
+      }
+
+      // Skip profile name fetch — profiles PII is not publicly readable by design.
+      const affiliateName: string | undefined = undefined;
+
+      setReferral({ affiliateId: affId, affiliateLinkId: linkId, code: refId, affiliateName });
+
+      if (link) {
         const utm_source = searchParams.get("utm_source");
         const utm_medium = searchParams.get("utm_medium");
         const utm_campaign = searchParams.get("utm_campaign");
         await supabase.from("link_clicks").insert({
           affiliate_id: link.affiliate_id,
           link_id: link.id,
-          product_id: link.product_id,
+          product_id: productForClick,
           channel: utm_source || null,
           utm_source, utm_medium, utm_campaign,
           referrer: document.referrer || null,
           user_agent: navigator.userAgent,
           ip_address: "0.0.0.0",
         } as any);
-        return;
       }
-
-
-      const { data: affiliateId } = await supabase.rpc("resolve_affiliate_ref", { _ref: refId });
-      setReferral(affiliateId ? { affiliateId: affiliateId as string, code: refId } : { code: refId });
     })();
   }, [refId]);
 
@@ -107,9 +119,17 @@ const Storefront = () => {
       <Navbar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       {refId && (
-        <div className="border-b border-primary/20 bg-primary/5 py-2 text-center text-sm text-primary font-medium">
-          <LinkIcon className="inline h-3.5 w-3.5 mr-1.5" />
-          REFERRAL ACTIVE: SUPPORT OUR PARTNERS BY BUYING HERE
+        <div className="border-b border-primary/20 bg-primary/5 py-2.5 text-center text-xs md:text-sm text-primary font-semibold flex items-center justify-center gap-2 flex-wrap px-4">
+          <LinkIcon className="h-3.5 w-3.5" />
+          <span className="uppercase tracking-wider">Referral active</span>
+          <span className="opacity-70">·</span>
+          <span>Purchase attributed to code <code className="font-mono font-bold">{refId}</code></span>
+          {selectedProduct?.commission_rate ? (
+            <>
+              <span className="opacity-70">·</span>
+              <span>Est. commission <b>${((Number(selectedProduct.price) * Number(selectedProduct.commission_rate)) / 100).toFixed(2)}</b></span>
+            </>
+          ) : null}
         </div>
       )}
 

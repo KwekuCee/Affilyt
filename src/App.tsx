@@ -26,6 +26,7 @@ import TermsOfService from "@/pages/TermsOfService";
 import Marketplace from "@/pages/Marketplace";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import RefundPolicy from "@/pages/RefundPolicy";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -51,10 +52,10 @@ const App = () => (
               <Route path="/product/:productId" element={<ProductStorefront />} />
               <Route path="/marketplace" element={<Marketplace />} />
               <Route path="/marketplace/:tier" element={<Marketplace />} />
-              <Route path="/dashboard/affiliate/*" element={<AffiliateDashboard />} />
-              <Route path="/dashboard/vendor/*" element={<VendorDashboard />} />
-              <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
-              <Route path="/dashboard/learner/*" element={<LearnerDashboard />} />
+              <Route path="/dashboard/affiliate/*" element={<ProtectedRoute role="affiliate"><AffiliateDashboard /></ProtectedRoute>} />
+              <Route path="/dashboard/vendor/*" element={<ProtectedRoute role="seller"><VendorDashboard /></ProtectedRoute>} />
+              <Route path="/dashboard/admin/*" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/dashboard/learner/*" element={<ProtectedRoute role="authenticated"><LearnerDashboard /></ProtectedRoute>} />
               <Route path="/course/:productId" element={<CoursePlayer />} />
               <Route path="/terms-of-service" element={<TermsOfService />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />

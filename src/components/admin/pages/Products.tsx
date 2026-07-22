@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Edit, Check, X, Star } from "lucide-react";
+import { Plus, Trash2, Edit, Check, X, Star, Eye, EyeOff } from "lucide-react";
 import ImageUploader from "@/components/admin/ImageUploader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const empty = {
   title: "", description: "", price: "", category: "Courses",
@@ -78,6 +79,21 @@ const Products = () => {
     const { error } = await supabase.from("products").update({ is_featured: !current }).eq("id", id);
     if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
     toast({ title: !current ? "Featured" : "Unfeatured" });
+    load();
+  };
+
+  const toggleVisibility = async (id: string, current: string) => {
+    const next = current === "active" ? "inactive" : "active";
+    const { error } = await supabase.from("products").update({ status: next }).eq("id", id);
+    if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
+    toast({ title: next === "active" ? "Product is now visible" : "Product hidden from marketplace" });
+    load();
+  };
+
+  const updateTier = async (id: string, min_tier: string) => {
+    const { error } = await supabase.from("products").update({ min_tier }).eq("id", id);
+    if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
+    toast({ title: `Tier eligibility set to ${min_tier}` });
     load();
   };
 
@@ -181,17 +197,18 @@ const Products = () => {
           <thead className="bg-muted/50 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="text-left px-4 py-3 font-medium">Product</th>
-              <th className="text-left px-4 py-3 font-medium">Tier</th>
+              <th className="text-left px-4 py-3 font-medium">Tier eligibility</th>
               <th className="text-left px-4 py-3 font-medium">Price</th>
               <th className="text-left px-4 py-3 font-medium">Commission</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
+              <th className="text-center px-4 py-3 font-medium">Visible</th>
               <th className="text-center px-4 py-3 font-medium">Featured</th>
               <th className="text-right px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">No products.</td></tr>
+              <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No products.</td></tr>
             )}
             {filtered.map((p) => (
               <tr key={p.id} className="hover:bg-muted/30">
@@ -206,13 +223,33 @@ const Products = () => {
                     </div>
                   </div>
                 </td>
-                <td className="px-4 py-3"><Badge variant="secondary">{p.min_tier}</Badge></td>
+                <td className="px-4 py-3">
+                  <Select value={p.min_tier || "Basic"} onValueChange={(v) => updateTier(p.id, v)}>
+                    <SelectTrigger className="h-8 w-[120px]"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Basic">Basic</SelectItem>
+                      <SelectItem value="Standard">Standard</SelectItem>
+                      <SelectItem value="Pro">Pro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </td>
                 <td className="px-4 py-3 font-medium">${Number(p.price).toFixed(2)}</td>
                 <td className="px-4 py-3">{p.commission_rate}%</td>
                 <td className="px-4 py-3">
                   <Badge variant={p.approval_status === "approved" ? "default" : p.approval_status === "pending" ? "secondary" : "destructive"}>
                     {p.approval_status}
                   </Badge>
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className={`h-8 w-8 ${p.status === "active" ? "text-emerald-600" : "text-muted-foreground"}`}
+                    onClick={() => toggleVisibility(p.id, p.status)}
+                    title={p.status === "active" ? "Hide from marketplace" : "Show in marketplace"}
+                  >
+                    {p.status === "active" ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+                  </Button>
                 </td>
                 <td className="px-4 py-3 text-center">
                   <Button
