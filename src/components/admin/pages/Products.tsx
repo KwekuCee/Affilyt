@@ -201,6 +201,7 @@ const Products = () => {
               <th className="text-left px-4 py-3 font-medium">Price</th>
               <th className="text-left px-4 py-3 font-medium">Commission</th>
               <th className="text-left px-4 py-3 font-medium">Status</th>
+              <th className="text-center px-4 py-3 font-medium">Visible</th>
               <th className="text-center px-4 py-3 font-medium">Featured</th>
               <th className="text-right px-4 py-3 font-medium">Actions</th>
             </tr>
