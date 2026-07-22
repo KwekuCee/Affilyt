@@ -1806,6 +1806,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      resolve_affiliate_ref: { Args: { _ref: string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "affiliate" | "user" | "seller" | "learner"
