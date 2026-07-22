@@ -26,6 +26,7 @@ import TermsOfService from "@/pages/TermsOfService";
 import Marketplace from "@/pages/Marketplace";
 import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import RefundPolicy from "@/pages/RefundPolicy";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
