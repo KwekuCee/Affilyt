@@ -67,15 +67,8 @@ const Storefront = () => {
         affId = (resolved as string) || undefined;
       }
 
-      let affiliateName: string | undefined;
-      if (affId) {
-        const { data: prof } = await supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("user_id", affId)
-          .maybeSingle();
-        affiliateName = prof?.full_name || undefined;
-      }
+      // Skip profile name fetch — profiles PII is not publicly readable by design.
+      const affiliateName: string | undefined = undefined;
 
       setReferral({ affiliateId: affId, affiliateLinkId: linkId, code: refId, affiliateName });
 
