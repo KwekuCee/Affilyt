@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Edit, Check, X, Star } from "lucide-react";
+import { Plus, Trash2, Edit, Check, X, Star, Eye, EyeOff } from "lucide-react";
 import ImageUploader from "@/components/admin/ImageUploader";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const empty = {
   title: "", description: "", price: "", category: "Courses",
