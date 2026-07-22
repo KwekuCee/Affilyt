@@ -73,12 +73,8 @@ const Storefront = () => {
       }
 
 
-      const { data: profileMatch } = await supabase
-        .from("profiles")
-        .select("user_id")
-        .or(`affiliate_link.eq.${refId},affiliate_link.ilike.%${refId}%`)
-        .maybeSingle();
-      setReferral(profileMatch ? { affiliateId: profileMatch.user_id, code: refId } : { code: refId });
+      const { data: affiliateId } = await supabase.rpc("resolve_affiliate_ref", { _ref: refId });
+      setReferral(affiliateId ? { affiliateId: affiliateId as string, code: refId } : { code: refId });
     })();
   }, [refId]);
 
