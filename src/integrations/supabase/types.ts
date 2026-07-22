@@ -1796,6 +1796,60 @@ export type Database = {
         }
         Relationships: []
       }
+      public_profiles: {
+        Row: {
+          affiliate_link: string | null
+          avatar_url: string | null
+          bio: string | null
+          business_description: string | null
+          business_name: string | null
+          business_website: string | null
+          country: string | null
+          created_at: string | null
+          full_name: string | null
+          package_tier: string | null
+          referral_code: string | null
+          store_banner_url: string | null
+          store_color_hex: string | null
+          store_logo_url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          affiliate_link?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          business_description?: string | null
+          business_name?: string | null
+          business_website?: string | null
+          country?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          package_tier?: string | null
+          referral_code?: string | null
+          store_banner_url?: string | null
+          store_color_hex?: string | null
+          store_logo_url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          affiliate_link?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          business_description?: string | null
+          business_name?: string | null
+          business_website?: string | null
+          country?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          package_tier?: string | null
+          referral_code?: string | null
+          store_banner_url?: string | null
+          store_color_hex?: string | null
+          store_logo_url?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_affiliate_stats: { Args: { u_id: string }; Returns: Json }
