@@ -208,7 +208,7 @@ const Products = () => {
           </thead>
           <tbody className="divide-y divide-border">
             {filtered.length === 0 && (
-              <tr><td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">No products.</td></tr>
+              <tr><td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">No products.</td></tr>
             )}
             {filtered.map((p) => (
               <tr key={p.id} className="hover:bg-muted/30">
