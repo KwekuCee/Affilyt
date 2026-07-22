@@ -53,28 +53,47 @@ const Storefront = () => {
         .select("id, affiliate_id, product_id")
         .eq("short_code", refId)
         .maybeSingle();
+
+      let affId: string | undefined;
+      let linkId: string | undefined;
+      let productForClick: string | null = null;
+
       if (link) {
-        setReferral({ affiliateId: link.affiliate_id, affiliateLinkId: link.id, code: refId });
-        // Track click with utm/channel
+        affId = link.affiliate_id;
+        linkId = link.id;
+        productForClick = link.product_id;
+      } else {
+        const { data: resolved } = await supabase.rpc("resolve_affiliate_ref", { _ref: refId });
+        affId = (resolved as string) || undefined;
+      }
+
+      let affiliateName: string | undefined;
+      if (affId) {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("user_id", affId)
+          .maybeSingle();
+        affiliateName = prof?.full_name || undefined;
+      }
+
+      setReferral({ affiliateId: affId, affiliateLinkId: linkId, code: refId, affiliateName });
+
+      if (link) {
         const utm_source = searchParams.get("utm_source");
         const utm_medium = searchParams.get("utm_medium");
         const utm_campaign = searchParams.get("utm_campaign");
         await supabase.from("link_clicks").insert({
           affiliate_id: link.affiliate_id,
           link_id: link.id,
-          product_id: link.product_id,
+          product_id: productForClick,
           channel: utm_source || null,
           utm_source, utm_medium, utm_campaign,
           referrer: document.referrer || null,
           user_agent: navigator.userAgent,
           ip_address: "0.0.0.0",
         } as any);
-        return;
       }
-
-
-      const { data: affiliateId } = await supabase.rpc("resolve_affiliate_ref", { _ref: refId });
-      setReferral(affiliateId ? { affiliateId: affiliateId as string, code: refId } : { code: refId });
     })();
   }, [refId]);
 
