@@ -82,6 +82,21 @@ const Products = () => {
     load();
   };
 
+  const toggleVisibility = async (id: string, current: string) => {
+    const next = current === "active" ? "inactive" : "active";
+    const { error } = await supabase.from("products").update({ status: next }).eq("id", id);
+    if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
+    toast({ title: next === "active" ? "Product is now visible" : "Product hidden from marketplace" });
+    load();
+  };
+
+  const updateTier = async (id: string, min_tier: string) => {
+    const { error } = await supabase.from("products").update({ min_tier }).eq("id", id);
+    if (error) return toast({ title: "Error", description: error.message, variant: "destructive" });
+    toast({ title: `Tier eligibility set to ${min_tier}` });
+    load();
+  };
+
   const startEdit = (p: any) => {
     setForm({
       title: p.title || "", description: p.description || "", price: String(p.price),
