@@ -74,15 +74,15 @@ const Contact = () => {
                 </a>
               ))}
 
-              <div className="mt-6 p-6 rounded-xl gradient-hero text-white relative overflow-hidden">
+               <div className="mt-6 p-6 rounded-xl gradient-hero text-hero-foreground relative overflow-hidden">
                 <div className="absolute inset-0 gradient-mesh opacity-30" />
                 <div className="relative">
                   <Globe className="h-6 w-6 mb-3" />
                   <h4 className="font-display text-xl font-semibold mb-2">Global presence</h4>
-                  <p className="text-white/70 text-sm mb-4">Operating across:</p>
+                   <p className="text-hero-foreground/70 text-sm mb-4">Operating across:</p>
                   <div className="flex flex-wrap gap-2">
                     {["Ghana", "Nigeria", "USA", "London"].map((c) => (
-                      <span key={c} className="px-2.5 py-1 rounded-md bg-white/10 text-xs font-medium">{c}</span>
+                       <span key={c} className="px-2.5 py-1 rounded-md bg-hero-foreground/10 text-xs font-medium">{c}</span>
                     ))}
                   </div>
                 </div>

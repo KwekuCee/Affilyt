@@ -193,7 +193,7 @@ const BecomeAffiliate = () => {
                     <p className="text-sm opacity-60 leading-relaxed font-medium mb-8">
                       Annual membership — <span className="text-primary font-bold">${pkg.price}/year</span>.
                     </p>
-                    <div className="p-4 rounded-xl bg-white/10 border border-white/10 flex items-center justify-between">
+                     <div className="p-4 rounded-xl bg-background/10 border border-background/10 flex items-center justify-between">
                       <span className="text-[10px] font-black uppercase tracking-widest">Total</span>
                       <span className="text-xl font-black">${pkg.price}.00</span>
                     </div>
@@ -298,7 +298,7 @@ const BecomeAffiliate = () => {
           {step === "success" && (
             <motion.section key="success" initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} className="container mx-auto px-4 text-center max-w-2xl py-20">
               <div className="h-32 w-32 rounded-[2.5rem] bg-primary flex items-center justify-center mx-auto mb-10 shadow-3xl shadow-primary/40">
-                <Check className="h-16 w-16 text-white" />
+                 <Check className="h-16 w-16 text-primary-foreground" />
               </div>
               <h2 className="font-display text-5xl font-black text-foreground mb-6">Welcome to Affilyt!</h2>
               <p className="text-xl text-muted-foreground leading-relaxed font-medium mb-12">
