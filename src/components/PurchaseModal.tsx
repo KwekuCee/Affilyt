@@ -100,7 +100,7 @@ const PurchaseModal = ({ product, onClose, affiliateReferral }: PurchaseModalPro
                   </div>
                 ) : null}
 
-                <Button className="w-full rounded-2xl bg-primary text-white h-16 text-xs font-black uppercase tracking-widest gap-2 mb-4 shadow-xl shadow-primary/20" onClick={() => setShowPayment(true)}>
+                 <Button className="w-full rounded-2xl bg-primary text-primary-foreground h-16 text-xs font-black uppercase tracking-widest gap-2 mb-4 shadow-xl shadow-primary/20" onClick={() => setShowPayment(true)}>
                   Proceed to Secure Gateway <ArrowRight className="h-4 w-4" />
                 </Button>
 

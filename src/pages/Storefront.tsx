@@ -133,13 +133,13 @@ const Storefront = () => {
         </div>
       )}
 
-      <section className="hero-gradient text-white">
+       <section className="gradient-hero text-hero-foreground">
         <div className="container mx-auto px-4 py-16 md:py-24">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
             <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight max-w-2xl">
-              Digital <span className="text-white/50">Products.</span>
+               Digital <span className="text-hero-foreground/70">Products.</span>
             </h1>
-            <p className="mt-4 text-base md:text-lg text-white/60 max-w-xl leading-relaxed">
+             <p className="mt-4 text-base md:text-lg text-hero-foreground/80 max-w-xl leading-relaxed">
               High-quality digital products designed to help you grow.
             </p>
           </motion.div>

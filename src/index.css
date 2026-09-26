@@ -16,6 +16,7 @@
     --primary: 240 60% 42%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 240 70% 60%;
+    --hero-foreground: 0 0% 100%;
 
     --secondary: 220 14% 96%;
     --secondary-foreground: 230 25% 10%;
@@ -174,6 +175,7 @@
   h6,
   .font-display {
     font-family: 'Sora Variable', system-ui, -apple-system, sans-serif !important;
+    font-weight: 800 !important;
     letter-spacing: 0;
   }
 

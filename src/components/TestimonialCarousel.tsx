@@ -39,7 +39,7 @@ const TestimonialCarousel = () => {
     if (testimonials.length === 0) {
         return (
             <div className="text-center py-20">
-                <p className="text-white/40 text-sm italic">No testimonials yet. Check back soon!</p>
+                 <p className="text-muted-foreground text-sm italic">No testimonials yet. Check back soon!</p>
             </div>
         );
     }
@@ -58,7 +58,7 @@ const TestimonialCarousel = () => {
                     transition={{ duration: 0.6 }}
                     className="relative z-10 w-full"
                 >
-                    <div className="p-8 md:p-12 rounded-[3rem] bg-white/5 backdrop-blur-[40px] border border-white/20 shadow-2xl flex flex-col items-center text-center group">
+                     <div className="p-8 md:p-12 rounded-[3rem] bg-card backdrop-blur-[40px] border border-border shadow-2xl flex flex-col items-center text-center group">
                         <div className="absolute -top-8 left-1/2 -translate-x-1/2 h-16 w-16 rounded-[2rem] bg-foreground flex items-center justify-center shadow-xl border-2 border-primary">
                             <ShieldCheck className="h-8 w-8 text-primary" />
                         </div>
@@ -67,17 +67,17 @@ const TestimonialCarousel = () => {
                                 <Star key={s} className="h-4 w-4 fill-amber-400 text-amber-400" />
                             ))}
                         </div>
-                        <blockquote className="text-xl md:text-2xl font-medium text-white/90 italic tracking-tight leading-relaxed mb-10 px-4">
+                         <blockquote className="text-xl md:text-2xl font-medium text-foreground italic tracking-tight leading-relaxed mb-10 px-4">
                             "{current.content}"
                         </blockquote>
                         <div className="flex flex-col items-center gap-4">
                             {current.image_url && (
-                                <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-white/20">
+                                 <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-border">
                                     <img src={current.image_url} alt={current.name} className="w-full h-full object-cover" />
                                 </div>
                             )}
                             <div className="space-y-1">
-                                <h4 className="text-lg font-bold text-white italic uppercase tracking-tighter">{current.name}</h4>
+                                 <h4 className="text-lg font-bold text-foreground italic uppercase tracking-tighter">{current.name}</h4>
                                 <p className="text-[9px] font-black uppercase tracking-[0.3em] text-primary bg-primary/10 px-4 py-1 rounded-full inline-block border border-primary/20">
                                     {current.role}
                                 </p>
@@ -88,7 +88,7 @@ const TestimonialCarousel = () => {
                                 <button
                                     key={i}
                                     onClick={() => setIndex(i)}
-                                    className={`h-1.5 transition-all duration-500 rounded-full ${index === i ? 'w-10 bg-primary' : 'w-3 bg-white/20 hover:bg-white/40'}`}
+                                     className={`h-1.5 transition-all duration-500 rounded-full ${index === i ? 'w-10 bg-primary' : 'w-3 bg-muted hover:bg-muted-foreground/40'}`}
                                 />
                             ))}
                         </div>

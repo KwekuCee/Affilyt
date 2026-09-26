@@ -44,7 +44,7 @@ export const LiveTicker = () => {
                     <div key={`${event.id}-${idx}`} className="flex items-center gap-2 mx-8 opacity-80">
                         <event.icon className={`h-4 w-4 ${event.color}`} />
                         <span className="text-xs font-bold font-display tracking-widest uppercase text-muted-foreground">{event.text}</span>
-                        <span className="mx-4 text-white/10">•</span>
+                         <span className="mx-4 text-muted-foreground/50">•</span>
                     </div>
                 ))}
             </motion.div>

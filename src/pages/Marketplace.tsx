@@ -130,16 +130,16 @@ const Marketplace = () => {
     <div className="min-h-screen bg-background">
       {user ? <Navbar /> : <LandingNavbar />}
 
-      <section className="hero-gradient text-white pt-24 pb-14">
+       <section className="gradient-hero text-hero-foreground pt-24 pb-14">
         <div className="container mx-auto px-4">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-            <Badge className="mb-4 bg-white/10 text-white border-white/20 uppercase tracking-widest text-[10px]">
+             <Badge className="mb-4 bg-hero-foreground/10 text-hero-foreground border-hero-foreground/20 uppercase tracking-widest text-[10px]">
               Marketplace
             </Badge>
             <h1 className="text-4xl md:text-6xl font-black tracking-tight max-w-3xl">
               {activeTier === "All" ? "All Products" : `${activeTier} Tier Marketplace`}
             </h1>
-            <p className="mt-4 text-white/70 max-w-xl">
+             <p className="mt-4 text-hero-foreground/70 max-w-xl">
               Browse every approved product on Affilyt. Affiliates can generate a tracking link with one click.
             </p>
 

@@ -57,7 +57,7 @@ const About = () => (
       </div>
     </section>
 
-    <section className="py-24 gradient-hero text-white relative overflow-hidden">
+     <section className="py-24 gradient-hero text-hero-foreground relative overflow-hidden">
       <div className="absolute inset-0 gradient-mesh opacity-40" />
       <div className="container mx-auto px-4 relative max-w-6xl">
         <div className="text-center mb-14 max-w-2xl mx-auto">
@@ -70,12 +70,12 @@ const About = () => (
             { icon: Target, title: "Growth-first", desc: "We win when our partners win. Your scale is our priority." },
             { icon: Heart, title: "Support", desc: "Real humans, fast responses, dedicated success teams." },
           ].map((v) => (
-            <div key={v.title} className="p-7 rounded-xl bg-white/5 border border-white/10 backdrop-blur">
-              <div className="h-11 w-11 rounded-md bg-white/10 flex items-center justify-center mb-4">
+             <div key={v.title} className="p-7 rounded-xl bg-hero-foreground/5 border border-hero-foreground/10 backdrop-blur">
+               <div className="h-11 w-11 rounded-md bg-hero-foreground/10 flex items-center justify-center mb-4">
                 <v.icon className="h-5 w-5 text-primary-glow" />
               </div>
               <h3 className="font-display text-xl font-semibold mb-2">{v.title}</h3>
-              <p className="text-white/70 text-sm leading-relaxed">{v.desc}</p>
+               <p className="text-hero-foreground/70 text-sm leading-relaxed">{v.desc}</p>
             </div>
           ))}
         </div>

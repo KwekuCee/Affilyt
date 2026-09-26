@@ -47,7 +47,7 @@ export const PlatformStats = () => {
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-success/10 text-success text-xs font-black uppercase tracking-widest mb-4 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
                         <TrendingUp className="w-3 h-3" /> Growing Together
                     </div>
-                    <h2 className="font-display text-4xl font-bold tracking-tight text-white mb-2">Thriving ecosystem of fast earners.</h2>
+                    <h2 className="font-display text-4xl font-bold tracking-tight text-foreground mb-2">Thriving ecosystem of fast earners.</h2>
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -68,7 +68,7 @@ export const PlatformStats = () => {
                             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 shadow-inner ${stat.bg}`}>
                                 <stat.icon className={`w-7 h-7 ${stat.color}`} />
                             </div>
-                            <p className="font-display text-4xl lg:text-5xl font-black text-white mb-2 tabular-nums drop-shadow-md">{stat.value}</p>
+                            <p className="font-display text-4xl lg:text-5xl font-black text-foreground mb-2 tabular-nums drop-shadow-md">{stat.value}</p>
                             <p className="text-xs uppercase tracking-widest text-muted-foreground font-bold">{stat.label}</p>
                         </motion.div>
                     ))}
