@@ -24,7 +24,7 @@ const HelpAI = () => {
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-8 right-8 h-16 w-16 rounded-3xl bg-primary text-white shadow-2xl shadow-primary/40 flex items-center justify-center group z-[100] hover:scale-110 transition-transform active:scale-95"
+                 className="fixed bottom-8 right-8 h-16 w-16 rounded-3xl bg-primary text-primary-foreground shadow-2xl shadow-primary/40 flex items-center justify-center group z-[100] hover:scale-110 transition-transform active:scale-95"
             >
                 <Sparkles className="h-8 w-8 group-hover:rotate-12 transition-transform" />
                 <div className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 rounded-full border-2 border-background animate-pulse" />
@@ -39,9 +39,9 @@ const HelpAI = () => {
                         className="fixed bottom-28 right-8 w-[400px] h-[550px] bg-card/80 backdrop-blur-3xl border-2 border-primary/20 rounded-[3rem] shadow-2xl z-[100] flex flex-col overflow-hidden"
                     >
                         {/* Header */}
-                        <div className="p-6 bg-primary text-white flex items-center justify-between">
+                         <div className="p-6 bg-primary text-primary-foreground flex items-center justify-between">
                             <div className="flex items-center gap-3">
-                                <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center">
+                                 <div className="h-10 w-10 rounded-xl bg-primary-foreground/20 flex items-center justify-center">
                                     <Bot className="h-6 w-6" />
                                 </div>
                                 <div>
@@ -49,7 +49,7 @@ const HelpAI = () => {
                                     <p className="text-[9px] font-bold opacity-80 uppercase tracking-tighter">Powered by Affilyt Gen-3</p>
                                 </div>
                             </div>
-                            <button onClick={() => setIsOpen(false)} className="h-10 w-10 rounded-xl hover:bg-white/20 flex items-center justify-center transition-colors">
+                             <button onClick={() => setIsOpen(false)} className="h-10 w-10 rounded-xl hover:bg-primary-foreground/20 flex items-center justify-center transition-colors">
                                 <X className="h-5 w-5" />
                             </button>
                         </div>
@@ -58,7 +58,7 @@ const HelpAI = () => {
                         <div className="flex-1 overflow-y-auto p-6 space-y-4 scrollbar-hide">
                             {messages.map((m, i) => (
                                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[80%] p-4 rounded-2xl text-sm font-medium ${m.role === 'user' ? 'bg-primary text-white rounded-tr-none' : 'bg-secondary text-foreground rounded-tl-none'}`}>
+                                     <div className={`max-w-[80%] p-4 rounded-2xl text-sm font-medium ${m.role === 'user' ? 'bg-primary text-primary-foreground rounded-tr-none' : 'bg-secondary text-foreground rounded-tl-none'}`}>
                                         {m.content}
                                     </div>
                                 </div>

@@ -48,7 +48,7 @@ export const PayoutShowcase = () => {
                                     </div>
                                     <div>
                                         <p className="text-[10px] uppercase text-muted-foreground font-black tracking-widest">Available Balance</p>
-                                        <p className="text-3xl font-display font-black text-white drop-shadow-md">$450.00</p>
+                                         <p className="text-3xl font-display font-black text-foreground drop-shadow-md">$450.00</p>
                                     </div>
                                 </div>
                             </div>
@@ -65,10 +65,10 @@ export const PayoutShowcase = () => {
 
                             <motion.button
                                 whileTap={{ scale: 0.98 }}
-                                className="w-full h-16 rounded-2xl bg-primary text-white font-black uppercase text-lg tracking-tight flex items-center justify-center overflow-hidden relative group shadow-xl shadow-primary/30"
+                                 className="w-full h-16 rounded-2xl bg-primary text-primary-foreground font-black uppercase text-lg tracking-tight flex items-center justify-center overflow-hidden relative group shadow-xl shadow-primary/30"
                             >
                                 <span className="relative z-10 transition-transform group-hover:-translate-y-12 duration-300">Withdraw $450.00</span>
-                                <span className="absolute inset-0 flex items-center justify-center text-white translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
+                                 <span className="absolute inset-0 flex items-center justify-center text-primary-foreground translate-y-12 group-hover:translate-y-0 transition-transform duration-300">
                                     Processing... <Zap className="w-5 h-5 ml-2 animate-pulse text-amber-300" />
                                 </span>
                             </motion.button>

@@ -696,7 +696,7 @@ const AffiliatePayments = () => {
           <h2 className="text-4xl font-black text-foreground italic uppercase tracking-tighter">Vault Control</h2>
           <p className="text-muted-foreground font-medium">Manage your earnings and request payouts.</p>
         </div>
-        <div className="p-8 rounded-[3rem] bg-primary text-white shadow-2xl shadow-primary/30 flex items-center gap-10">
+         <div className="p-8 rounded-[3rem] bg-primary text-primary-foreground shadow-2xl shadow-primary/30 flex items-center gap-10">
           <div>
             <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Available to Withdraw</p>
             <p className="text-4xl font-black italic">${stats.available.toLocaleString()}</p>
