@@ -1,0 +1,1 @@
+Use locally bundled Sora Variable for headings/display text and Manrope Variable for body/forms via global CSS and Tailwind font tokens, so typography remains consistent without third-party font requests.
