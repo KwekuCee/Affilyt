@@ -32,7 +32,7 @@ const LandingNavbar = () => {
   };
 
   return (
-    <nav className={`fixed top-0 inset-x-0 z-50 transition-all ${scrolled ? "bg-background/80 backdrop-blur-xl border-b border-border" : "bg-transparent"}`}>
+    <nav className={`fixed top-0 inset-x-0 z-50 transition-all bg-background/80 backdrop-blur-xl ${scrolled ? "border-b border-border shadow-sm" : ""}`}>
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2 group">
           <div className="h-8 w-8 rounded-lg gradient-primary flex items-center justify-center shadow-glow">

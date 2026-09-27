@@ -145,13 +145,21 @@ const Marketplace = () => {
 
             <div className="mt-8 flex flex-wrap gap-2">
               <Link to="/marketplace">
-                <Button size="sm" variant={activeTier === "All" ? "secondary" : "outline"} className="rounded-full">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className={`rounded-full ${activeTier === "All" ? "bg-hero-foreground text-foreground border-hero-foreground hover:bg-hero-foreground/90 hover:text-foreground" : "bg-transparent text-hero-foreground border-hero-foreground/40 hover:bg-hero-foreground/10 hover:text-hero-foreground"}`}
+                >
                   All
                 </Button>
               </Link>
               {TIERS.map((t) => (
                 <Link key={t} to={`/marketplace/${t.toLowerCase()}`}>
-                  <Button size="sm" variant={activeTier === t ? "secondary" : "outline"} className="rounded-full">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className={`rounded-full ${activeTier === t ? "bg-hero-foreground text-foreground border-hero-foreground hover:bg-hero-foreground/90 hover:text-foreground" : "bg-transparent text-hero-foreground border-hero-foreground/40 hover:bg-hero-foreground/10 hover:text-hero-foreground"}`}
+                  >
                     {t}
                   </Button>
                 </Link>
