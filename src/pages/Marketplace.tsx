@@ -148,7 +148,7 @@ const Marketplace = () => {
                 <Button
                   size="sm"
                   variant="outline"
-                  className={`rounded-full ${activeTier === "All" ? "bg-hero-foreground text-background border-hero-foreground hover:bg-hero-foreground/90 hover:text-background" : "bg-transparent text-hero-foreground border-hero-foreground/40 hover:bg-hero-foreground/10 hover:text-hero-foreground"}`}
+                  className={`rounded-full ${activeTier === "All" ? "bg-hero-foreground text-foreground border-hero-foreground hover:bg-hero-foreground/90 hover:text-foreground" : "bg-transparent text-hero-foreground border-hero-foreground/40 hover:bg-hero-foreground/10 hover:text-hero-foreground"}`}
                 >
                   All
                 </Button>
@@ -158,7 +158,7 @@ const Marketplace = () => {
                   <Button
                     size="sm"
                     variant="outline"
-                    className={`rounded-full ${activeTier === t ? "bg-hero-foreground text-background border-hero-foreground hover:bg-hero-foreground/90 hover:text-background" : "bg-transparent text-hero-foreground border-hero-foreground/40 hover:bg-hero-foreground/10 hover:text-hero-foreground"}`}
+                    className={`rounded-full ${activeTier === t ? "bg-hero-foreground text-foreground border-hero-foreground hover:bg-hero-foreground/90 hover:text-foreground" : "bg-transparent text-hero-foreground border-hero-foreground/40 hover:bg-hero-foreground/10 hover:text-hero-foreground"}`}
                   >
                     {t}
                   </Button>
